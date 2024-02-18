@@ -1,1 +1,12 @@
 <p>map works!</p>
+
+<div class="map">
+    <div *ngFor="let row of world.map.tiles; let i = index" class="row">
+      <div *ngFor="let tile of row; let j = index"
+           [ngStyle]="{'background-color': tile.controller.mapColor}"
+           class="tile">
+        {{ tile.population }}
+      </div>
+    </div>
+  </div>
+  

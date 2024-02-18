@@ -1,0 +1,13 @@
+.map .row {
+    display: flex;
+}
+
+.map .row .tile {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
