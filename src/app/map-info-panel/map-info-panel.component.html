@@ -1,2 +1,6 @@
-<p>map-info-panel works!</p>
-Year: {{world.year}}
+<div>Year: {{world.year}}</div>
+<div class="vbreakafter">World Population: {{world.population}}</div>
+<div *ngFor="let p of world.getRankedPolities(); let i = index"
+    [ngStyle]="{'color': p.mapColor}">
+    {{i+1}}: {{p.name}} {{p.population}}
+</div>
