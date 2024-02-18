@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { World } from '../world';
 
 @Component({
   selector: 'app-map-info-panel',
@@ -8,5 +9,7 @@ import { Component } from '@angular/core';
   styleUrl: './map-info-panel.component.scss'
 })
 export class MapInfoPanelComponent {
-
+  constructor(readonly world: World) {
+    console.log(world.year);
+  }
 }
