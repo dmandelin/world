@@ -1,3 +1,5 @@
+<button (click)="nextTurn()" class="step-forward-btn vbreakafter">&#x25B6;</button>
+
 <div>Year: {{world.year}}</div>
 <div class="vbreakafter">World Population: {{world.population}}</div>
 <div *ngFor="let p of world.getRankedPolities(); let i = index"

@@ -11,6 +11,9 @@ import { NgFor, NgStyle } from '@angular/common';
 })
 export class MapInfoPanelComponent {
   constructor(readonly world: World) {
-    console.log(world.year);
+  }
+
+  nextTurn() {
+    this.world.nextTurn();
   }
 }
