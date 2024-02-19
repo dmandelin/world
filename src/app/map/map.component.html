@@ -3,6 +3,7 @@
       <div *ngFor="let tile of row; let j = index"
            [ngStyle]="{'background-color': tile.controller.mapColor}"
            class="tile">
+        {{ tile.controller.name }} <br>
         {{ tile.population }}
       </div>
     </div>

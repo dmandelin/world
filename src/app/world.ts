@@ -1,4 +1,5 @@
 import { Injectable } from "@angular/core";
+import {Brain, BasicBrain} from "./brains";
 
 @Injectable({providedIn: 'root'})
 export class World {
@@ -16,6 +17,10 @@ export class World {
     }
 
     nextTurn() {
+        for (const p of this.polities) {
+            p.brain.move(this, p);
+        }
+
         this.year_ += 20;
     }
     
@@ -30,15 +35,36 @@ export class World {
     }
 }
 
-class Polity {
+export class Polity {
+    brain: Brain = new BasicBrain();
+
     constructor(private readonly world: World, readonly name: string, readonly mapColor: string) {}
 
-    get population() {
+    get population(): number {
         return this.world.map.tiles
             .flat()
             .filter(t => t.controller == this)
             .map(t => t.population)
             .reduce((a, b) => a + b);
+    }
+
+    get neighbors(): Polity[] {
+        const ns = new Set<Polity>();
+        for (let i = 0; i < this.world.map.height; ++i) {
+            for (let j = 0; j < this.world.map.width; ++j) {
+                for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+                    const [ni, nj] = [i+di, j+dj];
+                    if (ni < 0 || nj < 0 || ni >= this.world.map.height || nj >= this.world.map.width) {
+                        continue;
+                    }
+                    if (this.world.map.tiles[ni][nj].controller == this) {
+                        ns.add(this.world.map.tiles[i][j].controller);
+                        break;
+                    }
+                }
+            }
+        }
+        return [...ns];
     }
 }
 
@@ -87,7 +113,7 @@ class Tile {
 class WorldMap {
     tiles: Tile[][];
   
-    constructor(public width: number, public height: number, polities: ReadonlyArray<Polity>) {
+    constructor(public readonly width: number, public readonly height: number, polities: ReadonlyArray<Polity>) {
         this.tiles = [];
         for (let i = 0; i < height; i++) {
             this.tiles[i] = [];
