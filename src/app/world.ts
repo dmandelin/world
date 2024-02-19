@@ -18,7 +18,9 @@ export class World {
 
     nextTurn() {
         for (const p of this.polities) {
-            p.brain.move(this, p);
+            if (this.polities.includes(p)) {
+                p.brain.move(this, p);
+            }
         }
 
         this.year_ += 20;
@@ -31,9 +33,21 @@ export class World {
 
         if (Math.random() < winp) {
             console.log(`  Successful attack: ${attacker.name} takes over ${defender.name}`);
+            this.losses(attacker, 0.1);
+            this.losses(defender, 0.2);
             this.takeover(attacker, defender);
         } else {
+            this.losses(attacker, 0.2);
+            this.losses(defender, 0.1);
             console.log(`  Failed attack`);
+        }
+    }
+
+    losses(target: Polity, ratio: number) {
+        for (const tile of this.map.tiles.flat()) {
+            if (tile.controller == target) {
+                tile.population -= Math.floor(ratio * tile.population);
+            }
         }
     }
 
@@ -44,6 +58,17 @@ export class World {
             }
         }
         this.polities = this.polities.filter(p => p != defender);
+    }
+
+    recover(polity: Polity) {
+        for (const tile of this.map.tiles.flat()) {
+            if (tile.controller == polity) {
+                tile.population += 100;
+                if (tile.population > 1000) {
+                    tile.population = 1000;
+                }
+            }
+        }
     }
     
     getRankedPolities(): Polity[] {
@@ -126,7 +151,7 @@ const DEFAULT_POLITIES = [
 class Tile {
     private controller_: Polity;
 
-    constructor(readonly population: number, controller: Polity) {
+    constructor(public population: number, controller: Polity) {
         this.controller_ = controller;
     }
 

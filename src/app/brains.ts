@@ -10,7 +10,8 @@ export class BasicBrain {
         console.log(`* Brain move(${self.name})`);
 
         if (Math.random() < 0.8) {
-            console.log('  Doing nothing.\n');
+            console.log('  Recovering.\n');
+            world.recover(self);
             return;
         }
 
