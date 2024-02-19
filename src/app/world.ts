@@ -17,6 +17,7 @@ export class World {
     }
 
     nextTurn() {
+        console.log('-------------------------------------------------');
         for (const p of this.polities) {
             if (this.polities.includes(p)) {
                 p.brain.move(this, p);
@@ -83,7 +84,7 @@ export class World {
 }
 
 export class Polity {
-    brain: Brain = new BasicBrain();
+    brain: Brain = BasicBrain.random();
 
     constructor(private readonly world: World, readonly name: string, readonly mapColor: string) {}
 

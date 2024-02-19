@@ -3,7 +3,7 @@
       <div *ngFor="let tile of row; let j = index"
            [ngStyle]="{'background-color': tile.controller.mapColor}"
            class="tile">
-        {{ tile.controller.name }} <br>
+        {{ tile.controller.name }} ({{tile.controller.brain.tag}}) <br>
         {{ tile.population }}
       </div>
     </div>
