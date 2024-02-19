@@ -23,10 +23,32 @@ export class World {
 
         this.year_ += 20;
     }
+
+    resolveAttack(attacker: Polity, defender: Polity) {
+        const ap = attacker.population;
+        const dp = defender.population;
+        const winp = ap / (ap + dp);
+
+        if (Math.random() < winp) {
+            console.log(`  Successful attack: ${attacker.name} takes over ${defender.name}`);
+            this.takeover(attacker, defender);
+        } else {
+            console.log(`  Failed attack`);
+        }
+    }
+
+    takeover(attacker: Polity, defender: Polity) {
+        for (const tile of this.map.tiles.flat()) {
+            if (tile.controller == defender) {
+                tile.controller = attacker;
+            }
+        }
+        this.polities = this.polities.filter(p => p != defender);
+    }
     
     getRankedPolities(): Polity[] {
         return [...this.polities].sort((a, b) => {
-            const popDiff = a.population - b.population;
+            const popDiff = b.population - a.population;
             if (popDiff) return popDiff;
             if (a.name < b.name) return -1;
             if (b.name < a.name) return 1;
@@ -57,7 +79,8 @@ export class Polity {
                     if (ni < 0 || nj < 0 || ni >= this.world.map.height || nj >= this.world.map.width) {
                         continue;
                     }
-                    if (this.world.map.tiles[ni][nj].controller == this) {
+                    if (this.world.map.tiles[i][j].controller != this && 
+                        this.world.map.tiles[ni][nj].controller == this) {
                         ns.add(this.world.map.tiles[i][j].controller);
                         break;
                     }
@@ -108,6 +131,7 @@ class Tile {
     }
 
     get controller() { return this.controller_; }
+    set controller(value: Polity) { this.controller_ = value; }
 }
   
 class WorldMap {

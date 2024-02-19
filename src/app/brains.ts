@@ -8,10 +8,18 @@ export interface Brain {
 export class BasicBrain {
     move(world: World, self: Polity): void {
         console.log(`* Brain move(${self.name})`);
-        const ns = self.neighbors;
-        console.log(`  my neighbors: ${ns.map(n => n.name)}`);
 
-        console.log('Doing nothing.\n');
+        if (Math.random() < 0.8) {
+            console.log('  Doing nothing.\n');
+            return;
+        }
+
+        const ns = self.neighbors;
+        console.log(`  Neighbors: ${ns.map(n => n.name)}`);
+
+        const target = ns[Math.floor(Math.random() * ns.length)];
+        console.log(`  Attacking ${target.name}`);
+        world.resolveAttack(self, target);
     }
 }
 
