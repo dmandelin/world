@@ -4,13 +4,16 @@ import {Brain, BasicBrain} from "./brains";
 @Injectable({providedIn: 'root'})
 export class World {
     private year_ = 0;
-    private polities = DEFAULT_POLITIES.map(pd => new Polity(this, pd.name, pd.mapColor));
+    private polities_ = DEFAULT_POLITIES.map(pd => new Polity(this, pd.name, pd.mapColor));
     readonly map = new WorldMap(5, 5, this.polities);
 
     constructor() {
     }
 
     get year() { return this.year_; }
+
+    get polities() { return this.polities_; }
+    private set polities(value: Polity[]) { this.polities_ = value; }
 
     get population() {
         return this.map.tiles.flat().map(t => t.population).reduce((a, b) => a + b);
@@ -173,3 +176,42 @@ class WorldMap {
         }
     }
 }
+
+function test() {
+    const N = 1000;
+    const games_by_brain: {[key: string]: number} = {};
+    const wins_by_brain: {[key: string]: number} = {};
+    const wins_by_start: {[key: string]: number} = {};
+    let turns = 0;
+    
+    for (let i = 0; i < N; ++i) {
+        const w = new World();
+        for (const p of w.polities) {
+            games_by_brain[p.brain.tag] = 1 + (games_by_brain[p.brain.tag] || 0);
+        }
+        let guard = 1000;
+        while (w.polities.length > 1 && guard > 0) {
+            w.nextTurn();
+            ++turns;
+            --guard;
+        }
+        if (w.polities.length > 1) debugger;
+        wins_by_brain[w.polities[0].brain.tag] = 1 + (wins_by_brain[w.polities[0].brain.tag] || 0);
+        wins_by_start[w.polities[0].name] = 1 + (wins_by_start[w.polities[0].name] || 0);
+    }
+
+    console.log(`Results from ${N} games:`);
+    console.log(`  Average turns per game: ${(turns / N).toFixed(2)}`);
+    console.log(`  Average win rate per brain:`);
+    for (const brainTag of Object.keys(wins_by_brain)) {
+        const winRate = wins_by_brain[brainTag] / games_by_brain[brainTag];
+        console.log(`    ${brainTag}: ${winRate}`);
+    }
+    console.log(`  Average win rate per start location:`);
+    for (const start of Object.keys(wins_by_start)) {
+        const winRate = wins_by_start[start] / N;
+        console.log(`    ${start}: ${winRate}`);
+    }
+}
+
+//test();
