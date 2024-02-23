@@ -2,13 +2,14 @@ import {World, Polity} from "./world";
 
 export interface Brain {
     readonly tag: string;
+    clone(): Brain;
     move(world: World, self: Polity): void;
 }
 
 export class BasicBrain {
     constructor(readonly tag = '?', readonly attackProbability: number = 0.2) {}
 
-    static random() {
+    static random(): BasicBrain {
         switch (Math.floor(Math.random() * 4)) {
             case 0: return new BasicBrain('A', 0.5);
             case 1: return new BasicBrain('B', 0.2);
@@ -17,20 +18,24 @@ export class BasicBrain {
         }
     }
 
+    clone(): BasicBrain {
+        return new BasicBrain(this.tag, this.attackProbability);
+    }
+
     move(world: World, self: Polity): void {
-        console.log(`* Brain move(${self.name})`);
+        //console.log(`* Brain move(${self.name})`);
 
         if (Math.random() >= this.attackProbability) {
-            console.log('  Recovering.\n');
+            //console.log('  Recovering.\n');
             world.recover(self);
             return;
         }
 
         const ns = self.neighbors;
-        console.log(`  Neighbors: ${ns.map(n => n.name)}`);
+        //console.log(`  Neighbors: ${ns.map(n => n.name)}`);
 
         const target = ns[Math.floor(Math.random() * ns.length)];
-        console.log(`  Attacking ${target.name}`);
+        //console.log(`  Attacking ${target.name}`);
         world.resolveAttack(self, target);
     }
 }

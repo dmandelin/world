@@ -4,10 +4,16 @@ import {Brain, BasicBrain} from "./brains";
 @Injectable({providedIn: 'root'})
 export class World {
     private year_ = 0;
-    private polities_ = DEFAULT_POLITIES.map(pd => new Polity(this, pd.name, pd.mapColor));
+    private polities_ = DEFAULT_POLITIES.map((pd, i) => 
+        new Polity(this, pd.name, pd.mapColor, BasicBrain.random()));
     readonly map = new WorldMap(5, 5, this.polities);
 
-    constructor() {
+    constructor() {}
+
+    setBrains(brains: readonly Brain[]) {
+        for (let i = 0; i < brains.length; ++i) {
+            this.polities_[i].setBrain(brains[i]);
+        }
     }
 
     get year() { return this.year_; }
@@ -20,7 +26,7 @@ export class World {
     }
 
     nextTurn() {
-        console.log('-------------------------------------------------');
+        //console.log('-------------------------------------------------');
         for (const p of this.polities) {
             if (this.polities.includes(p)) {
                 p.brain.move(this, p);
@@ -36,14 +42,14 @@ export class World {
         const winp = ap / (ap + dp);
 
         if (Math.random() < winp) {
-            console.log(`  Successful attack: ${attacker.name} takes over ${defender.name}`);
+            //console.log(`  Successful attack: ${attacker.name} takes over ${defender.name}`);
             this.losses(attacker, 0.1);
             this.losses(defender, 0.2);
             this.takeover(attacker, defender);
         } else {
             this.losses(attacker, 0.2);
             this.losses(defender, 0.1);
-            console.log(`  Failed attack`);
+            //console.log(`  Failed attack`);
         }
     }
 
@@ -87,9 +93,21 @@ export class World {
 }
 
 export class Polity {
-    brain: Brain = BasicBrain.random();
+    private brain_: Brain;
 
-    constructor(private readonly world: World, readonly name: string, readonly mapColor: string) {}
+    constructor(
+        private readonly world: World, 
+        readonly name: string,
+        readonly mapColor: string,
+        brain: Brain) {
+        this.brain_ = brain;
+    }
+
+    setBrain(brain: Brain) {
+        this.brain_ = brain;
+    }
+
+    get brain(): Brain { return this.brain_; }
 
     get population(): number {
         return this.world.map.tiles
@@ -215,3 +233,73 @@ function test() {
 }
 
 //test();
+
+function randint(a: number) {
+    return Math.floor(Math.random() * a);
+}
+
+function randelem<T>(elems: readonly T[]): T {
+    return elems[randint(elems.length)];
+}
+
+function shuffled<T>(items: readonly T[]): T[] {
+    const ws = [...items];
+    const ss = [];
+    while (ws.length) {
+        const i = randint(ws.length);
+        ss.push(...ws.splice(i, 1));
+    }
+    return ss;
+}
+
+function evolve() {
+    const generations = 200;
+
+    const brainPopulation = [];
+    //for (let i = 0; i < 25; ++i) {
+    //    brainPopulation.push(BasicBrain.random());
+    //}
+    
+    for (let i = 0; i < 22; ++i) {
+        brainPopulation.push(new BasicBrain('A', 0.8));
+    }
+    for (let i = 0; i < 3; ++i) {
+        brainPopulation.push(new BasicBrain('H', 1.0));
+    }
+
+    for (let i = 0; i < generations; ++i) {
+        console.log(`* Generation ${i}`);
+
+        const w = new World;
+        w.setBrains(shuffled(brainPopulation));
+
+        let guard = 1000;
+        while (w.polities.length > 1 && guard > 0) {
+            w.nextTurn();
+            --guard;
+        }
+        if (w.polities.length > 1) debugger;
+
+        const winner = w.polities[0].brain;
+        console.log(`  winner = ${winner.tag}, duplicating`);
+        const nonWinningIndices = [...brainPopulation.filter(b => b.tag != winner.tag).keys()];
+        if (nonWinningIndices.length === 0) {
+            console.log('  no other brain types');
+        } else {
+            const removed = brainPopulation.splice(randelem(nonWinningIndices), 1);
+            console.log(`  removed ${removed[0].tag}`);
+            brainPopulation.push(winner.clone());
+        }
+
+        console.log('  new population');
+        const counts: {[key: string]: number} = {'H': 0, 'A': 0, 'B': 0, 'P': 0};
+        for (const b of brainPopulation) {
+            ++counts[b.tag];
+        }
+        for (const k of ['H', 'A', 'B', 'P']) {
+            console.log(`    ${k}: ${counts[k]}`);
+        }
+    }
+}
+
+evolve();
