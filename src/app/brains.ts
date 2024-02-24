@@ -1,6 +1,6 @@
 import {World, Polity} from "./world";
 
-const VERBOSE = true;
+const VERBOSE = false;
 
 function randint(a: number) {
     return Math.floor(Math.random() * a);
@@ -51,9 +51,8 @@ export class BasicBrain {
         if (roll < this.attackProbability) {
             const ns = self.neighbors;
             if (VERBOSE) console.log(`  Neighbors: ${ns.map(n => n.name)}`);
-    
+
             const target = ns[Math.floor(Math.random() * ns.length)];
-                console.log(`  Defender has alliance: ${self.counterAllianceDisplay()}`)
             if (VERBOSE) console.log(`  Attacking ${target.name}`);
             if (VERBOSE) console.log(`    Counteralliance: ${self.counterAllianceDisplay()}`)
             
@@ -72,3 +71,11 @@ export class BasicBrain {
     }
 }
 
+export class DefensiveBrain extends BasicBrain {
+    override joinsCounterAlliance(world: World, self: Polity, other: Polity): boolean {
+        if (other.brain instanceof BasicBrain) {
+            return other.brain.attackProbability >= this.attackProbability;
+        }
+        return true;
+    }
+}

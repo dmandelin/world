@@ -1,15 +1,24 @@
 import { Injectable } from "@angular/core";
-import {Brain, BasicBrain} from "./brains";
+import {Brain, BasicBrain, DefensiveBrain} from "./brains";
 import { TemplateLiteral } from "@angular/compiler";
 
 @Injectable({providedIn: 'root'})
 export class World {
     private year_ = 0;
     private polities_ = DEFAULT_POLITIES.map((pd, i) => 
-        new Polity(this, pd.name, pd.mapColor, BasicBrain.random()));
+        new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
     readonly map = new WorldMap(5, 5, this.polities);
 
     constructor() {}
+
+    static BRAINS = [
+        new BasicBrain('A', 1.0),
+        new DefensiveBrain('E', 1.0),
+        new BasicBrain('R', 0.5),
+        new DefensiveBrain('D', 0.5),
+        new BasicBrain('I', 0.2),
+        new DefensiveBrain('P', 0.2),
+    ];
 
     setBrains(brains: readonly Brain[]) {
         for (let i = 0; i < brains.length; ++i) {
@@ -293,15 +302,17 @@ function evolve() {
     const generations = 200;
 
     const brainPopulation = [];
-    //for (let i = 0; i < 25; ++i) {
-    //    brainPopulation.push(BasicBrain.random());
-    //}
-    
-    for (let i = 0; i < 22; ++i) {
-        brainPopulation.push(new BasicBrain('A', 0.8));
-    }
-    for (let i = 0; i < 3; ++i) {
-        brainPopulation.push(new BasicBrain('H', 1.0));
+    if (false) {
+        for (let i = 0; i < 25; ++i) {
+            brainPopulation.push(BasicBrain.random());
+        }
+    } else {
+        for (let i = 0; i < 22; ++i) {
+            brainPopulation.push(new DefensiveBrain('D', 1.0));
+        }
+        for (let i = 0; i < 3; ++i) {
+            brainPopulation.push(new BasicBrain('A', 1.0, 1.0));
+        }
     }
 
     for (let i = 0; i < generations; ++i) {
@@ -329,14 +340,14 @@ function evolve() {
         }
 
         console.log('  new population');
-        const counts: {[key: string]: number} = {'H': 0, 'A': 0, 'B': 0, 'P': 0};
+        const counts: {[key: string]: number} = {};
         for (const b of brainPopulation) {
-            ++counts[b.tag];
+            counts[b.tag] = 1 + (counts[b.tag] || 0);
         }
-        for (const k of ['H', 'A', 'B', 'P']) {
+        for (const k in counts) {
             console.log(`    ${k}: ${counts[k]}`);
         }
     }
 }
 
-//evolve();
+evolve();
