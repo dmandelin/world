@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import {Brain, BasicBrain} from "./brains";
+import { TemplateLiteral } from "@angular/compiler";
 
 @Injectable({providedIn: 'root'})
 export class World {
@@ -27,6 +28,12 @@ export class World {
 
     nextTurn() {
         //console.log('-------------------------------------------------');
+
+        // Compute what alliance exists against each potential aggressor.
+        for (const p of this.polities) {
+            p.counterAlliance = p.neighbors.filter(n => n.brain.joinsCounterAlliance(this, n, p));
+        }
+
         for (const p of this.polities) {
             if (this.polities.includes(p)) {
                 p.brain.move(this, p);
@@ -36,13 +43,9 @@ export class World {
         this.year_ += 20;
     }
 
-    resolveAlliance(a: Polity, b: Polity) {
-        a.allyWith(b);
-    }
-
-    resolveAttack(attacker: Polity, defender: Polity) {
+    resolveAttack(attacker: Polity, target: Polity, defender: readonly Polity[]) {
         const ac = new Combatant([attacker]);
-        const dc = new Combatant([defender, ...defender.allies]);
+        const dc = new Combatant(defender);
         const ap = ac.power;
         const dp = dc.power;
         const winp = ap / (ap + dp);
@@ -53,7 +56,7 @@ export class World {
             for (const p of dc.polities) {
                 this.losses(p, 0.2);
             }
-            this.takeover(attacker, defender);
+            this.takeover(attacker, target);
         } else {
             this.losses(attacker, 0.2);
             for (const p of dc.polities) {
@@ -72,7 +75,6 @@ export class World {
     }
 
     takeover(attacker: Polity, defender: Polity) {
-        defender.removeAllies();
         for (const tile of this.map.tiles.flat()) {
             if (tile.controller == defender) {
                 tile.controller = attacker;
@@ -113,10 +115,16 @@ class Combatant {
     }
 }
 
+function totalPopulation(ps: readonly Polity[]) {
+    return ps
+        .map(p => p.population)
+        .reduce((a, b) => a + b, 0);
+}
+
 export class Polity {
     private brain_: Brain;
 
-    private allies_: Polity[] = [];
+    counterAlliance: readonly Polity[] = [];
 
     constructor(
         private readonly world: World, 
@@ -126,9 +134,10 @@ export class Polity {
         this.brain_ = brain;
     }
 
-    alliesDisplay(): string {
-        if (this.allies_.length === 0) return '';
-        return `[${this.allies_.map(a => a.name).join(',')}]`;
+    counterAllianceDisplay(): string {
+        if (this.counterAlliance.length === 0) return '';
+        const names = this.counterAlliance.map(a => a.name).join(',');
+        return `[vs ${names}: ${totalPopulation(this.counterAlliance)}]`;
     }
 
     setBrain(brain: Brain) {
@@ -142,7 +151,7 @@ export class Polity {
             .flat()
             .filter(t => t.controller == this)
             .map(t => t.population)
-            .reduce((a, b) => a + b);
+            .reduce((a, b) => a + b, 0);
     }
 
     get neighbors(): Polity[] {
@@ -163,28 +172,6 @@ export class Polity {
             }
         }
         return [...ns];
-    }
-
-    get allies(): readonly Polity[] {
-        return this.allies_;
-    }
-
-    hasAllies() {
-        return this.allies_.length !== 0;
-    }
-
-    allyWith(ally: Polity) {
-        if (this.allies_.includes(ally)) return;
-        if (ally.allies_.includes(this)) throw 'ally mismatch';
-        this.allies_.push(ally);
-        ally.allies_.push(this);
-    }
-
-    removeAllies() {
-        for (const ally of this.allies_) {
-            ally.allies_ = ally.allies_.filter(a => a != this);
-        }
-        this.allies_ = [];
     }
 }
 
