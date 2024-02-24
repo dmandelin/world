@@ -1,21 +1,48 @@
 import {World, Polity} from "./world";
 
+const VERBOSE = true;
+
+function randint(a: number) {
+    return Math.floor(Math.random() * a);
+}
+
+function randelem<T>(elems: readonly T[]): T {
+    return elems[randint(elems.length)];
+}
+
 export interface Brain {
     readonly tag: string;
+    acceptsAlly(roll: number): boolean;
     clone(): Brain;
     move(world: World, self: Polity): void;
 }
 
+const BASIC_BRAIN_DEFS: readonly [string, number, number][] = [
+    ['A', 1.0, 0.0],
+    ['R', 0.5, 0.1],
+    ['N', 0.5, 0.5],
+    ['T', 0.1, 0.5],
+    ['P', 0.1, 0.9],
+    ['I', 0.1, 0.1],
+];
+
 export class BasicBrain {
-    constructor(readonly tag = '?', readonly attackProbability: number = 0.2) {}
+    constructor(
+        readonly tag = '?', 
+        readonly attackProbability: number = 0.2, 
+        readonly allyProbability: number = 0.2) {
+        
+        if (attackProbability + allyProbability > 1.0) {
+            throw 'probabilities sum to more than 1';
+        }
+    }
 
     static random(): BasicBrain {
-        switch (Math.floor(Math.random() * 4)) {
-            case 0: return new BasicBrain('A', 0.5);
-            case 1: return new BasicBrain('B', 0.2);
-            case 2: return new BasicBrain('H', 1.0);
-            default: return new BasicBrain('P', 0.1);
-        }
+        return new BasicBrain(...randelem(BASIC_BRAIN_DEFS));
+    }
+
+    acceptsAlly(roll: number): boolean {
+        return roll < this.allyProbability;
     }
 
     clone(): BasicBrain {
@@ -23,20 +50,35 @@ export class BasicBrain {
     }
 
     move(world: World, self: Polity): void {
-        //console.log(`* Brain move(${self.name})`);
+        if (VERBOSE) console.log(`* Brain move(${self.name})`);
 
-        if (Math.random() >= this.attackProbability) {
-            //console.log('  Recovering.\n');
-            world.recover(self);
+        const roll = Math.random();
+        if (roll < this.attackProbability) {
+            const ns = self.neighbors;
+            if (VERBOSE) console.log(`  Neighbors: ${ns.map(n => n.name)}`);
+    
+            const target = ns[Math.floor(Math.random() * ns.length)];
+            if (VERBOSE) console.log(`  Attacking ${target.name}`);
+            world.resolveAttack(self, target);
             return;
         }
 
-        const ns = self.neighbors;
-        //console.log(`  Neighbors: ${ns.map(n => n.name)}`);
+        if (VERBOSE) console.log('  Recovering.\n');
+        world.recover(self);
 
-        const target = ns[Math.floor(Math.random() * ns.length)];
-        //console.log(`  Attacking ${target.name}`);
-        world.resolveAttack(self, target);
+        if (roll < this.attackProbability + this.allyProbability && !self.hasAllies()) {
+            const ns = self.neighbors.filter(n => !n.hasAllies());
+            if (ns.length) {
+                if (VERBOSE) console.log(`  Neighbors: ${ns.map(n => n.name)}`);
+        
+                const potentialAlly = ns[Math.floor(Math.random() * ns.length)];
+                if (potentialAlly.brain.acceptsAlly(roll - this.attackProbability)) {
+                    if (VERBOSE) console.log(`  Allying with ${potentialAlly.name}`);
+                    world.resolveAlliance(self, potentialAlly);    
+                }
+            }
+        }
+        return;
     }
 }
 

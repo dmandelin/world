@@ -36,19 +36,29 @@ export class World {
         this.year_ += 20;
     }
 
+    resolveAlliance(a: Polity, b: Polity) {
+        a.allyWith(b);
+    }
+
     resolveAttack(attacker: Polity, defender: Polity) {
-        const ap = attacker.population;
-        const dp = defender.population;
+        const ac = new Combatant([attacker]);
+        const dc = new Combatant([defender, ...defender.allies]);
+        const ap = ac.power;
+        const dp = dc.power;
         const winp = ap / (ap + dp);
 
         if (Math.random() < winp) {
             //console.log(`  Successful attack: ${attacker.name} takes over ${defender.name}`);
             this.losses(attacker, 0.1);
-            this.losses(defender, 0.2);
+            for (const p of dc.polities) {
+                this.losses(p, 0.2);
+            }
             this.takeover(attacker, defender);
         } else {
             this.losses(attacker, 0.2);
-            this.losses(defender, 0.1);
+            for (const p of dc.polities) {
+                this.losses(p, 0.1);
+            }
             //console.log(`  Failed attack`);
         }
     }
@@ -62,6 +72,7 @@ export class World {
     }
 
     takeover(attacker: Polity, defender: Polity) {
+        defender.removeAllies();
         for (const tile of this.map.tiles.flat()) {
             if (tile.controller == defender) {
                 tile.controller = attacker;
@@ -92,8 +103,20 @@ export class World {
     }
 }
 
+class Combatant {
+    constructor(public readonly polities: readonly Polity[]) {}
+
+    get power(): number { 
+        return this.polities
+            .map(p => p.population)
+            .reduce((a, b) => a + b);
+    }
+}
+
 export class Polity {
     private brain_: Brain;
+
+    private allies_: Polity[] = [];
 
     constructor(
         private readonly world: World, 
@@ -101,6 +124,11 @@ export class Polity {
         readonly mapColor: string,
         brain: Brain) {
         this.brain_ = brain;
+    }
+
+    alliesDisplay(): string {
+        if (this.allies_.length === 0) return '';
+        return `[${this.allies_.map(a => a.name).join(',')}]`;
     }
 
     setBrain(brain: Brain) {
@@ -135,6 +163,28 @@ export class Polity {
             }
         }
         return [...ns];
+    }
+
+    get allies(): readonly Polity[] {
+        return this.allies_;
+    }
+
+    hasAllies() {
+        return this.allies_.length !== 0;
+    }
+
+    allyWith(ally: Polity) {
+        if (this.allies_.includes(ally)) return;
+        if (ally.allies_.includes(this)) throw 'ally mismatch';
+        this.allies_.push(ally);
+        ally.allies_.push(this);
+    }
+
+    removeAllies() {
+        for (const ally of this.allies_) {
+            ally.allies_ = ally.allies_.filter(a => a != this);
+        }
+        this.allies_ = [];
     }
 }
 
@@ -302,4 +352,4 @@ function evolve() {
     }
 }
 
-evolve();
+//evolve();
