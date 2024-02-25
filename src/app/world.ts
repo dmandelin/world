@@ -42,7 +42,8 @@ export class World {
     nextTurn() {
         //console.log('-------------------------------------------------');
 
-        this.map.scaleCapacity(1.02);
+        this.map.scaleCapacity(1.04);
+        this.map.updatePopulations();
 
         // Compute what alliance exists against each potential aggressor.
         for (const p of this.polities) {
@@ -235,6 +236,12 @@ class Tile {
 
     get population() { return this.population_; }
     set population(value: number) { this.population_ = value; }
+
+    updatePopulation() {
+        const r = this.population / this.capacity;
+        const dp = Math.floor(0.4 * r * (1 - r) * this.population);
+        this.population += dp;
+    }
 }
   
 class WorldMap {
@@ -264,6 +271,12 @@ class WorldMap {
     scaleCapacity(f: number) {
         for (const t of this.tiles.flat()) {
             t.capacity = Math.floor(t.capacity * f);
+        }
+    }
+
+    updatePopulations() {
+        for (const t of this.tiles.flat()) {
+            t.updatePopulation();
         }
     }
 }
