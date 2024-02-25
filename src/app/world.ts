@@ -218,13 +218,17 @@ const DEFAULT_POLITIES = [
 
 class Tile {
     private controller_: Polity;
+    private population_ = this.capacity;
 
-    constructor(public population: number, controller: Polity) {
+    constructor(public capacity: number, controller: Polity) {
         this.controller_ = controller;
     }
 
     get controller() { return this.controller_; }
     set controller(value: Polity) { this.controller_ = value; }
+
+    get population() { return this.population_; }
+    set population(value: number) { this.population_ = value; }
 }
   
 class WorldMap {
@@ -240,11 +244,13 @@ class WorldMap {
             }
         }
 
-        // Randomly distribute additional carrying capacity
+        // Randomly distribute additional carrying capacity and initial population.
         let cap = 1500 * width * height;
         const chunk = 500;
         while (cap > 0) {
-            this.tiles[randint(width)][randint(height)].population += chunk;
+            const t = this.tiles[randint(width)][randint(height)];
+            t.capacity += chunk;
+            t.population = t.capacity;
             cap -= chunk;
         }
     }
