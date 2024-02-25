@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
-import {Brain, BasicBrain, DefensiveBrain} from "./brains";
+import {Brain, BasicBrain, DefensiveBrain, NullBrain} from "./brains";
 import { TemplateLiteral } from "@angular/compiler";
 
 @Injectable({providedIn: 'root'})
 export class World {
     private year_ = 0;
     private polities_ = DEFAULT_POLITIES.map((pd, i) => 
-        new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
+        new Polity(this, pd.name, pd.mapColor, new NullBrain()));
     readonly map = new WorldMap(5, 5, this.polities);
 
     constructor() {}
@@ -231,12 +231,21 @@ class WorldMap {
     tiles: Tile[][];
   
     constructor(public readonly width: number, public readonly height: number, polities: ReadonlyArray<Polity>) {
+        // Initialize tiles.
         this.tiles = [];
         for (let i = 0; i < height; i++) {
             this.tiles[i] = [];
             for (let j = 0; j < width; j++) {
-                this.tiles[i][j] = new Tile(1000, polities[i * width + j])
+                this.tiles[i][j] = new Tile(500, polities[i * width + j])
             }
+        }
+
+        // Randomly distribute additional carrying capacity
+        let cap = 1500 * width * height;
+        const chunk = 500;
+        while (cap > 0) {
+            this.tiles[randint(width)][randint(height)].population += chunk;
+            cap -= chunk;
         }
     }
 }
@@ -302,9 +311,9 @@ function evolve() {
     const generations = 200;
 
     const brainPopulation = [];
-    if (false) {
+    if (true) {
         for (let i = 0; i < 25; ++i) {
-            brainPopulation.push(BasicBrain.random());
+            brainPopulation.push(randelem(World.BRAINS));
         }
     } else {
         for (let i = 0; i < 22; ++i) {
@@ -350,4 +359,4 @@ function evolve() {
     }
 }
 
-evolve();
+//evolve();

@@ -26,6 +26,21 @@ const BASIC_BRAIN_DEFS: readonly [string, number, number][] = [
     ['I', 0.1, 0.1],
 ];
 
+export class NullBrain {
+    constructor(readonly tag = '.') {}
+
+    clone(): NullBrain {
+        return new NullBrain(this.tag);
+    }
+
+    joinsCounterAlliance(world: World, self: Polity, other: Polity): boolean {
+        return false;
+    }
+
+    move(world: World, self: Polity): void {
+    }
+}
+
 export class BasicBrain {
     constructor(
         readonly tag = '?', 
