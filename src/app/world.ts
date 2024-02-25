@@ -31,12 +31,18 @@ export class World {
     get polities() { return this.polities_; }
     private set polities(value: Polity[]) { this.polities_ = value; }
 
+    get capacity() {
+        return this.map.tiles.flat().map(t => t.capacity).reduce((a, b) => a + b);
+    }
+
     get population() {
         return this.map.tiles.flat().map(t => t.population).reduce((a, b) => a + b);
     }
 
     nextTurn() {
         //console.log('-------------------------------------------------');
+
+        this.map.scaleCapacity(1.02);
 
         // Compute what alliance exists against each potential aggressor.
         for (const p of this.polities) {
@@ -252,6 +258,12 @@ class WorldMap {
             t.capacity += chunk;
             t.population = t.capacity;
             cap -= chunk;
+        }
+    }
+
+    scaleCapacity(f: number) {
+        for (const t of this.tiles.flat()) {
+            t.capacity = Math.floor(t.capacity * f);
         }
     }
 }

@@ -1,7 +1,7 @@
 <button (click)="nextTurn()" class="step-forward-btn vbreakafter">&#x25B6;</button>
 
 <div>Year: {{world.year}}</div>
-<div class="vbreakafter">World Population: {{world.population}}</div>
+<div class="vbreakafter">World Population: {{world.population}}/{{world.capacity}}</div>
 <div *ngFor="let p of world.getRankedPolities(); let i = index"
     [ngStyle]="{'color': p.mapColor}">
     {{i+1}}: {{p.name}} ({{p.brain.tag}}) {{p.population}} {{p.counterAllianceDisplay()}}
