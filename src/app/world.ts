@@ -6,7 +6,7 @@ import { TemplateLiteral } from "@angular/compiler";
 export class World {
     private year_ = 0;
     private polities_ = DEFAULT_POLITIES.map((pd, i) => 
-        new Polity(this, pd.name, pd.mapColor, new NullBrain()));
+        new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
     readonly map = new WorldMap(5, 5, this.polities);
 
     constructor() {}
@@ -52,11 +52,16 @@ export class World {
 
         for (const p of this.polities) {
             if (this.polities.includes(p)) {
+                this.startTurnFor(p);
                 p.brain.move(this, p);
             }
         }
 
         this.year_ += 20;
+    }
+
+    startTurnFor(p: Polity) {
+        p.attacked = false;
     }
 
     resolveAttack(attacker: Polity, target: Polity, defender: readonly Polity[]) {
@@ -66,17 +71,19 @@ export class World {
         const dp = dc.power;
         const winp = ap / (ap + dp);
 
+        attacker.attacked = true;
+
         if (Math.random() < winp) {
             //console.log(`  Successful attack: ${attacker.name} takes over ${defender.name}`);
-            this.losses(attacker, 0.1);
+            this.losses(attacker, 0.01);
             for (const p of dc.polities) {
-                this.losses(p, 0.2);
+                this.losses(p, 0.05);
             }
-            this.takeover(attacker, target);
+            this.vassalize(attacker, target);
         } else {
-            this.losses(attacker, 0.2);
+            this.losses(attacker, 0.05);
             for (const p of dc.polities) {
-                this.losses(p, 0.1);
+                this.losses(p, 0.01);
             }
             //console.log(`  Failed attack`);
         }
@@ -99,20 +106,27 @@ export class World {
         this.polities = this.polities.filter(p => p != defender);
     }
 
-    recover(polity: Polity) {
-        for (const tile of this.map.tiles.flat()) {
-            if (tile.controller == polity) {
-                tile.population += 100;
-                if (tile.population > 1000) {
-                    tile.population = 1000;
-                }
-            }
+    vassalize(attacker: Polity, defender: Polity) {
+        // Defender is removed from any existing suzerain.
+        if (defender.suzerain) {
+            defender.suzerain.vassals.delete(defender);
+            defender.suzerain = undefined;
         }
+        
+        // Vassals of the defender are released.
+        for (const v of defender.vassals) {
+            v.suzerain = undefined;
+        }
+        defender.vassals.clear();
+
+        // The new vassal relationship.
+        defender.suzerain = attacker;
+        attacker.vassals.add(defender);
     }
-    
+
     getRankedPolities(): Polity[] {
         return [...this.polities].sort((a, b) => {
-            const popDiff = b.population - a.population;
+            const popDiff = b.vassalPopulation - a.vassalPopulation;
             if (popDiff) return popDiff;
             if (a.name < b.name) return -1;
             if (b.name < a.name) return 1;
@@ -140,7 +154,11 @@ function totalPopulation(ps: readonly Polity[]) {
 export class Polity {
     private brain_: Brain;
 
+    vassals: Set<Polity> = new Set<Polity>();
+    suzerain: Polity|undefined = undefined;
     counterAlliance: readonly Polity[] = [];
+
+    attacked: boolean = false;
 
     constructor(
         private readonly world: World, 
@@ -170,6 +188,12 @@ export class Polity {
             .reduce((a, b) => a + b, 0);
     }
 
+    get vassalPopulation(): number {
+        return [this, ...this.vassals]
+            .map(p => p.population)
+            .reduce((a, b) => a + b, 0);
+    }
+
     get neighbors(): Polity[] {
         const ns = new Set<Polity>();
         for (let i = 0; i < this.world.map.height; ++i) {
@@ -188,6 +212,20 @@ export class Polity {
             }
         }
         return [...ns];
+    }
+
+    get vassalNeighbors(): Polity[] {
+        const ns = new Set<Polity>();
+        for (const p of [this, ...this.vassals]) {
+            for (const n of p.neighbors) {
+                if (n !== this) ns.add(n);
+            }
+        }
+        return [...ns];
+    }
+
+    canAttack(other: Polity): boolean {
+        return this !== other && !this.suzerain;
     }
 }
 
@@ -270,7 +308,9 @@ class WorldMap {
 
     scaleCapacity(f: number) {
         for (const t of this.tiles.flat()) {
-            t.capacity = Math.floor(t.capacity * f);
+            if (!t.controller.attacked) {
+                t.capacity = Math.floor(t.capacity * f);
+            }
         }
     }
 

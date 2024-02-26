@@ -64,10 +64,13 @@ export class BasicBrain {
 
         const roll = Math.random();
         if (roll < this.attackProbability) {
-            const ns = self.neighbors;
+            const ns = self.vassalNeighbors;
             if (VERBOSE) console.log(`  Neighbors: ${ns.map(n => n.name)}`);
 
-            const target = ns[Math.floor(Math.random() * ns.length)];
+            const possibleTargets = ns.filter(n => self.canAttack(n));
+            if (possibleTargets.length === 0) return;
+
+            const target = randelem(possibleTargets);
             if (VERBOSE) console.log(`  Attacking ${target.name}`);
             if (VERBOSE) console.log(`    Counteralliance: ${self.counterAllianceDisplay()}`)
             
@@ -80,9 +83,6 @@ export class BasicBrain {
             world.resolveAttack(self, target, defender);
             return;
         }
-
-        if (VERBOSE) console.log('  Recovering.\n');
-        world.recover(self);
     }
 }
 

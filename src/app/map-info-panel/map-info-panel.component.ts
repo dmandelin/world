@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { World } from '../world';
+import { World, Polity } from '../world';
 import { NgFor, NgStyle } from '@angular/common';
 
 @Component({
@@ -15,5 +15,11 @@ export class MapInfoPanelComponent {
 
   nextTurn() {
     this.world.nextTurn();
+  }
+
+  vassalsDisplay(p: Polity) {
+    return p.vassals.size
+      ? `>${[...p.vassals].map(v => v.name)}`
+      : '';
   }
 }

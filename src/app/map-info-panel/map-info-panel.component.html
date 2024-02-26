@@ -4,5 +4,10 @@
 <div class="vbreakafter">World Population: {{world.population}}/{{world.capacity}}</div>
 <div *ngFor="let p of world.getRankedPolities(); let i = index"
     [ngStyle]="{'color': p.mapColor}">
-    {{i+1}}: {{p.name}} ({{p.brain.tag}}) {{p.population}} {{p.counterAllianceDisplay()}}
+    <div>{{i+1}}: {{p.name}} 
+        {{p.suzerain ? '&lt;' + p.suzerain.name : ''}} 
+        {{vassalsDisplay(p)}} 
+        ({{p.brain.tag}}) 
+        {{p.vassalPopulation}} {{p.counterAllianceDisplay()}}</div>
+
 </div>

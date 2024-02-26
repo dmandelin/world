@@ -1,9 +1,9 @@
 <div class="map">
     <div *ngFor="let row of world.map.tiles; let i = index" class="row">
       <div *ngFor="let tile of row; let j = index"
-           [ngStyle]="{'background-color': tile.controller.mapColor}"
+           [ngStyle]="{'background-color': tile.controller.suzerain?.mapColor || tile.controller.mapColor}"
            class="tile">
-        <div>{{ tile.controller.name }} ({{tile.controller.brain.tag }})</div>
+        <div>{{ tile.controller.vassals.size ? '&#9733;' : '' }}{{ tile.controller.name }} ({{tile.controller.brain.tag }})</div>
         <div class="sm">{{ tile.population }}/{{ tile.capacity }}</div>
       </div>
     </div>
