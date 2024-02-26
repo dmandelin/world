@@ -67,27 +67,31 @@ export class World {
     }
 
     resolveAttack(attacker: Polity, target: Polity, defender: readonly Polity[]) {
-        const ac = new Combatant([attacker]);
-        const dc = new Combatant(defender);
+        const ac = new Combatant([attacker, ...attacker.vassals]);
+        const dc = new Combatant([...new Set(defender.flatMap(d => [d, ...d.vassals]))]);
         const ap = ac.power;
         const dp = dc.power;
         const winp = ap / (ap + dp);
 
-        this.log.turnlog(`    AP = ${ap}`);
-        this.log.turnlog(`    DP = ${dp}`);
+        this.log.turnlog(`    AP = ${ap} (${ac.polities.map(p => p.name)})`);
+        this.log.turnlog(`    DP = ${dp} (${dc.polities.map(p => p.name)})`);
 
         attacker.attacked = true;
 
         if (Math.random() < winp) {
             this.log.turnlog(`  Successful attack: ${attacker.name} takes over ${defender[0].name}`);
-            this.losses(attacker, 0.01);
+            for (const p of ac.polities) {
+                this.losses(p, 0.01);
+            }
             for (const p of dc.polities) {
                 this.losses(p, 0.05);
             }
             this.vassalize(attacker, target);
         } else {
             this.log.turnlog(`  Failed attack`);
-            this.losses(attacker, 0.05);
+            for (const p of ac.polities) {
+                this.losses(p, 0.05);
+            }
             for (const p of dc.polities) {
                 this.losses(p, 0.01);
             }
@@ -242,7 +246,7 @@ export class Polity {
     }
 
     canAttack(other: Polity): boolean {
-        return this !== other && !this.suzerain;
+        return this !== other && !this.suzerain && !this.vassals.has(other);
     }
 }
 
