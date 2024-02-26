@@ -8,6 +8,7 @@ export class World {
     private polities_ = DEFAULT_POLITIES.map((pd, i) => 
         new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
     readonly map = new WorldMap(5, 5, this.polities);
+    readonly log = new WorldLog();
 
     constructor() {}
 
@@ -40,7 +41,7 @@ export class World {
     }
 
     nextTurn() {
-        //console.log('-------------------------------------------------');
+        this.log.turnlogClear();
 
         this.map.scaleCapacity(1.04);
         this.map.updatePopulations();
@@ -53,6 +54,7 @@ export class World {
         for (const p of this.polities) {
             if (this.polities.includes(p)) {
                 this.startTurnFor(p);
+                this.log.turnlog(`${p.name}'s turn`)
                 p.brain.move(this, p);
             }
         }
@@ -71,21 +73,24 @@ export class World {
         const dp = dc.power;
         const winp = ap / (ap + dp);
 
+        this.log.turnlog(`    AP = ${ap}`);
+        this.log.turnlog(`    DP = ${dp}`);
+
         attacker.attacked = true;
 
         if (Math.random() < winp) {
-            //console.log(`  Successful attack: ${attacker.name} takes over ${defender.name}`);
+            this.log.turnlog(`  Successful attack: ${attacker.name} takes over ${defender[0].name}`);
             this.losses(attacker, 0.01);
             for (const p of dc.polities) {
                 this.losses(p, 0.05);
             }
             this.vassalize(attacker, target);
         } else {
+            this.log.turnlog(`  Failed attack`);
             this.losses(attacker, 0.05);
             for (const p of dc.polities) {
                 this.losses(p, 0.01);
             }
-            //console.log(`  Failed attack`);
         }
     }
 
@@ -132,6 +137,18 @@ export class World {
             if (b.name < a.name) return 1;
             return 0;
         })
+    }
+}
+
+class WorldLog {
+    readonly turnlogs: string[] = [];
+
+    turnlog(s: string) {
+        this.turnlogs.push(s);
+    }
+
+    turnlogClear() {
+        this.turnlogs.length = 0;
     }
 }
 

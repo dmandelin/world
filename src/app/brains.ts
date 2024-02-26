@@ -1,6 +1,6 @@
 import {World, Polity} from "./world";
 
-const VERBOSE = false;
+const VERBOSE = true;
 
 function randint(a: number) {
     return Math.floor(Math.random() * a);
@@ -60,25 +60,23 @@ export class BasicBrain {
     }
 
     move(world: World, self: Polity): void {
-        if (VERBOSE) console.log(`* Brain move(${self.name})`);
-
         const roll = Math.random();
         if (roll < this.attackProbability) {
             const ns = self.vassalNeighbors;
-            if (VERBOSE) console.log(`  Neighbors: ${ns.map(n => n.name)}`);
 
             const possibleTargets = ns.filter(n => self.canAttack(n));
             if (possibleTargets.length === 0) return;
+            if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
 
             const target = randelem(possibleTargets);
-            if (VERBOSE) console.log(`  Attacking ${target.name}`);
-            if (VERBOSE) console.log(`    Counteralliance: ${self.counterAllianceDisplay()}`)
+            if (VERBOSE) world.log.turnlog(`  Attacking ${target.name}`);
+            if (VERBOSE) world.log.turnlog(`    Counteralliance: ${self.counterAllianceDisplay()}`)
             
             const defender = self.counterAlliance.includes(target)
                 ? self.counterAlliance
                 : [target];
             if (VERBOSE && defender.length > 1) {
-                console.log(`  Defender has alliance: ${self.counterAllianceDisplay()}`)
+                world.log.turnlog(`  Defender has alliance: ${self.counterAllianceDisplay()}`)
             }
             world.resolveAttack(self, target, defender);
             return;
