@@ -12,7 +12,8 @@ export class World {
 
     private watchers_: Set<Function> = new Set<Function>();
 
-    constructor() {}
+    constructor() {
+    }
 
     static BRAINS = [
         new BasicBrain('A', 1.0),

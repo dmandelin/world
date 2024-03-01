@@ -27,13 +27,59 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     const ctx = this.context;
     if (!ctx) return;
 
+    const map = this.world.map;
+    const tt = map.tiles;
+
+    ctx.fillStyle = 'red';
+    ctx.fillRect(0, 0, 400, 400);
+
+    // Draw tiles.
     let y = 0;
-    for (let i = 0; i < this.world.map.width; ++i) {
+    for (let i = 0; i < map.width; ++i) {
       let x = 0;
-      for (let j = 0; j < this.world.map.height; ++j) {
-        const tile = this.world.map.tiles[i][j];
+      for (let j = 0; j < map.height; ++j) {
+        const tile = tt[i][j];
         ctx.fillStyle = this.tileColor(tile);
         ctx.fillRect(x, y, this.side, this.side);
+        ctx.fillStyle = '#eee';
+        ctx.fillText(tile.controller.name, x + 10, y + 20);
+        x += this.side;
+      }
+      y += this.side;
+    }
+
+    // Draw polity borders.
+    y = 0;
+    for (let i = 0; i < map.width; ++i) {
+      let x = 0;
+      for (let j = 0; j < map.height; ++j) {
+        const tile = tt[i][j];
+        ctx.strokeStyle = '#eee';
+        ctx.lineWidth = 3;
+        if (i == 0 || this.group(tile) != this.group(tt[i-1][j])) {
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + this.side, y);
+          ctx.stroke();
+        }
+        if (i == map.height - 1) {
+          ctx.beginPath();
+          ctx.moveTo(x, y + this.side);
+          ctx.lineTo(x + this.side, y + this.side);
+          ctx.stroke();
+        }
+        if (j == 0 || this.group(tile) != this.group(tt[i][j-1])) {
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, y + this.side);
+          ctx.stroke();
+        }
+        if (j == map.width - 1) {
+          ctx.beginPath();
+          ctx.moveTo(x + this.side, y);
+          ctx.lineTo(x + this.side, y + this.side);
+          ctx.stroke();
+        }
         x += this.side;
       }
       y += this.side;
@@ -48,6 +94,11 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     return `rgb(${r}, ${g}, ${b})`;
   }
   
+  group(tile: Tile): Polity {
+    const controller = tile.controller;
+    return controller.suzerain || controller;
+  }
+
   ngOnDestroy(): void {
     if (this.deleteWatcher) {
       this.world.removeWatcher(this.deleteWatcher);
