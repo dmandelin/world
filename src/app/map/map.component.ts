@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { World } from '../world';
+import { World, Tile } from '../world';
 import { NgFor, NgStyle } from '@angular/common';
 
 @Component({
@@ -11,5 +11,9 @@ import { NgFor, NgStyle } from '@angular/common';
 })
 export class MapComponent {
   constructor(readonly world: World) {
+  }
+
+  popDisplay(tile: Tile): string {
+    return `${Math.floor(tile.population/100)}/${Math.floor(tile.capacity/100)}`;
   }
 }

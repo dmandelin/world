@@ -282,7 +282,7 @@ const DEFAULT_POLITIES = [
     new PolityDef('Y', 'lightgrey'),
 ];
 
-class Tile {
+export class Tile {
     private controller_: Polity;
     private population_ = this.capacity;
 

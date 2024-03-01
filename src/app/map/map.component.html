@@ -3,8 +3,8 @@
       <div *ngFor="let tile of row; let j = index"
            [ngStyle]="{'background-color': tile.controller.suzerain?.mapColor || tile.controller.mapColor}"
            class="tile">
-        <div>{{ tile.controller.vassals.size ? '&#9733;' : '' }}{{ tile.controller.name }} ({{tile.controller.brain.tag }})</div>
-        <div class="sm">{{ tile.population }}/{{ tile.capacity }}</div>
+        <div class="sm">{{ tile.controller.vassals.size ? '&#9733;' : '' }}{{ tile.controller.name }} ({{tile.controller.brain.tag }})</div>
+        <div class="sm">{{ popDisplay(tile) }}</div>
       </div>
     </div>
   </div>
