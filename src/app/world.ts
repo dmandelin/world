@@ -10,6 +10,8 @@ export class World {
     readonly map = new WorldMap(5, 5, this.polities);
     readonly log = new WorldLog();
 
+    private watchers_: Set<Function> = new Set<Function>();
+
     constructor() {}
 
     static BRAINS = [
@@ -20,6 +22,15 @@ export class World {
         new BasicBrain('I', 0.2),
         new DefensiveBrain('P', 0.2),
     ];
+
+    addWatcher(w: Function) {
+        this.watchers_.add(w);
+        return w;
+    }
+
+    removeWatcher(w: Function) {
+        this.watchers_.delete(w);
+    }
 
     setBrains(brains: readonly Brain[]) {
         for (let i = 0; i < brains.length; ++i) {
@@ -60,6 +71,9 @@ export class World {
         }
 
         this.year_ += 20;
+        for (const w of this.watchers_) {
+            w();
+        }
     }
 
     startTurnFor(p: Polity) {
