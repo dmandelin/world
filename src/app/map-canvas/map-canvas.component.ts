@@ -31,7 +31,8 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     for (let i = 0; i < this.world.map.width; ++i) {
       let x = 0;
       for (let j = 0; j < this.world.map.height; ++j) {
-        ctx.fillStyle = 'red';
+        const tile = this.world.map.tiles[i][j];
+        ctx.fillStyle = this.tileColor(tile);
         ctx.fillRect(x, y, this.side, this.side);
         x += this.side;
       }
@@ -39,6 +40,14 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  tileColor(tile: Tile): string {
+    const t = Math.min(tile.population, 5000) / 5000;
+    const r = Math.floor(140 * (1 - t) + 10 * t);
+    const g = Math.floor(100 * (1 - t) + 180 * t);
+    const b = Math.floor(30 * (1-t) + 10 * t);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+  
   ngOnDestroy(): void {
     if (this.deleteWatcher) {
       this.world.removeWatcher(this.deleteWatcher);
