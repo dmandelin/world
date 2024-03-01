@@ -5,8 +5,8 @@
 .tile {
     width: 80px;
     height: 80px;
-    border-top: 3px solid #ddd;
-    border-left: 3px solid #ddd;
+    border-top: 3px solid #461;
+    border-left: 3px solid #461;
     display: flex;
     gap: 4px;
     justify-content: space-between;
@@ -14,14 +14,14 @@
 }
 
 .tile.tbt {
-    border-top: 3px dashed #666;
+    border-top: 3px dashed #ddd;
 }
 .tile.tbb {
-    border-bottom: 3px dashed #666;
+    border-bottom: 3px dashed #ddd;
 }
 .tile.tbl {
-    border-left: 3px dashed #666;
+    border-left: 3px dashed #ddd;
 }
 .tile.tbr {
-    border-right: 3px dashed #666;
+    border-right: 3px dashed #ddd;
 }

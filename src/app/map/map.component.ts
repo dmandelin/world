@@ -33,4 +33,12 @@ export class MapComponent {
     const controller = tile.controller;
     return controller.suzerain || controller;
   }
+
+  tileColor(tile: Tile): string {
+    const t = Math.min(tile.population, 5000) / 5000;
+    const r = Math.floor(140 * (1 - t) + 10 * t);
+    const g = Math.floor(100 * (1 - t) + 180 * t);
+    const b = Math.floor(30 * (1-t) + 10 * t);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
 }
