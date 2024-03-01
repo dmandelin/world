@@ -41,8 +41,25 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         const tile = tt[i][j];
         ctx.fillStyle = this.tileColor(tile);
         ctx.fillRect(x, y, this.side, this.side);
+
         ctx.fillStyle = '#eee';
-        ctx.fillText(tile.controller.name, x + 10, y + 20);
+
+        if (!tile.controller.suzerain) {
+          ctx.font = '12px sans-serif';
+          ctx.fillText(`${tile.controller.vassalPopulation}`, x + 23, y + 25);
+        }
+        
+        let xo = tile.controller.vassals.size ? 33 : 34;
+        let yo = tile.controller.vassals.size ? 64 : 50;
+        ctx.font = tile.controller.vassals.size ? '20px sans-serif' : '10px sans-serif';
+        ctx.fillText(tile.controller.name, x + xo, y + yo);
+
+        xo = tile.controller.vassals.size ? 33 : 35;
+        yo = tile.controller.vassals.size ? 40 : 40;
+        const ch = tile.controller.vassals.size ? '⍟' : '•';
+        ctx.font = '14px sans-serif';
+        ctx.fillText(ch, x + xo, y + yo);
+
         x += this.side;
       }
       y += this.side;
