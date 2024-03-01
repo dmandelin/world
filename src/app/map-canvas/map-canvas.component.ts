@@ -48,7 +48,10 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
           ctx.font = '12px sans-serif';
           ctx.fillText(`${tile.controller.vassalPopulation}`, x + 23, y + 25);
         }
-        
+
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`${Math.floor(this.world.populationChange(tile) * 100)}`, x + 65, y + 72);
+
         let xo = tile.controller.vassals.size ? 33 : 34;
         let yo = tile.controller.vassals.size ? 64 : 50;
         ctx.font = tile.controller.vassals.size ? '20px sans-serif' : '10px sans-serif';

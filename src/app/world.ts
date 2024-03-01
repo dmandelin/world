@@ -10,9 +10,24 @@ export class World {
     readonly map = new WorldMap(5, 5, this.polities);
     readonly log = new WorldLog();
 
+    lastPopulation = new Map<Tile, number>();
+
     private watchers_: Set<Function> = new Set<Function>();
 
     constructor() {
+        this.updateLastPopulation();
+    }
+
+    updateLastPopulation() {
+        for (const tile of this.map.tiles.flat()) {
+            this.lastPopulation.set(tile, tile.population);
+        }
+    }
+
+    populationChange(tile: Tile): number {
+        const last = this.lastPopulation.get(tile);
+        if (last === undefined) return 0;
+        return (tile.population - last) / last;
     }
 
     static BRAINS = [
@@ -53,6 +68,7 @@ export class World {
     }
 
     nextTurn() {
+        this.updateLastPopulation();
         this.log.turnlogClear();
 
         this.map.scaleCapacity(1.04);
