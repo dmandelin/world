@@ -1,14 +1,27 @@
-.map .row {
+.row {
     display: flex;
 }
 
-.map .row .tile {
+.tile {
     width: 80px;
     height: 80px;
-    border: 1px solid #ddd;
+    border-top: 3px solid #ddd;
+    border-left: 3px solid #ddd;
     display: flex;
     gap: 4px;
     justify-content: space-between;
     align-items: flex-end;
 }
-  
+
+.tile.tbt {
+    border-top: 3px dashed #666;
+}
+.tile.tbb {
+    border-bottom: 3px dashed #666;
+}
+.tile.tbl {
+    border-left: 3px dashed #666;
+}
+.tile.tbr {
+    border-right: 3px dashed #666;
+}
