@@ -104,6 +104,38 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
       }
       y += this.side;
     }
+
+    // Draw battles.
+    for (const [attacker, target] of this.world.lastAttacks) {
+      ctx.strokeStyle = 'red';
+      ctx.fillStyle = 'red';
+
+      const [x0, y0] = this.loc(this.tileOf(attacker));
+      const [x1, y1] = this.loc(this.tileOf(target));
+
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+
+      ctx.fillText('💥', x1 - 6, y1 + 3);
+    }
+  }
+
+  loc(tile: Tile) : [number, number] {
+    return [
+      (tile.j + 0.5) * this.side,
+      (tile.i + 0.5) * this.side,
+    ];
+  }
+
+  tileOf(polity: Polity) {
+    for (const tile of this.world.map.tiles.flat()) {
+      if (tile.controller === polity) {
+        return tile;
+      }
+    }
+    throw new Error('polity not found');
   }
 
   tileColor(tile: Tile): string {

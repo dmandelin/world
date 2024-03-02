@@ -11,6 +11,7 @@ export class World {
     readonly log = new WorldLog();
 
     lastPopulation = new Map<Tile, number>();
+    lastAttacks = new Set<[Polity, Polity]>();
 
     private watchers_: Set<Function> = new Set<Function>();
 
@@ -69,6 +70,7 @@ export class World {
 
     nextTurn() {
         this.updateLastPopulation();
+        this.lastAttacks.clear();
         this.log.turnlogClear();
 
         this.map.scaleCapacity(1.04);
@@ -98,6 +100,8 @@ export class World {
     }
 
     resolveAttack(attacker: Polity, target: Polity, defender: readonly Polity[]) {
+        this.lastAttacks.add([attacker, target]);
+
         const ac = new Combatant([attacker, ...attacker.vassals]);
         const dc = new Combatant([...new Set(defender.flatMap(d => [d, ...d.vassals]))]);
         const ap = ac.power;
@@ -317,7 +321,9 @@ export class Tile {
     private controller_: Polity;
     private population_ = this.capacity;
 
-    constructor(public capacity: number, controller: Polity) {
+    constructor(
+        public readonly i: number, public readonly j: number, 
+        public capacity: number, controller: Polity) {
         this.controller_ = controller;
     }
 
@@ -343,7 +349,7 @@ class WorldMap {
         for (let i = 0; i < height; i++) {
             this.tiles[i] = [];
             for (let j = 0; j < width; j++) {
-                this.tiles[i][j] = new Tile(500, polities[i * width + j])
+                this.tiles[i][j] = new Tile(i, j, 500, polities[i * width + j])
             }
         }
 
