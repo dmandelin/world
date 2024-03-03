@@ -33,11 +33,11 @@ export class World {
 
     static BRAINS = [
         new BasicBrain('A', 1.0),
-        new DefensiveBrain('E', 1.0),
-        new BasicBrain('R', 0.5),
-        new DefensiveBrain('D', 0.5),
-        new BasicBrain('I', 0.2),
-        new DefensiveBrain('P', 0.2),
+        new DefensiveBrain('A/', 1.0),
+        new BasicBrain('N', 0.5),
+        new DefensiveBrain('N/', 0.5),
+        new BasicBrain('P', 0.2),
+        new DefensiveBrain('P/', 0.2),
     ];
 
     addWatcher(w: Function) {
@@ -73,7 +73,6 @@ export class World {
         this.lastAttacks.clear();
         this.log.turnlogClear();
 
-        this.map.scaleCapacity(1.04);
         this.map.updatePopulations();
 
         // Compute what alliance exists against each potential aggressor.
@@ -322,9 +321,19 @@ export class Tile {
     private population_ = this.capacity;
 
     constructor(
-        public readonly i: number, public readonly j: number, 
-        public capacity: number, controller: Polity) {
+        public readonly i: number, 
+        public readonly j: number, 
+        controller: Polity,
+        public readonly wetFraction: number,
+        public readonly dryLightSoilFraction: number,
+        capacityRatio: number,
+        ) {
         this.controller_ = controller;
+        this.population_ = Math.floor(this.capacity * capacityRatio);
+    }
+
+    get capacity() {
+        return Math.floor(this.wetFraction * 5000);
     }
 
     get controller() { return this.controller_; }
@@ -339,7 +348,7 @@ export class Tile {
         this.population += dp;
     }
 }
-  
+
 class WorldMap {
     tiles: Tile[][];
   
@@ -349,25 +358,11 @@ class WorldMap {
         for (let i = 0; i < height; i++) {
             this.tiles[i] = [];
             for (let j = 0; j < width; j++) {
-                this.tiles[i][j] = new Tile(i, j, 500, polities[i * width + j])
-            }
-        }
-
-        // Randomly distribute additional carrying capacity and initial population.
-        let cap = 1500 * width * height;
-        const chunk = 500;
-        while (cap > 0) {
-            const t = this.tiles[randint(width)][randint(height)];
-            t.capacity += chunk;
-            t.population = t.capacity;
-            cap -= chunk;
-        }
-    }
-
-    scaleCapacity(f: number) {
-        for (const t of this.tiles.flat()) {
-            if (!t.controller.attacked) {
-                t.capacity = Math.floor(t.capacity * f);
+                const polity = polities[i * width + j];
+                const wetFraction = randint(1, 10) * 0.1;
+                const dryLightSoilFraction = Math.random() * (1 - wetFraction);
+                const capacityRatio = Math.random() * 0.2 + 0.4;
+                this.tiles[i][j] = new Tile(i, j, polity, wetFraction, dryLightSoilFraction, capacityRatio);
             }
         }
     }
@@ -418,8 +413,11 @@ function test() {
 
 //test();
 
-function randint(a: number) {
-    return Math.floor(Math.random() * a);
+function randint(a: number, b?: number) {
+    if (b === undefined) {
+        [a, b] = [0, a];
+    }
+    return a + Math.floor(Math.random() * (b - a));
 }
 
 function randelem<T>(elems: readonly T[]): T {
