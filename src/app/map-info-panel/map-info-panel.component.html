@@ -2,12 +2,19 @@
 
 <div>Year: {{world.year}}</div>
 <div class="vbreakafter">World Population: {{world.population}}/{{world.capacity}}</div>
-<div *ngFor="let p of world.getRankedPolities(); let i = index"
-    [ngStyle]="{'color': p.mapColor}">
-    <div>{{i+1}}: {{p.name}} 
-        {{p.suzerain ? '&lt;' + p.suzerain.name : ''}} 
-        {{vassalsDisplay(p)}} 
-        ({{p.brain.tag}}) 
-        {{p.vassalPopulation}} {{p.counterAllianceDisplay()}}</div>
-
-</div>
+<table>
+    <tr>
+        <td>Pop Rank</td>
+        <td>City</td>
+        <td>Strat</td>
+        <td>Vassals</td>
+        <td>Vassal Pop</td>       
+    </tr>
+    <tr *ngFor="let p of world.getRankedPolities(); let i = index">
+        <td>{{i+1}}</td>
+        <td>{{p.name}}</td>
+        <td>{{p.brain.tag}}</td>
+        <td>{{p.vassals.size}}</td>
+        <td>{{p.vassalPopulation}}</td>
+    </tr>
+</table>
