@@ -83,6 +83,13 @@ export class World {
 
         this.map.updatePopulations();
 
+        if (this.year == 200) {
+            this.log.turnlog('Large-scale irrigation works begun!');
+            for (const t of this.map.tiles.flat()) {
+                t.enableDryLightSoil();
+            }
+        }
+
         // Compute what alliance exists against each potential aggressor.
         for (const p of this.polities) {
             p.counterAlliance = p.neighbors.filter(n => n.brain.joinsCounterAlliance(this, n, p));
@@ -98,7 +105,7 @@ export class World {
 
         this.year_ += 20;
         this.recordRanks();
-        
+
         for (const w of this.watchers_) {
             w();
         }
@@ -332,6 +339,8 @@ export class Tile {
     private controller_: Polity;
     private population_ = this.capacity;
 
+    private dryLightSoilEnabled_ = false;
+
     constructor(
         public readonly i: number, 
         public readonly j: number, 
@@ -345,7 +354,9 @@ export class Tile {
     }
 
     get capacity() {
-        return Math.floor(this.wetFraction * 5000);
+        const f = this.wetFraction +
+                (this.dryLightSoilEnabled_ ? this.dryLightSoilFraction : 0);
+        return Math.floor(f * 5000);
     }
 
     get controller() { return this.controller_; }
@@ -358,6 +369,10 @@ export class Tile {
         const r = this.population / this.capacity;
         const dp = Math.floor(0.4 * r * (1 - r) * this.population);
         this.population += dp;
+    }
+
+    enableDryLightSoil() {
+        this.dryLightSoilEnabled_ = true;
     }
 }
 
