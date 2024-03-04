@@ -17,6 +17,7 @@ export class World {
 
     constructor() {
         this.updateLastPopulation();
+        this.recordRanks();
     }
 
     updateLastPopulation() {
@@ -29,6 +30,13 @@ export class World {
         const last = this.lastPopulation.get(tile);
         if (last === undefined) return 0;
         return (tile.population - last) / last;
+    }
+
+    recordRanks() {
+        let i = 1;
+        for (const polity of this.getRankedPolities()) {
+            polity.historicalRanks.push([this.year, i++]);
+        }
     }
 
     static BRAINS = [
@@ -89,6 +97,8 @@ export class World {
         }
 
         this.year_ += 20;
+        this.recordRanks();
+        
         for (const w of this.watchers_) {
             w();
         }
@@ -214,6 +224,8 @@ export class Polity {
     counterAlliance: readonly Polity[] = [];
 
     attacked: boolean = false;
+
+    historicalRanks: [number, number][] = [];
 
     constructor(
         private readonly world: World, 

@@ -5,16 +5,20 @@
 <table>
     <tr>
         <td>Pop Rank</td>
+        <td>Change</td>
         <td>City</td>
         <td>Strat</td>
         <td>Vassals</td>
-        <td>Vassal Pop</td>       
+        <td>Vassal Pop</td>
+        <td>Legacy</td>  
     </tr>
     <tr *ngFor="let p of world.getRankedPolities(); let i = index">
         <td>{{i+1}}</td>
+        <td>{{rankChangeDisplay(p)}}</td>
         <td>{{p.name}}</td>
         <td>{{p.brain.tag}}</td>
         <td>{{p.vassals.size}}</td>
         <td>{{p.vassalPopulation}}</td>
+        <td>{{legacyDisplay(p)}}</td>
     </tr>
 </table>
