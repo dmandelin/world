@@ -42,8 +42,12 @@ export class World {
     static BRAINS = [
         new BasicBrain('A', 1.0),
         new DefensiveBrain('A/', 1.0),
+        new BasicBrain('Na', 0.66),
+        new DefensiveBrain('Na/', 0.66),
         new BasicBrain('N', 0.5),
         new DefensiveBrain('N/', 0.5),
+        new BasicBrain('Np', 0.33),
+        new DefensiveBrain('Np/', 0.33),
         new BasicBrain('P', 0.2),
         new DefensiveBrain('P/', 0.2),
     ];
@@ -461,8 +465,18 @@ function shuffled<T>(items: readonly T[]): T[] {
     return ss;
 }
 
+function sorted<T>(items: readonly T[], keyFun: undefined|((item: T) => number) = undefined) {
+    const xs = [...items];
+    if (keyFun === undefined) {
+        xs.sort();
+    } else {
+        xs.sort((a, b) => keyFun(a) - keyFun(b));
+    }
+    return xs;
+}
+
 function evolve() {
-    const generations = 200;
+    const generations = 500;
 
     const brainPopulation = [];
     if (true) {
@@ -484,30 +498,37 @@ function evolve() {
         const w = new World;
         w.setBrains(shuffled(brainPopulation));
 
-        let guard = 1000;
-        while (w.polities.length > 1 && guard > 0) {
+        while (w.polities.length > 1 && w.year < 1000) {
             w.nextTurn();
-            --guard;
         }
-        if (w.polities.length > 1) debugger;
 
-        const winner = w.polities[0].brain;
+        const winner = randelem(w.polities).brain;
         console.log(`  winner = ${winner.tag}, duplicating`);
         const nonWinningIndices = [...brainPopulation.filter(b => b.tag != winner.tag).keys()];
         if (nonWinningIndices.length === 0) {
             console.log('  no other brain types');
         } else {
             const removed = brainPopulation.splice(randelem(nonWinningIndices), 1);
-            console.log(`  removed ${removed[0].tag}`);
+            console.log(`  removed ${removed[0].tag} to make room for clone of winner`);
             brainPopulation.push(winner.clone());
         }
+
+        if (Math.random() < 0.5) {
+            const nonWinningIndices = [...brainPopulation.filter(b => b.tag != winner.tag).keys()];
+            if (nonWinningIndices.length !== 0) {
+                const removed = brainPopulation.splice(randelem(nonWinningIndices), 1);
+                console.log(`  removed ${removed[0].tag} to make room for random brain`);
+                brainPopulation.push(randelem(World.BRAINS));
+            }    
+        }
+
 
         console.log('  new population');
         const counts: {[key: string]: number} = {};
         for (const b of brainPopulation) {
             counts[b.tag] = 1 + (counts[b.tag] || 0);
         }
-        for (const k in counts) {
+        for (const k of sorted(Object.keys(counts))) {
             console.log(`    ${k}: ${counts[k]}`);
         }
     }
