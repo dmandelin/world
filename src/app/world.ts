@@ -177,9 +177,12 @@ export class World {
         // Defender is removed from any existing suzerain.
         if (defender.suzerain) {
             defender.suzerain.vassals.delete(defender);
+            const formerSuzerain = defender.suzerain;
             defender.suzerain = undefined;
+            this.releaseDisconnectedVassals(formerSuzerain);
         }
-        
+
+
         // Vassals of the defender are released.
         for (const v of defender.vassals) {
             v.suzerain = undefined;
@@ -189,6 +192,36 @@ export class World {
         // The new vassal relationship.
         defender.suzerain = attacker;
         attacker.vassals.add(defender);
+    }
+
+    releaseDisconnectedVassals(p: Polity) {
+        const connectedVassals = new Set<Polity>();
+        const done = new Set<Tile>();
+        const work: Tile[] = [];
+        for (const t of this.map.tiles.flat()) {
+            if (t.controller === p) {
+                work.push(t);
+            }
+        }
+        while (work.length) {
+            const t = work.pop();
+            done.add(t!);
+            for (const n of this.neighoringTiles(t!)) {
+                if (done.has(n)) continue;
+                if (n.controller != p && n.controller.suzerain != p) continue;
+                work.push(n);
+                if (n.controller != p) {
+                    connectedVassals.add(n.controller);
+                }
+            }
+        }
+        const oldVassals = p.vassals;
+        p.vassals = new Set<Polity>([...p.vassals].filter(v => connectedVassals.has(v)));
+        for (const v of oldVassals) {
+            if (!p.vassals.has(v)) {
+                v.suzerain = undefined;
+            }
+        }
     }
 
     updateTradeLinks() {
