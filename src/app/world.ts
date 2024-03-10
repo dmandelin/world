@@ -369,9 +369,10 @@ export class Tile {
     }
 
     get capacity() {
-        const f = this.wetFraction +
+        const arableFraction = this.wetFraction +
                 (this.dryLightSoilEnabled_ ? this.dryLightSoilFraction : 0);
-        return Math.floor(f * 5000);
+        const dietaryEfficiency = this.produceCode == '=' ? 1.0 : 0.8;
+        return Math.floor(arableFraction * dietaryEfficiency * 5000);
     }
 
     get controller() { return this.controller_; }
