@@ -357,6 +357,17 @@ export class Tile {
         this.population_ = Math.floor(this.capacity * capacityRatio);
     }
 
+    get produceCode(): string {
+        switch (true) {
+            case (this.wetFraction > this.dryLightSoilFraction * 2):
+                return 'W'; // mostly wheat
+            case (this.dryLightSoilFraction > this.wetFraction * 2):
+                return 'L'; // mostly lentils
+            default:
+                return '='; // balanced
+        }
+    }
+
     get capacity() {
         const f = this.wetFraction +
                 (this.dryLightSoilEnabled_ ? this.dryLightSoilFraction : 0);

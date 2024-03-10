@@ -45,7 +45,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         ctx.fillStyle = '#eee';
 
         ctx.font = '12px sans-serif';
-        ctx.fillText(`${Math.floor(tile.population/100)}/${Math.floor(tile.capacity/100)}`, x + 23, y + 25);
+        ctx.fillText(`${Math.floor(tile.population/100)}/${Math.floor(tile.capacity/100)}${tile.produceCode}`, x + 23, y + 25);
 
         ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.wetFraction*100)}|${Math.floor(tile.dryLightSoilFraction*100)}`, x + 3, y + 74);
