@@ -13,6 +13,8 @@ export class MapInfoPanelComponent {
   constructor(readonly world: World) {
   }
 
+  floor(n: number): number { return Math.floor(n); }
+
   advance() {
     this.world.advance();
   }

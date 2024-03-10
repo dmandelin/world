@@ -218,8 +218,8 @@ export class World {
                 ...d.vassals, 
                 ...(d.suzerain ? [d.suzerain, ...d.suzerain.vassals] : []),
             ]))]);
-        const ap = ac.power;
-        const dp = dc.power;
+        const ap = ac.attackPower;
+        const dp = dc.defensePower;
         const winp = ap / (ap + dp);
 
         this.log.turnlog(`    AP = ${ap} (${ac.polities.map(p => p.name)})`);
@@ -378,9 +378,15 @@ class WorldLog {
 class Combatant {
     constructor(public readonly polities: readonly Polity[]) {}
 
-    get power(): number { 
+    get attackPower(): number {
         return this.polities
-            .map(p => p.population * p.concurrentBattleModifier)
+            .map(p => p.attackPower)
+            .reduce((a, b) => a + b);
+    }
+
+    get defensePower(): number { 
+        return this.polities
+            .map(p => p.defensePower)
             .reduce((a, b) => a + b);
     }
 }
@@ -435,9 +441,37 @@ export class Polity {
             .reduce((a, b) => a + b, 0);
     }
 
+    get attackPower(): number {
+        return this.concurrentBattleModifier * this.world.map.tiles
+            .flat()
+            .filter(t => t.controller == this)
+            .map(t => t.attackPower)
+            .reduce((a, b) => a + b, 0);
+    }
+
+    get defensePower(): number {
+        return this.concurrentBattleModifier * this.world.map.tiles
+            .flat()
+            .filter(t => t.controller == this)
+            .map(t => t.defensePower)
+            .reduce((a, b) => a + b, 0);
+    }
+
     get vassalPopulation(): number {
         return [this, ...this.vassals]
             .map(p => p.population)
+            .reduce((a, b) => a + b, 0);
+    }
+
+    get vassalAP(): number {
+        return [this, ...this.vassals]
+            .map(p => p.attackPower)
+            .reduce((a, b) => a + b, 0);
+    }
+
+    get vassalDP(): number {
+        return [this, ...this.vassals]
+            .map(p => p.defensePower)
             .reduce((a, b) => a + b, 0);
     }
 
@@ -514,6 +548,8 @@ export class Tile {
 
     private population_ = this.capacity;
 
+    private construction_ = 0.1 * this.population_;
+
     private dryLightSoilEnabled_ = false;
 
     constructor(
@@ -562,8 +598,21 @@ export class Tile {
     get controller() { return this.controller_; }
     set controller(value: Polity) { this.controller_ = value; }
 
+    get construction() { return this.construction_; }
+    get constructionDensity() { return this.construction_ / this.population_; }
+
     get population() { return this.population_; }
     set population(value: number) { this.population_ = value; }
+
+    get attackPower() {
+        const constructionFactor = 1.0 + this.constructionDensity * 0.25;
+        return constructionFactor * this.population;
+    }
+
+    get defensePower() {
+        const constructionFactor = 1.0 + this.constructionDensity;
+        return constructionFactor * this.population;
+    }
 
     updatePopulation() {
         const r = this.population / this.capacity;

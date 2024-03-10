@@ -52,13 +52,20 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         ctx.fillStyle = '#eee';
 
         ctx.font = '12px sans-serif';
-        ctx.fillText(`${Math.floor(tile.population/100)}/${Math.floor(tile.capacity/100)}${tile.produceCode}`, x + 23, y + 25);
+        ctx.fillText(`${Math.floor(tile.population/100)}/${Math.floor(tile.capacity/100)}${tile.produceCode}`, 
+          x + 23, y + 25);
 
         ctx.font = '10px sans-serif';
-        ctx.fillText(`${Math.floor(tile.wetFraction*100)}|${Math.floor(tile.dryLightSoilFraction*100)}`, x + 3, y + 74);
+        ctx.fillText(`${Math.floor(tile.construction / 100)}`, 
+            x + 68, y + 14);
 
         ctx.font = '10px sans-serif';
-        ctx.fillText(`${Math.floor(this.world.populationChange(tile) * 100)}`, x + 65, y + 72);
+        ctx.fillText(`${Math.floor(tile.wetFraction*100)}|${Math.floor(tile.dryLightSoilFraction*100)}`, 
+          x + 3, y + 74);
+
+        ctx.font = '10px sans-serif';
+        ctx.fillText(`${Math.floor(this.world.populationChange(tile) * 100)}`, 
+          x + 65, y + 72);
 
         let xo = tile.controller.vassals.size ? 33 : 34;
         let yo = tile.controller.vassals.size ? 64 : 50;

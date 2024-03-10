@@ -12,7 +12,9 @@
         <td>Strat</td>
         <td>Suz</td>
         <td>Vassals</td>
-        <td>Vassal Pop</td>
+        <td>VPop</td>
+        <td>AP</td>
+        <td>DP</td>
         <td>Legacy</td>  
     </tr>
     <tr *ngFor="let p of world.getRankedPolities(); let i = index">
@@ -23,6 +25,8 @@
         <td>{{p.suzerain ? p.suzerain.name : ''}}</td>
         <td>{{p.vassals.size}}</td>
         <td>{{p.vassalPopulation}}</td>
+        <td>{{floor(p.vassalAP/100)}}</td>
+        <td>{{floor(p.vassalDP/100)}}</td>
         <td>{{legacyDisplay(p)}}</td>
     </tr>
 </table>
