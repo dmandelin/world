@@ -62,18 +62,23 @@ export class BasicBrain {
     }
 
     move(world: World, self: Polity): void {
+        if (this.tryAttack(world, self)) return;
+        world.resolveConstruct(self);
+    }
+
+    tryAttack(world: World, self: Polity): boolean {
         const roll = Math.random();
-        if (roll < this.attackProbability) {
-            const ns = self.vassalNeighbors;
+        if (roll >=  this.attackProbability) return false;
 
-            const possibleTargets = ns.filter(n => self.canAttack(n));
-            if (possibleTargets.length === 0) return;
-            if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
+        const ns = self.vassalNeighbors;
 
-            const target = randelem(possibleTargets);
-            this.doAttack(world, self, target);
-            return;
-        }
+        const possibleTargets = ns.filter(n => self.canAttack(n));
+        if (possibleTargets.length === 0) return false;
+        if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
+
+        const target = randelem(possibleTargets);
+        this.doAttack(world, self, target);
+        return true;
     }
 
     doAttack(world: World, self: Polity, target: Polity) {

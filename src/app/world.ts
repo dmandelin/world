@@ -109,6 +109,17 @@ export class World {
                 this.notifyWatchers();
                 break;
             case 'skipAction':
+                this.resolveConstruct(this.actor);
+                this.skipAction();
+                if (this.advanceTurnAct()) {
+                    this.advanceState = 'skipAction';
+                    this.notifyWatchers();
+                    return;
+                }
+                this.advanceTurnFinish();
+                this.advanceState = 'startTurn';
+                this.notifyWatchers();
+                break;
             case 'continue':
                 this.skipAction();
                 if (this.advanceTurnAct()) {
@@ -208,6 +219,15 @@ export class World {
     startTurnFor(p: Polity) {
         p.attacked.clear();
         p.defended.clear();
+    }
+
+    resolveConstruct(p: Polity) {
+        if (p.suzerain) return;
+        for (const t of this.map.tiles.flat()) {
+            if (t.controller === p || t.controller.suzerain === p) {
+                t.constructTurn();
+            }
+        }
     }
 
     resolveAttack(attacker: Polity, target: Polity, defender: readonly Polity[]) {
@@ -548,9 +568,8 @@ export class Tile {
     private controller_: Polity;
     private tradePartners_= new Set<Tile>();
 
-    private population_ = this.capacity;
-
-    private construction_ = 0.1 * this.population_;
+    private population_: number;
+    private construction_: number;
 
     private dryLightSoilEnabled_ = false;
 
@@ -564,6 +583,7 @@ export class Tile {
         ) {
         this.controller_ = controller;
         this.population_ = Math.floor(this.capacity * capacityRatio);
+        this.construction_ = Math.floor(0.1 * this.population_);
     }
 
     get produceCode(): string {
@@ -602,6 +622,15 @@ export class Tile {
 
     get construction() { return this.construction_; }
     get constructionDensity() { return this.construction_ / this.population_; }
+    get constructionDisplay() { 
+        return `${Math.floor(this.construction)}, ${Math.floor(this.constructionDensity*100)}%`;
+    }
+
+    constructTurn() {
+        this.construction_ += this.population / 20;
+        const maxConstruction = this.population * 1.5;
+        this.construction_ = Math.min(this.construction_, maxConstruction);
+    }
 
     get population() { return this.population_; }
     set population(value: number) { this.population_ = value; }

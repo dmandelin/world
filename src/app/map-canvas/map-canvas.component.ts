@@ -39,11 +39,13 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
       this.message = '';
       return;
     }
-    const target = this.world.map.tiles[i][j].controller;
+    const tile = this.world.map.tiles[i][j]
+    const target = tile.controller;
     const realTarget = target.suzerain || target;
     const actor = this.world.actor;
     this.message = `${target.name} (${realTarget.name}, ` +
-        `${Math.floor(actor.vassalAP)} vs ${Math.floor(realTarget.vassalDP)})`;
+        `${Math.floor(actor.vassalAP)} vs ${Math.floor(realTarget.vassalDP)})` +
+        `, construction = ${tile.constructionDisplay}`;
   }
 
   leave(event: MouseEvent) {
@@ -78,6 +80,8 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.construction / 100)}`, 
             x + 68, y + 14);
+        ctx.fillText(`${Math.floor(tile.construction / tile.population * 5)}`, 
+            x + 68, y + 26);
 
         ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.wetFraction*100)}|${Math.floor(tile.dryLightSoilFraction*100)}`, 
