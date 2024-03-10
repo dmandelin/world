@@ -13,6 +13,8 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   private context!: CanvasRenderingContext2D | null;
   private deleteWatcher: Function|undefined;
 
+  message = '';
+
   constructor(readonly world: World) {}
 
   ngAfterViewInit(): void {
@@ -28,6 +30,24 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     const [i, j] = [Math.floor(y / this.side), Math.floor(x / this.side)];
     const target = this.world.map.tiles[i][j].controller;
     this.world.actAttack(target);
+  }
+
+  move(event: MouseEvent) {
+    const [x, y] = [event.clientX, event.clientY];
+    const [i, j] = [Math.floor(y / this.side), Math.floor(x / this.side)];
+    if (i < 0 || i >= this.world.map.height || j < 0 || j >= this.world.map.height) {
+      this.message = '';
+      return;
+    }
+    const target = this.world.map.tiles[i][j].controller;
+    const realTarget = target.suzerain || target;
+    const actor = this.world.actor;
+    this.message = `${target.name} (${realTarget.name}, ` +
+        `${Math.floor(actor.vassalAP)} vs ${Math.floor(realTarget.vassalDP)})`;
+  }
+
+  leave(event: MouseEvent) {
+    this.message = '';
   }
 
   draw(): void {

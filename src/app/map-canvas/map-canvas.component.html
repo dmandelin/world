@@ -1,1 +1,9 @@
-<canvas #worldCanvas width="400" height="400" (click)="click($event)"></canvas>
+<canvas
+  #worldCanvas 
+  width="400" 
+  height="400" 
+  (click)="click($event)"
+  (mousemove)="move($event)"
+  (mouseleave)="leave($event)"
+></canvas>
+<div>{{message}}</div>

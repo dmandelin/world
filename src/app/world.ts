@@ -83,6 +83,8 @@ export class World {
     private advanceState: 'startTurn'|'skipAction'|'continue' = 'startTurn';
     private actorState: number = 0;
 
+    get actor(): Polity { return this.polities_[this.actorState]; }
+
     get advanceStateDisplay() {
         switch (this.advanceState) {
             case 'startTurn':
@@ -424,7 +426,7 @@ export class Polity {
     get counterAllianceDisplay(): string {
         if (this.counterAlliance.length === 0) return '';
         const names = sorted(this.counterAlliance, p => p.name).map(a => a.name).join(',');
-        return `[vs ${names}: ${totalPopulation(this.counterAlliance)}]`;
+        return `${names}:${Math.floor(totalPopulation(this.counterAlliance)/100)}`;
     }
 
     setBrain(brain: Brain) {
