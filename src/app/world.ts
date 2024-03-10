@@ -421,9 +421,9 @@ export class Polity {
         return 1.0 * Math.pow(0.8, this.defended.size) * Math.pow(0.7, this.attacked.size);
     }
 
-    counterAllianceDisplay(): string {
+    get counterAllianceDisplay(): string {
         if (this.counterAlliance.length === 0) return '';
-        const names = this.counterAlliance.map(a => a.name).join(',');
+        const names = sorted(this.counterAlliance, p => p.name).map(a => a.name).join(',');
         return `[vs ${names}: ${totalPopulation(this.counterAlliance)}]`;
     }
 
@@ -727,12 +727,17 @@ function shuffled<T>(items: readonly T[]): T[] {
     return ss;
 }
 
-function sorted<T>(items: readonly T[], keyFun: undefined|((item: T) => number) = undefined) {
+function sorted<T>(
+    items: readonly T[], 
+    keyFun: undefined|((item: T) => number)|((item: T) => string) = undefined) {
     const xs = [...items];
     if (keyFun === undefined) {
         xs.sort();
     } else {
-        xs.sort((a, b) => keyFun(a) - keyFun(b));
+        xs.sort((a, b) => {
+            const [as, bs] = [keyFun(a), keyFun(b)];
+            return as < bs ? -1 : bs < as ? 1 : 0;
+        });
     }
     return xs;
 }

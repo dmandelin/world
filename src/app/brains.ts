@@ -78,13 +78,13 @@ export class BasicBrain {
 
     doAttack(world: World, self: Polity, target: Polity) {
         if (VERBOSE) world.log.turnlog(`  Attacking ${target.name}`);
-        if (VERBOSE) world.log.turnlog(`    Counteralliance: ${self.counterAllianceDisplay()}`)
+        if (VERBOSE) world.log.turnlog(`    Counteralliance: ${self.counterAllianceDisplay}`)
         
         const defender = self.counterAlliance.includes(target)
             ? self.counterAlliance
             : [target];
         if (VERBOSE && defender.length > 1) {
-            world.log.turnlog(`  Defender has alliance: ${self.counterAllianceDisplay()}`)
+            world.log.turnlog(`  Defender has alliance: ${self.counterAllianceDisplay}`)
         }
         world.resolveAttack(self, target, defender);
     }

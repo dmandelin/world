@@ -6,12 +6,13 @@
 <div class="vbreakafter">World Population: {{world.population}}/{{world.capacity}}</div>
 <table>
     <tr>
-        <td>Pop Rank</td>
-        <td>Change</td>
+        <td>#</td>
+        <td>Δ</td>
         <td>City</td>
-        <td>Strat</td>
+        <td>Str</td>
         <td>Suz</td>
         <td>Vassals</td>
+        <td>CA</td>
         <td>VPop</td>
         <td>AP</td>
         <td>DP</td>
@@ -24,6 +25,7 @@
         <td>{{p.brain.tag}}</td>
         <td>{{p.suzerain ? p.suzerain.name : ''}}</td>
         <td>{{p.vassals.size}}</td>
+        <td>{{p.counterAllianceDisplay}}</td>
         <td>{{p.vassalPopulation}}</td>
         <td>{{floor(p.vassalAP/100)}}</td>
         <td>{{floor(p.vassalDP/100)}}</td>
