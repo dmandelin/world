@@ -118,6 +118,7 @@ export class World {
 
     startTurnFor(p: Polity) {
         p.attacked.clear();
+        p.defended.clear();
     }
 
     resolveAttack(attacker: Polity, target: Polity, defender: readonly Polity[]) {
@@ -133,6 +134,7 @@ export class World {
         this.log.turnlog(`    DP = ${dp} (${dc.polities.map(p => p.name)})`);
 
         attacker.attacked.add(target);
+        target.defended.add(attacker);
 
         if (Math.random() < winp) {
             this.log.turnlog(`  Successful attack: ${attacker.name} takes over ${defender[0].name}`);
@@ -253,7 +255,7 @@ class Combatant {
 
     get power(): number { 
         return this.polities
-            .map(p => p.population)
+            .map(p => p.population * p.concurrentBattleModifier)
             .reduce((a, b) => a + b);
     }
 }
@@ -272,6 +274,7 @@ export class Polity {
     counterAlliance: readonly Polity[] = [];
 
     attacked = new Set<Polity>();
+    defended = new Set<Polity>();
 
     historicalRanks: [number, number][] = [];
 
@@ -281,6 +284,10 @@ export class Polity {
         readonly mapColor: string,
         brain: Brain) {
         this.brain_ = brain;
+    }
+
+    get concurrentBattleModifier(): number {
+        return 1.0 * Math.pow(0.8, this.defended.size) * Math.pow(0.7, this.attacked.size);
     }
 
     counterAllianceDisplay(): string {

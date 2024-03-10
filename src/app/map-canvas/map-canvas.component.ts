@@ -127,8 +127,14 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
       ctx.strokeStyle = 'red';
       ctx.fillStyle = 'red';
 
-      const [x0, y0] = this.loc(this.tileOf(attacker));
-      const [x1, y1] = this.loc(this.tileOf(target));
+      let [x0, y0] = this.loc(this.tileOf(attacker));
+      let [x1, y1] = this.loc(this.tileOf(target));
+      let [dx, dy] = [x1 - x0, y1 - y0];
+      let ds = Math.sqrt(dx * dx + dy * dy);
+      let [xd, yd] = [dx / ds, dy / ds];
+      
+      x0 += xd * 20;
+      y0 += yd * 20;
 
       ctx.beginPath();
       ctx.moveTo(x0, y0);
