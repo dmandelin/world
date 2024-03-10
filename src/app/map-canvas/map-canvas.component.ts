@@ -106,6 +106,22 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
       y += this.side;
     }
 
+    // Draw trade relationships.
+    for (const t of this.world.map.tiles.flat()) {
+      for (const u of t.tradePartners) {
+        ctx.strokeStyle = 'blue';
+        ctx.fillStyle = 'blue';
+  
+        const [x0, y0] = this.loc(t);
+        const [x1, y1] = this.loc(u);
+  
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.lineTo(x1, y1);
+        ctx.stroke();
+      }
+    }
+    
     // Draw battles.
     for (const [attacker, target] of this.world.lastAttacks) {
       ctx.strokeStyle = 'red';

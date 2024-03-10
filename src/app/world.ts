@@ -85,8 +85,6 @@ export class World {
         this.lastAttacks.clear();
         this.log.turnlogClear();
 
-        this.map.updatePopulations();
-
         if (this.year == 200) {
             this.log.turnlog('Large-scale irrigation works begun!');
             for (const t of this.map.tiles.flat()) {
@@ -107,6 +105,9 @@ export class World {
             }
         }
 
+        this.updateTradeLinks();
+        this.map.updatePopulations();
+
         this.year_ += 20;
         this.recordRanks();
 
@@ -116,7 +117,7 @@ export class World {
     }
 
     startTurnFor(p: Polity) {
-        p.attacked = false;
+        p.attacked.clear();
     }
 
     resolveAttack(attacker: Polity, target: Polity, defender: readonly Polity[]) {
@@ -131,7 +132,7 @@ export class World {
         this.log.turnlog(`    AP = ${ap} (${ac.polities.map(p => p.name)})`);
         this.log.turnlog(`    DP = ${dp} (${dc.polities.map(p => p.name)})`);
 
-        attacker.attacked = true;
+        attacker.attacked.add(target);
 
         if (Math.random() < winp) {
             this.log.turnlog(`  Successful attack: ${attacker.name} takes over ${defender[0].name}`);
@@ -188,6 +189,42 @@ export class World {
         attacker.vassals.add(defender);
     }
 
+    updateTradeLinks() {
+        for (const tile of this.map.tiles.flat()) {
+            tile.clearTradePartners();
+        }
+        
+        for (const tile of this.map.tiles.flat()) {
+            if (tile.produceCode === '=') continue;
+            if (tile.hasTradePartners()) continue;
+            const [best, value] = argmax(
+                this.neighoringTiles(tile),
+                t => this.foughtThisTurn(tile.controller, t.controller) || t.hasTradePartners() ||
+                      t.produceCode === tile.produceCode
+                    ? 0
+                    : t.produceCode === '='
+                    ? 1
+                    : 2);
+            if (value && best) {
+                tile.addTradePartner(best);
+            }
+        }
+    }
+
+    foughtThisTurn(a: Polity, b: Polity): boolean {
+        return a.attacked.has(b) || b.attacked.has(a);
+    }
+
+    neighoringTiles(tile: Tile): Tile[] {
+        const ts = this.map.tiles;
+        const ns = [];
+        if (tile.i > 0) ns.push(ts[tile.i-1][tile.j]);
+        if (tile.i < this.map.height - 1) ns.push(ts[tile.i+1][tile.j]);
+        if (tile.j > 0) ns.push(ts[tile.i][tile.j-1]);
+        if (tile.j < this.map.width - 1) ns.push(ts[tile.i][tile.j+1]);
+        return ns;
+    }
+
     getRankedPolities(): Polity[] {
         return [...this.polities].sort((a, b) => {
             const popDiff = b.vassalPopulation - a.vassalPopulation;
@@ -230,11 +267,11 @@ function totalPopulation(ps: readonly Polity[]) {
 export class Polity {
     private brain_: Brain;
 
-    vassals: Set<Polity> = new Set<Polity>();
+    vassals = new Set<Polity>();
     suzerain: Polity|undefined = undefined;
     counterAlliance: readonly Polity[] = [];
 
-    attacked: boolean = false;
+    attacked = new Set<Polity>();
 
     historicalRanks: [number, number][] = [];
 
@@ -341,6 +378,8 @@ const DEFAULT_POLITIES = [
 
 export class Tile {
     private controller_: Polity;
+    private tradePartners_= new Set<Tile>();
+
     private population_ = this.capacity;
 
     private dryLightSoilEnabled_ = false;
@@ -368,11 +407,24 @@ export class Tile {
         }
     }
 
+    get dietaryEfficiency(): number {
+        let e = this.produceCode == '=' ? 1.0 : 0.8;
+        const tradeValue = 0.2;
+        for (const t of this.tradePartners_) {
+            if (this.produceCode === 'W' && t.produceCode === 'L') {
+                e += tradeValue;
+            } else {
+                e += 0.5 * tradeValue;
+            }
+            break;
+        }
+        return e;
+    }
+
     get capacity() {
         const arableFraction = this.wetFraction +
                 (this.dryLightSoilEnabled_ ? this.dryLightSoilFraction : 0);
-        const dietaryEfficiency = this.produceCode == '=' ? 1.0 : 0.8;
-        return Math.floor(arableFraction * dietaryEfficiency * 5000);
+        return Math.floor(arableFraction * this.dietaryEfficiency * 5000);
     }
 
     get controller() { return this.controller_; }
@@ -389,6 +441,23 @@ export class Tile {
 
     enableDryLightSoil() {
         this.dryLightSoilEnabled_ = true;
+    }
+
+    get tradePartners(): ReadonlySet<Tile> {
+        return this.tradePartners_;
+    }
+
+    hasTradePartners(): boolean {
+        return this.tradePartners_.size > 0;
+    }
+
+    clearTradePartners() {
+        this.tradePartners_.clear();
+    }
+
+    addTradePartner(t: Tile) {
+        this.tradePartners_.add(t);
+        t.tradePartners_.add(this);
     }
 }
 
@@ -485,6 +554,18 @@ function sorted<T>(items: readonly T[], keyFun: undefined|((item: T) => number) 
         xs.sort((a, b) => keyFun(a) - keyFun(b));
     }
     return xs;
+}
+
+function argmax<T>(items: readonly T[], valueFun: (item: T) => number): [T|undefined, number] {
+    let bestItem = undefined;
+    let bestValue = undefined;
+    for (const item of items) {
+        const value = valueFun(item);
+        if (bestValue === undefined || value > bestValue) {
+            [bestItem, bestValue] = [item, value];
+        }
+    }
+    return [bestItem, bestValue || 0];
 }
 
 function evolve() {
