@@ -23,6 +23,13 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
 
   readonly side = 80;
 
+  click(event: MouseEvent) {
+    const [x, y] = [event.clientX, event.clientY];
+    const [i, j] = [Math.floor(y / this.side), Math.floor(x / this.side)];
+    const target = this.world.map.tiles[i][j].controller;
+    this.world.actAttack(target);
+  }
+
   draw(): void {
     const ctx = this.context;
     if (!ctx) return;

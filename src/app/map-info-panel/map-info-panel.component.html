@@ -1,5 +1,7 @@
-<button (click)="nextTurn()" class="step-forward-btn vbreakafter">&#x25B6;</button>
-
+<div class="advance-panel vbreakafter">
+    <button (click)="advance()" class="step-forward-btn">&#x25B6;</button>
+    {{world.advanceStateDisplay}}
+</div>
 <div>{{4000 - world.year}} BC</div>
 <div class="vbreakafter">World Population: {{world.population}}/{{world.capacity}}</div>
 <table>

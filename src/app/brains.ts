@@ -15,6 +15,8 @@ export interface Brain {
     clone(): Brain;
     joinsCounterAlliance(world: World, self: Polity, other: Polity): boolean
     move(world: World, self: Polity): void;
+
+    doAttack(world: World, self: Polity, target: Polity): void;
 }
 
 const BASIC_BRAIN_DEFS: readonly [string, number, number][] = [
@@ -69,18 +71,22 @@ export class BasicBrain {
             if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
 
             const target = randelem(possibleTargets);
-            if (VERBOSE) world.log.turnlog(`  Attacking ${target.name}`);
-            if (VERBOSE) world.log.turnlog(`    Counteralliance: ${self.counterAllianceDisplay()}`)
-            
-            const defender = self.counterAlliance.includes(target)
-                ? self.counterAlliance
-                : [target];
-            if (VERBOSE && defender.length > 1) {
-                world.log.turnlog(`  Defender has alliance: ${self.counterAllianceDisplay()}`)
-            }
-            world.resolveAttack(self, target, defender);
+            this.doAttack(world, self, target);
             return;
         }
+    }
+
+    doAttack(world: World, self: Polity, target: Polity) {
+        if (VERBOSE) world.log.turnlog(`  Attacking ${target.name}`);
+        if (VERBOSE) world.log.turnlog(`    Counteralliance: ${self.counterAllianceDisplay()}`)
+        
+        const defender = self.counterAlliance.includes(target)
+            ? self.counterAlliance
+            : [target];
+        if (VERBOSE && defender.length > 1) {
+            world.log.turnlog(`  Defender has alliance: ${self.counterAllianceDisplay()}`)
+        }
+        world.resolveAttack(self, target, defender);
     }
 }
 

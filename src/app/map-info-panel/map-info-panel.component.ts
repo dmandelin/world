@@ -13,8 +13,8 @@ export class MapInfoPanelComponent {
   constructor(readonly world: World) {
   }
 
-  nextTurn() {
-    this.world.nextTurn();
+  advance() {
+    this.world.advance();
   }
 
   rankChangeDisplay(p: Polity): string {

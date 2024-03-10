@@ -80,7 +80,53 @@ export class World {
         return this.map.tiles.flat().map(t => t.population).reduce((a, b) => a + b);
     }
 
-    nextTurn() {
+    private advanceState: 'startTurn'|'skipAction'|'continue' = 'startTurn';
+    private actorState: number = 0;
+
+    get advanceStateDisplay() {
+        switch (this.advanceState) {
+            case 'startTurn':
+                return 'Click to start turn';
+            case 'skipAction':
+                return 'Click to attack or skip';
+            case 'continue':
+                return 'Click to continue';
+        }
+    }
+
+    advance() {
+        switch (this.advanceState) {
+            case 'startTurn':
+                this.advanceTurnStart();
+                if (this.advanceTurnAct()) {
+                    this.advanceState = 'skipAction';
+                    this.notifyWatchers();
+                    return;
+                }
+                this.advanceTurnFinish();
+                this.notifyWatchers();
+                break;
+            case 'skipAction':
+            case 'continue':
+                this.skipAction();
+                if (this.advanceTurnAct()) {
+                    this.advanceState = 'skipAction';
+                    this.notifyWatchers();
+                    return;
+                }
+                this.advanceTurnFinish();
+                this.advanceState = 'startTurn';
+                this.notifyWatchers();
+                break;
+        }
+    }
+
+    advanceTurn() {
+        this.advanceTurnStart();
+        this.advanceTurnFinish();
+    }
+
+    advanceTurnStart() {
         this.updateLastPopulation();
         this.lastAttacks.clear();
         this.log.turnlogClear();
@@ -96,21 +142,62 @@ export class World {
         for (const p of this.polities) {
             p.counterAlliance = p.neighbors.filter(n => n.brain.joinsCounterAlliance(this, n, p));
         }
+    }
 
-        for (const p of this.polities) {
-            if (this.polities.includes(p)) {
-                this.startTurnFor(p);
-                this.log.turnlog(`${p.name}'s turn`)
+    advanceTurnAct() {
+        while (this.actorState < this.polities.length) {
+            const p = this.polities[this.actorState];
+            if (!this.polities.includes(p)) continue;
+            
+            this.startTurnFor(p);
+            this.log.turnlog(`${p.name}'s turn`)
+            if (p.name != 'E') {
                 p.brain.move(this, p);
+            } else {
+                console.log('Player must move!');
+                return true;
             }
-        }
 
+            ++this.actorState;
+        }
+        this.actorState = 0;
+        return false;
+    }
+
+    actAttack(target: Polity) {
+        console.log(`Player clicked ${target.name}`);
+        const actor = this.polities[this.actorState];
+        if (target === actor) {
+            console.log("Can't attack self");
+            return;
+        }
+        if (!actor.vassalNeighbors.includes(target)) {
+            console.log("Not a neighbor");
+            return;
+        }
+        if (!actor.canAttack(target)) {
+            console.log("Not allowed to attack them");
+            return;
+        }
+        actor.brain.doAttack(this, actor, target);
+        
+        this.advanceState = 'continue';
+        this.notifyWatchers();
+    }
+
+    skipAction() {
+        ++this.actorState; 
+    }
+
+    advanceTurnFinish() {
         this.updateTradeLinks();
         this.map.updatePopulations();
 
         this.year_ += 20;
         this.recordRanks();
+    }
 
+    notifyWatchers() {
         for (const w of this.watchers_) {
             w();
         }
@@ -125,7 +212,12 @@ export class World {
         this.lastAttacks.add([attacker, target]);
 
         const ac = new Combatant([attacker, ...attacker.vassals]);
-        const dc = new Combatant([...new Set(defender.flatMap(d => [d, ...d.vassals]))]);
+        const dc = new Combatant([...new Set(defender.flatMap(d => 
+            [
+                d, 
+                ...d.vassals, 
+                ...(d.suzerain ? [d.suzerain, ...d.suzerain.vassals] : []),
+            ]))]);
         const ap = ac.power;
         const dp = dc.power;
         const winp = ap / (ap + dp);
@@ -540,7 +632,7 @@ function test() {
         }
         let guard = 1000;
         while (w.polities.length > 1 && guard > 0) {
-            w.nextTurn();
+            w.advance();
             ++turns;
             --guard;
         }
@@ -632,7 +724,7 @@ function evolve() {
         w.setBrains(shuffled(brainPopulation));
 
         while (w.polities.length > 1 && w.year < 1000) {
-            w.nextTurn();
+            w.advance();
         }
 
         const winner = randelem(w.polities).brain;
