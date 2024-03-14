@@ -153,7 +153,8 @@ export class World {
 
         // Compute what alliance exists against each potential aggressor.
         for (const p of this.polities) {
-            p.counterAlliance = p.neighbors.filter(n => n.brain.joinsCounterAlliance(this, n, p));
+            p.counterAlliance = p.neighboringPolities.filter(n => 
+                n != p && n.brain.joinsCounterAlliance(this, n, p));
         }
     }
 
@@ -515,6 +516,11 @@ export class Polity {
             }
         }
         return [...ns];
+    }
+
+    get neighboringPolities(): Polity[] {
+        const ns = this.neighbors;
+        return [...new Set<Polity>(ns.map(n => n.suzerain || n))];
     }
 
     get vassalNeighbors(): Polity[] {
