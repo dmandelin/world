@@ -14,10 +14,15 @@ export class World {
     lastAttacks = new Set<[Polity, Polity]>();
 
     private watchers_: Set<Function> = new Set<Function>();
+    private locallyControlledPolities = new Set<string>(['E']);
 
     constructor() {
         this.updateLastPopulation();
         this.recordRanks();
+    }
+
+    clearLocalControl() {
+        this.locallyControlledPolities.clear();
     }
 
     updateLastPopulation() {
@@ -165,7 +170,7 @@ export class World {
             
             this.startTurnFor(p);
             this.log.turnlog(`${p.name}'s turn`)
-            if (p.name != 'E') {
+            if (!this.locallyControlledPolities.has(p.name)) {
                 p.brain.move(this, p);
             } else {
                 console.log('Player must move!');
@@ -795,23 +800,33 @@ function evolve() {
     const generations = 500;
 
     const brainPopulation = [];
-    if (true) {
+    let brains = World.BRAINS;
+    if (false) {
         for (let i = 0; i < 25; ++i) {
             brainPopulation.push(randelem(World.BRAINS));
         }
     } else {
-        for (let i = 0; i < 22; ++i) {
-            brainPopulation.push(new DefensiveBrain('D', 1.0));
+        brains = [
+            new DefensiveBrain('D', 0.5),
+            new DefensiveBrain('E', 0.75),
+            new BasicBrain('A', 1.0, 1.0),
+        ];
+        for (let i = 0; i < 8; ++i) {
+            brainPopulation.push(brains[0]);
         }
-        for (let i = 0; i < 3; ++i) {
-            brainPopulation.push(new BasicBrain('A', 1.0, 1.0));
+        for (let i = 0; i < 8; ++i) {
+            brainPopulation.push(brains[1]);
+        }
+        for (let i = 0; i < 8; ++i) {
+            brainPopulation.push(brains[2]);
         }
     }
 
     for (let i = 0; i < generations; ++i) {
         console.log(`* Generation ${i}`);
 
-        const w = new World;
+        const w = new World();
+        w.clearLocalControl();
         w.setBrains(shuffled(brainPopulation));
 
         while (w.polities.length > 1 && w.year < 1000) {
@@ -829,12 +844,12 @@ function evolve() {
             brainPopulation.push(winner.clone());
         }
 
-        if (Math.random() < 0.5) {
+        if (Math.random() < 0.2) {
             const nonWinningIndices = [...brainPopulation.filter(b => b.tag != winner.tag).keys()];
             if (nonWinningIndices.length !== 0) {
                 const removed = brainPopulation.splice(randelem(nonWinningIndices), 1);
                 console.log(`  removed ${removed[0].tag} to make room for random brain`);
-                brainPopulation.push(randelem(World.BRAINS));
+                brainPopulation.push(randelem(brains));
             }    
         }
 
