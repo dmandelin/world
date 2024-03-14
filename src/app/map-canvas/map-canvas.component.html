@@ -6,4 +6,4 @@
   (mousemove)="move($event)"
   (mouseleave)="leave($event)"
 ></canvas>
-<div>{{message}}</div>
+<div *ngFor="let m of messages">{{m}}</div>

@@ -1,10 +1,11 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { Polity, World, Tile } from '../world';
+import { NgFor } from '@angular/common';
 
 @Component({
   selector: 'app-map-canvas',
   standalone: true,
-  imports: [],
+  imports: [NgFor],
   templateUrl: './map-canvas.component.html',
   styleUrl: './map-canvas.component.scss'
 })
@@ -13,7 +14,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   private context!: CanvasRenderingContext2D | null;
   private deleteWatcher: Function|undefined;
 
-  message = '';
+  messages: string[] = [];
 
   constructor(readonly world: World) {}
 
@@ -36,20 +37,24 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     const [x, y] = [event.clientX, event.clientY];
     const [i, j] = [Math.floor(y / this.side), Math.floor(x / this.side)];
     if (i < 0 || i >= this.world.map.height || j < 0 || j >= this.world.map.height) {
-      this.message = '';
+      this.messages = [];
       return;
     }
     const tile = this.world.map.tiles[i][j]
     const target = tile.controller;
     const realTarget = target.suzerain || target;
     const actor = this.world.actor;
-    this.message = `${target.name} (${realTarget.name}, ` +
-        `${Math.floor(actor.vassalAP)} vs ${Math.floor(realTarget.vassalDP)})` +
-        `, construction = ${tile.constructionDisplay}`;
+    this.messages = [`${target.name}, con = ${tile.constructionDisplay}`];
+    if (this.world.isLocallyControlled(actor) && actor.canAttack(target)[0]) {
+      const ap = Math.floor(actor.vassalAP);
+      const dp = Math.floor(realTarget.vassalDP);
+      const winp = ap / (ap + dp);
+      this.messages.push(`${ap} vs ${dp}: ${Math.floor(winp*100)}%`);
+    }
   }
 
   leave(event: MouseEvent) {
-    this.message = '';
+    this.messages = [];
   }
 
   draw(): void {

@@ -72,7 +72,7 @@ export class BasicBrain {
 
         const ns = self.vassalNeighbors;
 
-        const possibleTargets = ns.filter(n => self.canAttack(n));
+        const possibleTargets = ns.filter(n => self.canAttack(n)[0]);
         if (possibleTargets.length === 0) return false;
         if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
 

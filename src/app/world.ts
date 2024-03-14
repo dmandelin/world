@@ -21,6 +21,10 @@ export class World {
         this.recordRanks();
     }
 
+    isLocallyControlled(p: Polity) {
+        return this.locallyControlledPolities.has(p.name);
+    }
+
     clearLocalControl() {
         this.locallyControlledPolities.clear();
     }
@@ -186,16 +190,7 @@ export class World {
     actAttack(target: Polity) {
         console.log(`Player clicked ${target.name}`);
         const actor = this.polities[this.actorState];
-        if (target === actor) {
-            console.log("Can't attack self");
-            return;
-        }
-        if (!actor.vassalNeighbors.includes(target)) {
-            console.log("Not a neighbor");
-            return;
-        }
-        if (!actor.canAttack(target)) {
-            console.log("Not allowed to attack them");
+        if (!actor.canAttack(target)[0]) {
             return;
         }
         actor.brain.doAttack(this, actor, target);
@@ -524,7 +519,7 @@ export class Polity {
     }
 
     get neighboringPolities(): Polity[] {
-        const ns = this.neighbors;
+        const ns = this.vassalNeighbors;
         return [...new Set<Polity>(ns.map(n => n.suzerain || n))];
     }
 
@@ -538,8 +533,14 @@ export class Polity {
         return [...ns];
     }
 
-    canAttack(other: Polity): boolean {
-        return this !== other && !this.suzerain && !this.vassals.has(other);
+    canAttack(other: Polity): [boolean, string] {
+        switch (true) {
+            case this === other: return [false, ''];
+            case !!this.suzerain: return [false, "can't attack if a vassal"];
+            case this.vassals.has(other): return [false, "can't attack a vassal"];
+            case !this.vassalNeighbors.includes(other): return [false, "too far to attack"];
+            default: return [true, ''];
+        }
     }
 }
 
