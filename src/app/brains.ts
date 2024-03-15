@@ -15,8 +15,6 @@ export interface Brain {
     clone(): Brain;
     joinsCounterAlliance(world: World, self: Polity, other: Polity): boolean
     move(world: World, self: Polity): void;
-
-    doAttack(world: World, self: Polity, target: Polity): void;
 }
 
 const BASIC_BRAIN_DEFS: readonly [string, number, number][] = [
@@ -70,28 +68,18 @@ export class BasicBrain {
         const roll = Math.random();
         if (roll >=  this.attackProbability) return false;
 
-        const ns = self.vassalNeighbors;
+        const ns = self.suzerain
+            ? [self.suzerain, ...self.vassalNeighbors]
+            : self.vassalNeighbors;
 
         const possibleTargets = ns.filter(n => self.canAttack(n)[0]);
         if (possibleTargets.length === 0) return false;
         if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
 
         const target = randelem(possibleTargets);
-        this.doAttack(world, self, target);
-        return true;
-    }
-
-    doAttack(world: World, self: Polity, target: Polity) {
         if (VERBOSE) world.log.turnlog(`  Attacking ${target.name}`);
-        if (VERBOSE) world.log.turnlog(`    Counteralliance: ${self.counterAllianceDisplay}`)
-        
-        const defender = self.counterAlliance.includes(target)
-            ? self.counterAlliance
-            : [target];
-        if (VERBOSE && defender.length > 1) {
-            world.log.turnlog(`  Defender has alliance: ${self.counterAllianceDisplay}`)
-        }
-        world.resolveAttack(self, target, defender);
+        world.resolveAttack(self, target);
+        return true;
     }
 }
 

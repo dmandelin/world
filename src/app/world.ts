@@ -193,7 +193,7 @@ export class World {
         if (!actor.canAttack(target)[0]) {
             return;
         }
-        actor.brain.doAttack(this, actor, target);
+        this.resolveAttack(actor, target);
         
         this.advanceState = 'continue';
         this.notifyWatchers();
@@ -231,35 +231,40 @@ export class World {
         }
     }
 
-    resolveAttack(attacker: Polity, target: Polity, defender: readonly Polity[]) {
+    resolveAttack(attacker: Polity, target: Polity) {
         this.lastAttacks.add([attacker, target]);
 
         const ac = new Combatant([attacker, ...attacker.vassals]);
-        const dc = new Combatant([...new Set(defender.flatMap(d => 
-            [
-                d, 
-                ...d.vassals, 
-                ...(d.suzerain ? [d.suzerain, ...d.suzerain.vassals] : []),
-            ]))]);
+        const defenders = attacker.counterAlliance.includes(target)
+            ? attacker.counterAlliance : [target];
+        const sovereignDefenders = [...new Set<Polity>(defenders.map(d => d.suzerain || d))];
+        const dc = new Combatant(sovereignDefenders.flatMap(d =>
+            [d, ...[...d.vassals].filter(v => v !== attacker)]));
+
         const ap = ac.attackPower;
         const dp = dc.defensePower;
         const winp = ap / (ap + dp);
 
-        this.log.turnlog(`    AP = ${ap} (${ac.polities.map(p => p.name)})`);
-        this.log.turnlog(`    DP = ${dp} (${dc.polities.map(p => p.name)})`);
+        this.log.turnlog(`    AP = ${Math.floor(ap)} (${ac.polities.map(p => p.name)})`);
+        this.log.turnlog(`    DP = ${Math.floor(dp)} (${dc.polities.map(p => p.name)})`);
 
         attacker.attacked.add(target);
         target.defended.add(attacker);
 
         if (Math.random() < winp) {
-            this.log.turnlog(`  Successful attack: ${attacker.name} takes over ${defender[0].name}`);
             for (const p of ac.polities) {
                 this.losses(p, 0.01);
             }
             for (const p of dc.polities) {
                 this.losses(p, 0.05);
             }
-            this.vassalize(attacker, target);
+            if (attacker.suzerain === target) {
+                this.log.turnlog(`  Successful attack: ${attacker.name} throws off ${target.name}`);
+                this.devassalize(target, attacker);            
+            } else {
+                this.log.turnlog(`  Successful attack: ${attacker.name} takes over ${target.name}`);
+                this.vassalize(attacker, target);            
+            }
         } else {
             this.log.turnlog(`  Failed attack`);
             for (const p of ac.polities) {
@@ -307,6 +312,12 @@ export class World {
         // The new vassal relationship.
         defender.suzerain = attacker;
         attacker.vassals.add(defender);
+    }
+
+    devassalize(suzerain: Polity, vassal: Polity) {
+        suzerain.vassals.delete(vassal);
+        vassal.suzerain = undefined;
+        this.releaseDisconnectedVassals(suzerain);
     }
 
     releaseDisconnectedVassals(p: Polity) {
@@ -536,9 +547,9 @@ export class Polity {
     canAttack(other: Polity): [boolean, string] {
         switch (true) {
             case this === other: return [false, ''];
-            case !!this.suzerain: return [false, "can't attack if a vassal"];
+            case !!this.suzerain && other !== this.suzerain: return [false, "can't attack if a vassal"];
             case this.vassals.has(other): return [false, "can't attack a vassal"];
-            case !this.vassalNeighbors.includes(other): return [false, "too far to attack"];
+            case !this.vassalNeighbors.includes(other) && other !== this.suzerain: return [false, "too far to attack"];
             default: return [true, ''];
         }
     }
