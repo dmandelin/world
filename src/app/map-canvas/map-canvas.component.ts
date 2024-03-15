@@ -44,7 +44,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     const target = tile.controller;
     const realTarget = target.suzerain || target;
     const actor = this.world.actor;
-    this.messages = [`${target.name}, con = ${tile.constructionDisplay}`];
+    this.messages = [`${target.name}, con = ${tile.constructionDisplay}, culture = ${tile.culture}`];
     if (this.world.isLocallyControlled(actor) && actor.canAttack(target)[0]) {
       const ap = Math.floor(actor.vassalAP);
       const dp = Math.floor(realTarget.vassalDP);
@@ -83,10 +83,14 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
           x + 23, y + 25);
 
         ctx.font = '10px sans-serif';
+        ctx.fillText(`${Math.floor(tile.culture/1000)}`, 
+          x + 4, y + 13);
+
+            ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.construction / 100)}`, 
-            x + 68, y + 14);
+            x + 68, y + 13);
         ctx.fillText(`${Math.floor(tile.construction / tile.population * 5)}`, 
-            x + 68, y + 26);
+            x + 68, y + 24);
 
         ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.wetFraction*100)}|${Math.floor(tile.dryLightSoilFraction*100)}`, 

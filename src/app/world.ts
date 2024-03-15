@@ -694,6 +694,10 @@ export class Tile {
         this.tradePartners_.add(t);
         t.tradePartners_.add(this);
     }
+
+    get culture(): number {
+        return Math.floor(Math.pow(0.05 * Math.min(this.construction, this.population * 2), 1.5));
+    }
 }
 
 class WorldMap {
