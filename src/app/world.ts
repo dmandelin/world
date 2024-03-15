@@ -7,7 +7,7 @@ export class World {
     private year_ = 0;
     private polities_ = DEFAULT_POLITIES.map((pd, i) => 
         new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
-    readonly map = new WorldMap(5, 5, this.polities);
+    readonly map = new WorldMap(this, 5, 5, this.polities);
     readonly log = new WorldLog();
 
     lastPopulation = new Map<Tile, number>();
@@ -597,6 +597,7 @@ export class Tile {
     private dryLightSoilEnabled_ = false;
 
     constructor(
+        public readonly world: World,
         public readonly i: number, 
         public readonly j: number, 
         controller: Polity,
@@ -698,12 +699,41 @@ export class Tile {
     get culture(): number {
         return Math.floor(Math.pow(0.05 * Math.min(this.construction, this.population * 2), 1.5));
     }
+
+    get culturalInfluences(): Map<Tile, number> {
+        const m = new Map<Tile, number>();
+        for (const t of this.world.map.tiles.flat()) {
+            const [dx, dy] = [t.i - this.i, t.j - this.j];
+            const ds = Math.sqrt(dx * dx + dy * dy);
+            const penalty = Math.pow(0.5, ds);
+            const homeBonus = t == this ? 50 : 0
+            const effectiveCulture = t.culture * penalty + homeBonus;
+            if (effectiveCulture > 0) {
+                m.set(t, effectiveCulture)
+            }
+        }
+        const least = Math.min(...m.values());
+        console.log(least);
+        let total = 0;
+        for (const k of m.keys()) {
+            const v = (m.get(k) || 0) / least;
+            const ev = v * v;
+            console.log(k, v, ev);
+            m.set(k, ev);
+            total += ev;
+        }
+        for (const k of m.keys()) {
+            const v = (m.get(k) || 0) / total;
+            m.set(k, v);
+        }
+        return m;
+    }
 }
 
 class WorldMap {
     tiles: Tile[][];
   
-    constructor(public readonly width: number, public readonly height: number, polities: ReadonlyArray<Polity>) {
+    constructor(world: World, public readonly width: number, public readonly height: number, polities: ReadonlyArray<Polity>) {
         // Initialize tiles.
         this.tiles = [];
         for (let i = 0; i < height; i++) {
@@ -713,7 +743,7 @@ class WorldMap {
                 const wetFraction = randint(1, 10) * 0.1;
                 const dryLightSoilFraction = Math.random() * (1 - wetFraction);
                 const capacityRatio = Math.random() * 0.2 + 0.4;
-                this.tiles[i][j] = new Tile(i, j, polity, wetFraction, dryLightSoilFraction, capacityRatio);
+                this.tiles[i][j] = new Tile(world, i, j, polity, wetFraction, dryLightSoilFraction, capacityRatio);
             }
         }
     }
@@ -785,7 +815,7 @@ function shuffled<T>(items: readonly T[]): T[] {
     return ss;
 }
 
-function sorted<T>(
+export function sorted<T>(
     items: readonly T[], 
     keyFun: undefined|((item: T) => number)|((item: T) => string) = undefined) {
     const xs = [...items];
