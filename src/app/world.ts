@@ -423,7 +423,7 @@ class War {
     readonly influenceAttackPenalty = this.attacker.home.culturalInfluences.get(this.target.home) || 0;
     readonly ap = this.attackingCoalition.attackPower * (1 - this.influenceAttackPenalty);
     readonly dp = this.defendingCoalition.defensePower;
-    readonly winp = this.ap / (this.ap + this.dp);
+    readonly winp = this.ap * this.ap / (this.ap * this.ap + this.dp * this.dp);
 }
 
 class Combatant {
@@ -679,7 +679,7 @@ export class Tile {
     constructTurn() {
         this.construction_ += this.population / 20;
         const maxConstruction = this.population * 1.5;
-        this.construction_ = Math.min(this.construction_, maxConstruction);
+        this.construction_ = Math.round(Math.min(this.construction_, maxConstruction));
     }
 
     get population() { return this.population_; }
