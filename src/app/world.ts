@@ -423,8 +423,13 @@ class War {
 
     readonly baseAP = this.attackingCoalition.attackPower;
     readonly influenceAttackPenalty = this.attacker.home.culturalInfluences.get(this.target.home) || 0;
-    readonly ap = this.attackingCoalition.attackPower * (1 - this.influenceAttackPenalty);
-    readonly dp = this.defendingCoalition.defensePower;
+    readonly ap = (1 - this.influenceAttackPenalty) * (
+        this.target === this.attacker.suzerain
+        ? this.attackingCoalition.attackPower
+        : this.attackingCoalition.defensePower);
+    readonly dp = this.target === this.attacker.suzerain
+        ? this.defendingCoalition.defensePower
+        : this.defendingCoalition.attackPower;
     readonly winp = this.ap * this.ap / (this.ap * this.ap + this.dp * this.dp);
 }
 
