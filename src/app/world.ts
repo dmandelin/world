@@ -231,11 +231,11 @@ export class World {
     }
 
     setUpAttack(attacker: Polity, target: Polity): War {
-        const ac = new Combatant([attacker, ...attacker.vassals]);
+        const ac = new Combatant(attacker, [attacker, ...attacker.vassals]);
         const defenders = attacker.counterAlliance.includes(target)
             ? attacker.counterAlliance : [target];
         const sovereignDefenders = [...new Set<Polity>(defenders.map(d => d.suzerain || d))];
-        const dc = new Combatant(sovereignDefenders.flatMap(d =>
+        const dc = new Combatant(target.suzerain || target, sovereignDefenders.flatMap(d =>
             [d, ...[...d.vassals].filter(v => v !== attacker)]));
         return new War(this, attacker, ac, target, dc);
     }
@@ -425,20 +425,20 @@ class War {
     readonly influenceAttackPenalty = this.attacker.home.culturalInfluences.get(this.target.home) || 0;
     readonly ap = (1 - this.influenceAttackPenalty) * (
         this.target === this.attacker.suzerain
-        ? this.attackingCoalition.attackPower
-        : this.attackingCoalition.defensePower);
+        ? this.attackingCoalition.defensePower
+        : this.attackingCoalition.attackPower);
     readonly dp = this.target === this.attacker.suzerain
-        ? this.defendingCoalition.defensePower
-        : this.defendingCoalition.attackPower;
+        ? this.defendingCoalition.attackPower
+        : this.defendingCoalition.defensePower;
     readonly winp = this.ap * this.ap / (this.ap * this.ap + this.dp * this.dp);
 }
 
 class Combatant {
-    constructor(public readonly polities: readonly Polity[]) {}
+    constructor(public readonly leader: Polity, public readonly polities: readonly Polity[]) {}
 
     get attackPower(): number {
         return this.polities
-            .map(p => p.attackPower)
+            .map(p => p === this.leader ? p.attackPower : 0.25 * p.attackPower)
             .reduce((a, b) => a + b);
     }
 
@@ -532,7 +532,7 @@ export class Polity {
 
     get vassalAP(): number {
         return [this, ...this.vassals]
-            .map(p => p.attackPower)
+            .map(p => p === this ? p.attackPower : 0.25 * p.attackPower)
             .reduce((a, b) => a + b, 0);
     }
 
