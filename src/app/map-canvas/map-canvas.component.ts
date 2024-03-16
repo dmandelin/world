@@ -47,10 +47,11 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     this.messages = [`${target.name}, con = ${tile.constructionDisplay}, culture = ${tile.culture}`];
     this.messages.push(`Influences: ${this.culturalInfluencesDisplay(tile)}`);
     if (this.world.isLocallyControlled(actor) && actor.canAttack(target)[0]) {
-      const ap = Math.floor(actor.vassalAP);
-      const dp = Math.floor(realTarget.vassalDP);
-      const winp = ap / (ap + dp);
-      this.messages.push(`* Can attack: ${ap} vs ${dp}: ${Math.floor(winp*100)}%`);
+      const pwar = this.world.setUpAttack(actor, target);
+      this.messages.push(`* Can attack: ${Math.round(pwar.ap)} vs ${Math.round(pwar.dp)}: ${Math.floor(pwar.winp*100)}%`);
+      this.messages.push(`* Attacking coalition: ${pwar.attackingCoalition.polities.map(p => p.name)}`);
+      this.messages.push(`* Defending coalition: ${pwar.defendingCoalition.polities.map(p => p.name)}`);
+      this.messages.push(`* Cultural inflence penalty: ${Math.round(pwar.influenceAttackPenalty*100)}%`);
     }
   }
 

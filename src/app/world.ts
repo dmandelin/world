@@ -186,7 +186,7 @@ export class World {
         if (!actor.canAttack(target)[0]) {
             return;
         }
-        this.resolveAttack(actor, target);
+        this.performAttack(actor, target);
         
         this.advanceState = 'continue';
         this.notifyWatchers();
@@ -224,53 +224,54 @@ export class World {
         }
     }
 
-    resolveAttack(attacker: Polity, target: Polity) {
-        this.lastAttacks.add([attacker, target]);
+    performAttack(attacker: Polity, target: Polity) {
+        this.resolveWar(this.setUpAttack(attacker, target));
+    }
 
+    setUpAttack(attacker: Polity, target: Polity): War {
         const ac = new Combatant([attacker, ...attacker.vassals]);
         const defenders = attacker.counterAlliance.includes(target)
             ? attacker.counterAlliance : [target];
         const sovereignDefenders = [...new Set<Polity>(defenders.map(d => d.suzerain || d))];
         const dc = new Combatant(sovereignDefenders.flatMap(d =>
             [d, ...[...d.vassals].filter(v => v !== attacker)]));
+        return new War(this, attacker, ac, target, dc);
+    }
 
-        const baseAP = ac.attackPower;
-        const influence = attacker.home.culturalInfluences.get(target.home) || 0;
-        const ap = ac.attackPower * (1 - influence);
-        const dp = dc.defensePower;
-        const winp = ap / (ap + dp);
+    resolveWar(war: War) {
+        this.lastAttacks.add([war.attacker, war.target]);
 
         this.log.turnlog('-');
-        this.log.turnlog(`${attacker.name} attacks ${target.name}`)
-        this.log.turnlog(`- AP = ${Math.floor(ap)} (${ac.polities.map(p => p.name)})`);
-        if (influence > 0.05) {
-            this.log.turnlog(`- - attack impeded by ${Math.floor(influence*100)}% due to cultural sympathy!`);
+        this.log.turnlog(`${war.attacker.name} attacks ${war.target.name}`)
+        this.log.turnlog(`- AP = ${Math.floor(war.ap)} (${war.attackingCoalition.polities.map(p => p.name)})`);
+        if (war.influenceAttackPenalty > 0.05) {
+            this.log.turnlog(`- - attack impeded by ${Math.floor(war.influenceAttackPenalty*100)}% due to cultural sympathy!`);
         }
-        this.log.turnlog(`- DP = ${Math.floor(dp)} (${dc.polities.map(p => p.name)})`);
+        this.log.turnlog(`- DP = ${Math.floor(war.dp)} (${war.defendingCoalition.polities.map(p => p.name)})`);
 
-        attacker.attacked.add(target);
-        target.defended.add(attacker);
+        war.attacker.attacked.add(war.target);
+        war.target.defended.add(war.attacker);
 
-        if (Math.random() < winp) {
-            for (const p of ac.polities) {
+        if (Math.random() < war.winp) {
+            for (const p of war.attackingCoalition.polities) {
                 this.losses(p, 0.01);
             }
-            for (const p of dc.polities) {
+            for (const p of war.defendingCoalition.polities) {
                 this.losses(p, 0.05);
             }
-            if (attacker.suzerain === target) {
-                this.log.turnlog(`  Successful attack: ${attacker.name} throws off ${target.name}`);
-                this.devassalize(target, attacker);            
+            if (war.attacker.suzerain === war.target) {
+                this.log.turnlog(`  Successful attack: ${war.attacker.name} throws off ${war.target.name}`);
+                this.devassalize(war.target, war.attacker);            
             } else {
-                this.log.turnlog(`  Successful attack: ${attacker.name} takes over ${target.name}`);
-                this.vassalize(attacker, target);            
+                this.log.turnlog(`  Successful attack: ${war.attacker.name} takes over ${war.target.name}`);
+                this.vassalize(war.attacker, war.target);            
             }
         } else {
             this.log.turnlog(`  Failed attack`);
-            for (const p of ac.polities) {
+            for (const p of war.attackingCoalition.polities) {
                 this.losses(p, 0.05);
             }
-            for (const p of dc.polities) {
+            for (const p of war.defendingCoalition.polities) {
                 this.losses(p, 0.01);
             }
         }
@@ -407,6 +408,22 @@ class WorldLog {
     turnlogClear() {
         this.turnlogs.length = 0;
     }
+}
+
+class War {
+    constructor(
+        readonly world: World,
+        readonly attacker: Polity,
+        readonly attackingCoalition: Combatant,
+        readonly target: Polity,
+        readonly defendingCoalition: Combatant,
+    ) {}
+
+    readonly baseAP = this.attackingCoalition.attackPower;
+    readonly influenceAttackPenalty = this.attacker.home.culturalInfluences.get(this.target.home) || 0;
+    readonly ap = this.attackingCoalition.attackPower * (1 - this.influenceAttackPenalty);
+    readonly dp = this.defendingCoalition.defensePower;
+    readonly winp = this.ap / (this.ap + this.dp);
 }
 
 class Combatant {
