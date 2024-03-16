@@ -169,11 +169,9 @@ export class World {
             if (!this.polities.includes(p)) continue;
             
             this.startTurnFor(p);
-            this.log.turnlog(`${p.name}'s turn`)
             if (!this.locallyControlledPolities.has(p.name)) {
                 p.brain.move(this, p);
             } else {
-                console.log('Player must move!');
                 return true;
             }
 
@@ -184,7 +182,6 @@ export class World {
     }
 
     actAttack(target: Polity) {
-        console.log(`Player clicked ${target.name}`);
         const actor = this.polities[this.actorState];
         if (!actor.canAttack(target)[0]) {
             return;
@@ -241,6 +238,8 @@ export class World {
         const dp = dc.defensePower;
         const winp = ap / (ap + dp);
 
+        this.log.turnlog('-');
+        this.log.turnlog(`${attacker.name} attacks ${target.name}`)
         this.log.turnlog(`    AP = ${Math.floor(ap)} (${ac.polities.map(p => p.name)})`);
         this.log.turnlog(`    DP = ${Math.floor(dp)} (${dc.polities.map(p => p.name)})`);
 

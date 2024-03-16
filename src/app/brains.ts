@@ -74,10 +74,8 @@ export class BasicBrain {
 
         const possibleTargets = ns.filter(n => self.canAttack(n)[0]);
         if (possibleTargets.length === 0) return false;
-        if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
 
         const target = randelem(possibleTargets);
-        if (VERBOSE) world.log.turnlog(`  Attacking ${target.name}`);
         world.resolveAttack(self, target);
         return true;
     }
@@ -103,10 +101,8 @@ export class SubjectBrain extends BasicBrain {
 
         const possibleTargets = ns.filter(n => self.canAttack(n)[0] && n !== self.suzerain);
         if (possibleTargets.length === 0) return false;
-        if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
 
         const target = randelem(possibleTargets);
-        if (VERBOSE) world.log.turnlog(`  Attacking ${target.name}`);
         world.resolveAttack(self, target);
         return true;
     }    
