@@ -72,7 +72,8 @@ export class BasicBrain {
             ? [self.suzerain, ...self.vassalNeighbors]
             : self.vassalNeighbors;
 
-        const possibleTargets = ns.filter(n => self.canAttack(n)[0]);
+        const possibleTargets = ns.filter(n => 
+            self.canAttack(n)[0] && (n !== self.suzerain || world.setUpAttack(self, n).winp >= 0.2));
         if (possibleTargets.length === 0) return false;
 
         const target = randelem(possibleTargets);
