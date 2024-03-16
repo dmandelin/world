@@ -91,3 +91,23 @@ export class DefensiveBrain extends BasicBrain {
         return true;
     }
 }
+
+export class SubjectBrain extends BasicBrain {
+    override tryAttack(world: World, self: Polity): boolean {
+        const roll = Math.random();
+        if (roll >=  this.attackProbability) return false;
+
+        const ns = self.suzerain
+            ? [self.suzerain, ...self.vassalNeighbors]
+            : self.vassalNeighbors;
+
+        const possibleTargets = ns.filter(n => self.canAttack(n)[0] && n !== self.suzerain);
+        if (possibleTargets.length === 0) return false;
+        if (VERBOSE) world.log.turnlog(`  Neighbors: ${possibleTargets.map(n => n.name)}`);
+
+        const target = randelem(possibleTargets);
+        if (VERBOSE) world.log.turnlog(`  Attacking ${target.name}`);
+        world.resolveAttack(self, target);
+        return true;
+    }    
+}

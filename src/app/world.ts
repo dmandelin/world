@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import {Brain, BasicBrain, DefensiveBrain, NullBrain} from "./brains";
+import {Brain, BasicBrain, DefensiveBrain, NullBrain, SubjectBrain} from "./brains";
 import { TemplateLiteral } from "@angular/compiler";
 
 @Injectable({providedIn: 'root'})
@@ -50,15 +50,11 @@ export class World {
 
     static BRAINS = [
         new BasicBrain('A', 1.0),
-        new DefensiveBrain('A/', 1.0),
-        new BasicBrain('Na', 0.66),
-        new DefensiveBrain('Na/', 0.66),
-        new BasicBrain('N', 0.5),
-        new DefensiveBrain('N/', 0.5),
-        new BasicBrain('Np', 0.33),
-        new DefensiveBrain('Np/', 0.33),
-        new BasicBrain('P', 0.2),
-        new DefensiveBrain('P/', 0.2),
+        new SubjectBrain('S', 0.66, 0.5),
+        new BasicBrain('N', 0.5, 0.4),
+        new DefensiveBrain('D', 0.33),
+        new DefensiveBrain('P', 0.2),
+        new SubjectBrain('U', 0.0),
     ];
 
     addWatcher(w: Function) {
@@ -851,9 +847,9 @@ function evolve() {
         }
     } else {
         brains = [
-            new DefensiveBrain('D', 0.5),
-            new DefensiveBrain('E', 0.75),
-            new BasicBrain('A', 1.0, 1.0),
+            new BasicBrain('B', 0.75, 0.25),
+            new DefensiveBrain('D', 0.75),
+            new SubjectBrain('S', 0.75, 0.75),
         ];
         for (let i = 0; i < 8; ++i) {
             brainPopulation.push(brains[0]);
@@ -889,7 +885,7 @@ function evolve() {
             brainPopulation.push(winner.clone());
         }
 
-        if (Math.random() < 0.2) {
+        if (Math.random() < 0.1) {
             const nonWinningIndices = [...brainPopulation.filter(b => b.tag != winner.tag).keys()];
             if (nonWinningIndices.length !== 0) {
                 const removed = brainPopulation.splice(randelem(nonWinningIndices), 1);
