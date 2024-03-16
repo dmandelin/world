@@ -45,12 +45,12 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     const realTarget = target.suzerain || target;
     const actor = this.world.actor;
     this.messages = [`${target.name}, con = ${tile.constructionDisplay}, culture = ${tile.culture}`];
-    this.messages.push(...this.culturalInfluencesDisplay(tile));
+    this.messages.push(`Influences: ${this.culturalInfluencesDisplay(tile)}`);
     if (this.world.isLocallyControlled(actor) && actor.canAttack(target)[0]) {
       const ap = Math.floor(actor.vassalAP);
       const dp = Math.floor(realTarget.vassalDP);
       const winp = ap / (ap + dp);
-      this.messages.push(`Can attack: ${ap} vs ${dp}: ${Math.floor(winp*100)}%`);
+      this.messages.push(`* Can attack: ${ap} vs ${dp}: ${Math.floor(winp*100)}%`);
     }
   }
 
@@ -58,9 +58,11 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     this.messages = [];
   }
 
-  culturalInfluencesDisplay(tile: Tile): string[] {
+  culturalInfluencesDisplay(tile: Tile): string {
     return sorted([...tile.culturalInfluences.entries()], (tc: [Tile, number]) => -tc[1])
-      .map(tc => `${Math.round(tc[1]*100)}%: ${tc[0].controller.name}`);
+      .filter(tc => tc[1] >= 0.05)
+      .map(tc => `${Math.round(tc[1]*100)}%: ${tc[0].controller.name}`)
+      .join(', ');
   }
 
   draw(): void {

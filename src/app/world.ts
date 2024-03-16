@@ -713,12 +713,10 @@ export class Tile {
             }
         }
         const least = Math.min(...m.values());
-        console.log(least);
         let total = 0;
         for (const k of m.keys()) {
             const v = (m.get(k) || 0) / least;
             const ev = v * v;
-            console.log(k, v, ev);
             m.set(k, ev);
             total += ev;
         }
