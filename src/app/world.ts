@@ -234,14 +234,19 @@ export class World {
         const dc = new Combatant(sovereignDefenders.flatMap(d =>
             [d, ...[...d.vassals].filter(v => v !== attacker)]));
 
-        const ap = ac.attackPower;
+        const baseAP = ac.attackPower;
+        const influence = attacker.home.culturalInfluences.get(target.home) || 0;
+        const ap = ac.attackPower * (1 - influence);
         const dp = dc.defensePower;
         const winp = ap / (ap + dp);
 
         this.log.turnlog('-');
         this.log.turnlog(`${attacker.name} attacks ${target.name}`)
-        this.log.turnlog(`    AP = ${Math.floor(ap)} (${ac.polities.map(p => p.name)})`);
-        this.log.turnlog(`    DP = ${Math.floor(dp)} (${dc.polities.map(p => p.name)})`);
+        this.log.turnlog(`- AP = ${Math.floor(ap)} (${ac.polities.map(p => p.name)})`);
+        if (influence > 0.05) {
+            this.log.turnlog(`- - attack impeded by ${Math.floor(influence*100)}% due to cultural sympathy!`);
+        }
+        this.log.turnlog(`- DP = ${Math.floor(dp)} (${dc.polities.map(p => p.name)})`);
 
         attacker.attacked.add(target);
         target.defended.add(attacker);
@@ -444,6 +449,15 @@ export class Polity {
         readonly mapColor: string,
         brain: Brain) {
         this.brain_ = brain;
+    }
+
+    get home(): Tile {
+        for (const t of this.world.map.tiles.flat()) {
+            if (t.controller === this) {
+                return t;
+            }
+        }
+        throw new Error(`No home tile for ${this.name}`)
     }
 
     get concurrentBattleModifier(): number {
@@ -906,4 +920,4 @@ function evolve() {
     }
 }
 
-//evolve();
+evolve();
