@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { Polity, World, Tile, sorted } from '../world';
+import { Polity, World, Tile, argmax, sorted } from '../world';
 import { NgFor } from '@angular/common';
 
 @Component({
@@ -72,6 +72,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
 
     const map = this.world.map;
     const tt = map.tiles;
+    const maxCulture = argmax(map.tiles.flat(), t => t.culture)[1];
 
     ctx.fillStyle = 'red';
     ctx.fillRect(0, 0, 400, 400);
@@ -92,8 +93,13 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
           x + 23, y + 25);
 
         ctx.font = '10px sans-serif';
-        ctx.fillText(`${Math.floor(tile.culture/1000)}`, 
+        ctx.fillText(`${this.cultureTier(tile.culture, maxCulture)}`, 
           x + 4, y + 13);
+        const topInf = argmax([...tile.culturalInfluences], item => item[1])[0]; 
+        if (topInf && topInf[0] !== tile) { 
+          ctx.fillText(`${topInf[0].controller.name}`, 
+            x + 4, y + 24);
+        }
 
             ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.construction / 100)}`, 
@@ -228,6 +234,12 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   group(tile: Tile): Polity {
     const controller = tile.controller;
     return controller.suzerain || controller;
+  }
+
+  cultureTier(culture: number, maxCulture: number): string {
+    const l = Math.ceil(Math.log2(maxCulture) - Math.log2(culture));
+    const tiers = ['*', 'S', 'A', 'B', 'C', 'D', 'E', 'F'];
+    return l < tiers.length ? tiers[l] : tiers[tiers.length-1];
   }
 
   ngOnDestroy(): void {

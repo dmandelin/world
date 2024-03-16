@@ -48,6 +48,8 @@ export class World {
         }
     }
 
+
+
     static BRAINS = [
         new BasicBrain('A', 1.0),
         new SubjectBrain('S', 0.66, 0.5),
@@ -854,7 +856,7 @@ export function sorted<T>(
     return xs;
 }
 
-function argmax<T>(items: readonly T[], valueFun: (item: T) => number): [T|undefined, number] {
+export function argmax<T>(items: readonly T[], valueFun: (item: T) => number): [T|undefined, number] {
     let bestItem = undefined;
     let bestValue = undefined;
     for (const item of items) {
