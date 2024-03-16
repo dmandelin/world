@@ -845,7 +845,7 @@ function evolve() {
 
     const brainPopulation = [];
     let brains = World.BRAINS;
-    if (false) {
+    if (true) {
         for (let i = 0; i < 25; ++i) {
             brainPopulation.push(randelem(World.BRAINS));
         }
@@ -858,7 +858,7 @@ function evolve() {
         for (let i = 0; i < 8; ++i) {
             brainPopulation.push(brains[0]);
         }
-        for (let i = 0; i < 8; ++i) {
+        for (let i = 0; i < 9; ++i) {
             brainPopulation.push(brains[1]);
         }
         for (let i = 0; i < 8; ++i) {
@@ -877,6 +877,7 @@ function evolve() {
             w.advance();
         }
 
+        const top = argmax(w.polities, p => p.population);
         const winner = randelem(w.polities).brain;
         console.log(`  winner = ${winner.tag}, duplicating`);
         const nonWinningIndices = [...brainPopulation.filter(b => b.tag != winner.tag).keys()];
@@ -892,8 +893,9 @@ function evolve() {
             const nonWinningIndices = [...brainPopulation.filter(b => b.tag != winner.tag).keys()];
             if (nonWinningIndices.length !== 0) {
                 const removed = brainPopulation.splice(randelem(nonWinningIndices), 1);
-                console.log(`  removed ${removed[0].tag} to make room for random brain`);
-                brainPopulation.push(randelem(brains));
+                const mutant = randelem(brains);
+                console.log(`  removed ${removed[0].tag} to make room for random brain ${mutant.tag}`);
+                brainPopulation.push(mutant);
             }    
         }
 
