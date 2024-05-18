@@ -89,8 +89,8 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         ctx.fillStyle = '#eee';
 
         ctx.font = '12px sans-serif';
-        ctx.fillText(`${Math.floor(tile.population/100)}/${Math.floor(tile.capacity/100)}${tile.produceCode}`, 
-          x + 23, y + 25);
+        ctx.fillText(`${tile.population} (${Math.floor(100*tile.population/(tile.capacity || 1))}%)`, 
+          x + 12, y + 25);
 
         //ctx.font = '10px sans-serif';
         //ctx.fillText(`${this.cultureTier(tile.culture, maxCulture)}`, 
@@ -118,7 +118,8 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         let xo = tile.controller.vassals.size ? 33 : 34;
         let yo = tile.controller.vassals.size ? 64 : 50;
         ctx.font = tile.controller.vassals.size ? '20px sans-serif' : '10px sans-serif';
-        ctx.fillText(`${tile.controller.name}[${tile.controller.brain.tag}]`, x + xo, y + yo);
+        //ctx.fillText(`${tile.controller.name}[${tile.controller.brain.tag}]`, x + xo, y + yo);
+        ctx.fillText(`${tile.controller.name}`, x + xo, y + yo);
 
         xo = tile.controller.vassals.size ? 33 : 35;
         yo = tile.controller.vassals.size ? 40 : 40;

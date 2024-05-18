@@ -2,6 +2,13 @@ import { Injectable } from "@angular/core";
 import {Brain, BasicBrain, DefensiveBrain, NullBrain, SubjectBrain} from "./brains";
 import { TemplateLiteral } from "@angular/compiler";
 
+// Top TODOs
+// - adjust terrain for rivers
+// - production function with default allocations and display on map
+// - update population according to production
+// - compute better allocations
+// - display production statistics in more detail
+
 @Injectable({providedIn: 'root'})
 export class World {
     private year_ = 0;
@@ -38,7 +45,7 @@ export class World {
     populationChange(tile: Tile): number {
         const last = this.lastPopulation.get(tile);
         if (last === undefined) return 0;
-        return (tile.population - last) / last;
+        return (tile.population - last) / (last || 1);
     }
 
     recordRanks() {
@@ -788,15 +795,25 @@ class WorldMap {
     tiles: Tile[][];
   
     constructor(world: World, public readonly width: number, public readonly height: number, polities: ReadonlyArray<Polity>) {
+        const jCenter = Math.floor((width - 1)/2);
+
         // Initialize tiles.
         this.tiles = [];
         for (let i = 0; i < height; i++) {
             this.tiles[i] = [];
             for (let j = 0; j < width; j++) {
                 const polity = polities[i * width + j];
-                const wetFraction = randint(1, 10) * 0.1;
+                
+                const isRiverTile = 
+                       i < height - 1 && Math.abs(j - jCenter) == 1 
+                    || i == height - 1 && j == jCenter;
+
+                
+                const wetFraction = 0.01 * (isRiverTile
+                    ? 10 + randint(10) + randint(10)
+                    : 0)
                 const dryLightSoilFraction = Math.random() * (1 - wetFraction);
-                const capacityRatio = Math.random() * 0.2 + 0.4;
+                const capacityRatio = Math.random() * 0.3 + 0.5;
                 this.tiles[i][j] = new Tile(world, i, j, polity, wetFraction, dryLightSoilFraction, capacityRatio);
             }
         }
