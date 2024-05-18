@@ -88,9 +88,18 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
 
         ctx.fillStyle = '#eee';
 
-        ctx.font = '12px sans-serif';
-        ctx.fillText(`${tile.population} (${Math.floor(100*tile.population/(tile.capacity || 1))}%)`, 
-          x + 12, y + 25);
+        // Draw controller name
+        ctx.font = tile.controller.vassals.size ? '20px sans-serif' : '10px sans-serif';
+        this.drawTextCentered(ctx, `${tile.controller.name}`, x, y + 28, this.side);
+
+        const ch = tile.controller.vassals.size ? '⍟' : '•';
+        ctx.font = '14px sans-serif';
+        this.drawTextCentered(ctx, ch, x, y + 40, this.side);
+
+        ctx.font = '10px sans-serif';
+        this.drawTextCentered(ctx,
+          `${tile.population} (${Math.floor(100*tile.population/(tile.capacity || 1))}%)`, 
+          x, y + 54, this.side);
 
         //ctx.font = '10px sans-serif';
         //ctx.fillText(`${this.cultureTier(tile.culture, maxCulture)}`, 
@@ -112,20 +121,8 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
           x + 3, y + 74);
 
         ctx.font = '10px sans-serif';
-        ctx.fillText(`${Math.floor(this.world.populationChange(tile) * 100)}`, 
-          x + 65, y + 72);
-
-        let xo = tile.controller.vassals.size ? 33 : 34;
-        let yo = tile.controller.vassals.size ? 64 : 50;
-        ctx.font = tile.controller.vassals.size ? '20px sans-serif' : '10px sans-serif';
-        //ctx.fillText(`${tile.controller.name}[${tile.controller.brain.tag}]`, x + xo, y + yo);
-        ctx.fillText(`${tile.controller.name}`, x + xo, y + yo);
-
-        xo = tile.controller.vassals.size ? 33 : 35;
-        yo = tile.controller.vassals.size ? 40 : 40;
-        const ch = tile.controller.vassals.size ? '⍟' : '•';
-        ctx.font = '14px sans-serif';
-        ctx.fillText(ch, x + xo, y + yo);
+        this.drawTextRightAligned(ctx, `${Math.floor(this.world.populationChange(tile) * 100)}`, 
+          x, y + 74, this.side - 3);
 
         x += this.side;
       }
@@ -241,6 +238,16 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     const l = Math.ceil(Math.log2(maxCulture) - Math.log2(culture));
     const tiers = ['*', 'S', 'A', 'B', 'C', 'D', 'E', 'F'];
     return l < tiers.length ? tiers[l] : tiers[tiers.length-1];
+  }
+
+  private drawTextCentered(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number) {
+    const textWidth = ctx.measureText(text).width;
+    ctx.fillText(text, x + (width - textWidth) / 2, y);
+  }
+
+  private drawTextRightAligned(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number) {
+    const textWidth = ctx.measureText(text).width;
+    ctx.fillText(text, x + width - textWidth, y);
   }
 
   ngOnDestroy(): void {
