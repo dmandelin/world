@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import {Brain, BasicBrain, DefensiveBrain, NullBrain, SubjectBrain} from "./brains";
+import {cityNames} from './content';
 import { TemplateLiteral } from "@angular/compiler";
 
 // Top TODOs
@@ -12,7 +13,7 @@ import { TemplateLiteral } from "@angular/compiler";
 @Injectable({providedIn: 'root'})
 export class World {
     private year_ = 0;
-    private polities_ = DEFAULT_POLITIES.map((pd, i) => 
+    private polities_ = NAMED_DEFAULT_POLITIES.map((pd, i) => 
         new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
     readonly map = new WorldMap(this, 5, 5, this.polities);
     readonly log = new WorldLog();
@@ -54,8 +55,6 @@ export class World {
             polity.historicalRanks.push([this.year, i++]);
         }
     }
-
-
 
     static BRAINS = [
         new BasicBrain('A', 1.0),
@@ -628,6 +627,9 @@ const DEFAULT_POLITIES = [
     new PolityDef('X', 'darkgrey'),
     new PolityDef('Y', 'lightgrey'),
 ];
+
+const NAMED_DEFAULT_POLITIES = DEFAULT_POLITIES.map(
+    (pd, index) => new PolityDef(cityNames[index], pd.mapColor));
 
 enum Produce {
     Barley,
