@@ -360,28 +360,6 @@ export class World {
         }
     }
 
-    updateTradeLinks() {
-        for (const tile of this.map.tiles.flat()) {
-            tile.clearTradePartners();
-        }
-        
-        for (const tile of this.map.tiles.flat()) {
-            if (tile.produceCode === '=') continue;
-            if (tile.hasTradePartners()) continue;
-            const [best, value] = argmax(
-                this.neighoringTiles(tile),
-                t => this.foughtThisTurn(tile.controller, t.controller) || t.hasTradePartners() ||
-                      t.produceCode === tile.produceCode
-                    ? 0
-                    : t.produceCode === '='
-                    ? 1
-                    : 2);
-            if (value && best) {
-                tile.addTradePartner(best);
-            }
-        }
-    }
-
     foughtThisTurn(a: Polity, b: Polity): boolean {
         return a.attacked.has(b) || b.attacked.has(a);
     }
@@ -630,15 +608,16 @@ const DEFAULT_POLITIES = [
 const NAMED_DEFAULT_POLITIES = DEFAULT_POLITIES.map(
     (pd, index) => new PolityDef(cityNames[index], pd.mapColor));
 
-enum Produce {
+export enum Produce {
     Barley,
     Lentils,
-    Milk,
-    Wool
+    Dairy,
 }
 
 type Production = {
-    [key in Produce]?: number;
+    [Produce.Barley]: number;
+    [Produce.Lentils]: number;
+    [Produce.Dairy]: number;
 };
 
 export class Tile {
@@ -655,12 +634,13 @@ export class Tile {
         public readonly i: number, 
         public readonly j: number, 
         controller: Polity,
+        public readonly isRiver: boolean,
         public readonly wetFraction: number,
         public readonly dryLightSoilFraction: number,
         capacityRatio: number,
         ) {
         this.controller_ = controller;
-        this.population_ = Math.floor(this.capacity * capacityRatio);
+        this.population_ = this.isRiver ? randint(1000, 3000) : randint(80, 250);
         this.construction_ = Math.floor(0.1 * this.population_);
     }
 
@@ -668,41 +648,66 @@ export class Tile {
         return 1 - this.wetFraction - this.dryLightSoilFraction;
     }
 
-    //get production(): Production {
-        // Super-simple model: allocate labor equally among land types
-    //    const labor = this.population / 3;
+    // General facts about production.
+    // (Yield rating order: none, low, marginal, moderate, good, high, excellent)
     //
-    //}
+    // Primary yields for agriculture and pasturage:
+    //
+    //                      Barley        Lentils       Dairy
+    // Alluvium             excellent     good          moderate
+    // Dry light soil       low           moderate      moderate (grazing)
+    // Desert               none          none          marginal (grazing)
+    //
+    // - Grazing uses 10x the land as agriculture.
+    // - Barley is more labor-intensive than lentils and degrades soil quality if not managed.
+    // - Lentils improve soil quality.
+    //
+    // Hunting and gathering yields a balanced combination of all products, but
+    // requires 10-1000x the land area.
 
-    get produceCode(): string {
-        switch (true) {
-            case (this.wetFraction > this.dryLightSoilFraction * 2):
-                return 'W'; // mostly wheat
-            case (this.dryLightSoilFraction > this.wetFraction * 2):
-                return 'L'; // mostly lentils
-            default:
-                return '='; // balanced
+    get production(): Production {
+        // Allocate labor and land to products. Land is in units 
+        const barleyLand = 50000 * this.wetFraction;
+        const lentilLand = 25000 * this.dryLightSoilFraction;
+        const pastureLand = 2500 * this.desertFraction;
+
+        const barleyLabor = this.population / 3;
+        const lentilLabor = this.population / 3;
+        const pastureLabor = this.population / 3;
+    
+        // Note that these formulas are only valid if land is matched to product as above.
+        return {
+            [Produce.Barley]: this.ces_production(barleyLand, barleyLabor),
+            [Produce.Lentils]: this.ces_production(lentilLand, lentilLabor),
+            [Produce.Dairy]: this.ces_production(pastureLand, pastureLabor),
         }
     }
 
-    get dietaryEfficiency(): number {
-        let e = this.produceCode == '=' ? 1.0 : 0.8;
-        const tradeValue = 0.2;
-        for (const t of this.tradePartners_) {
-            if (this.produceCode === 'W' && t.produceCode === 'L') {
-                e += tradeValue;
-            } else {
-                e += 0.5 * tradeValue;
-            }
-            break;
-        }
-        return e;
-    }
-
+    // For now, this is a Cobb-Douglas utility function with equal weights.
     get capacity() {
-        const arableFraction = this.wetFraction +
-                (this.dryLightSoilEnabled_ ? this.dryLightSoilFraction : 0);
-        return Math.floor(arableFraction * this.dietaryEfficiency * 5000);
+        const p = this.production;
+
+        // Without barley is OK.
+        if (p[Produce.Barley] === 0) {
+            return 2 * Math.pow(p[Produce.Lentils] * p[Produce.Dairy], 1/2)
+        }
+
+        return 3 * Math.pow(p[Produce.Barley] * p[Produce.Lentils] * p[Produce.Dairy], 1/3);
+    }
+
+    // CES production function.
+    // - land is fractions of a tile.
+    // - labor is total population of farming families working the best portions of that land.
+    // - unitLand is the amount of land needed to produce one unit of output.
+    // - unitLabor is the amount of labor needed to produce one unit of output.
+    //
+    // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
+    // population of 50K+. That means each tile is apparently 50 square miles.
+    ces_production(land: number, labor: number, unitLand: number = 1, unitLabor: number = 1): number {
+        if (land === 0 || labor === 0) return 0;
+        const landUnits = land / unitLand;
+        const laborUnits = labor / unitLabor;
+        return 1 / (0.6 / laborUnits + 0.4 / landUnits);
     }
 
     get controller() { return this.controller_; }
@@ -805,17 +810,17 @@ class WorldMap {
             for (let j = 0; j < width; j++) {
                 const polity = polities[i * width + j];
                 
-                const isRiverTile = 
+                const isRiver = 
                        i < height - 1 && Math.abs(j - jCenter) == 1 
                     || i == height - 1 && j == jCenter;
 
                 
-                const wetFraction = 0.01 * (isRiverTile
+                const wetFraction = 0.01 * (isRiver
                     ? 10 + randint(10) + randint(10)
                     : 0)
                 const dryLightSoilFraction = Math.random() * (1 - wetFraction);
                 const capacityRatio = Math.random() * 0.3 + 0.5;
-                this.tiles[i][j] = new Tile(world, i, j, polity, wetFraction, dryLightSoilFraction, capacityRatio);
+                this.tiles[i][j] = new Tile(world, i, j, polity, isRiver, wetFraction, dryLightSoilFraction, capacityRatio);
             }
         }
     }
