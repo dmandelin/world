@@ -92,20 +92,20 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         ctx.fillText(`${Math.floor(tile.population/100)}/${Math.floor(tile.capacity/100)}${tile.produceCode}`, 
           x + 23, y + 25);
 
-        ctx.font = '10px sans-serif';
-        ctx.fillText(`${this.cultureTier(tile.culture, maxCulture)}`, 
-          x + 4, y + 13);
-        const topInf = argmax([...tile.culturalInfluences], item => item[1])[0]; 
-        if (topInf && topInf[0] !== tile) { 
-          ctx.fillText(`${topInf[0].controller.name}`, 
-            x + 4, y + 24);
-        }
+        //ctx.font = '10px sans-serif';
+        //ctx.fillText(`${this.cultureTier(tile.culture, maxCulture)}`, 
+        //  x + 4, y + 13);
+        //const topInf = argmax([...tile.culturalInfluences], item => item[1])[0]; 
+        //if (topInf && topInf[0] !== tile) { 
+        //  ctx.fillText(`${topInf[0].controller.name}`, 
+        //    x + 4, y + 24);
+        //}
 
-            ctx.font = '10px sans-serif';
-        ctx.fillText(`${Math.floor(tile.construction / 100)}`, 
-            x + 68, y + 13);
-        ctx.fillText(`${Math.floor(tile.construction / tile.population * 5)}`, 
-            x + 68, y + 24);
+        //    ctx.font = '10px sans-serif';
+        //ctx.fillText(`${Math.floor(tile.construction / 100)}`, 
+        //    x + 68, y + 13);
+        //ctx.fillText(`${Math.floor(tile.construction / tile.population * 5)}`, 
+        //    x + 68, y + 24);
 
         ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.wetFraction*100)}|${Math.floor(tile.dryLightSoilFraction*100)}`, 

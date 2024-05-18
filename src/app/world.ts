@@ -116,7 +116,7 @@ export class World {
                 this.notifyWatchers();
                 break;
             case 'skipAction':
-                this.resolveConstruct(this.actor);
+                //this.resolveConstruct(this.actor);
                 this.skipAction();
                 if (this.advanceTurnAct()) {
                     this.advanceState = 'skipAction';
@@ -147,6 +147,7 @@ export class World {
     }
 
     advanceTurnStart() {
+        /*
         this.updateLastPopulation();
         this.lastAttacks.clear();
         this.log.turnlogClear();
@@ -163,6 +164,7 @@ export class World {
             p.counterAlliance = p.neighboringPolities.filter(n => 
                 n != p && n.brain.joinsCounterAlliance(this, n, p));
         }
+        */
     }
 
     advanceTurnAct() {
@@ -170,9 +172,9 @@ export class World {
             const p = this.polities[this.actorState];
             if (!this.polities.includes(p)) continue;
             
-            this.startTurnFor(p);
+            //this.startTurnFor(p);
             if (!this.locallyControlledPolities.has(p.name)) {
-                p.brain.move(this, p);
+                //p.brain.move(this, p);
             } else {
                 return true;
             }
@@ -199,8 +201,8 @@ export class World {
     }
 
     advanceTurnFinish() {
-        this.updateTradeLinks();
-        this.map.updatePopulations();
+        //this.updateTradeLinks();
+        //this.map.updatePopulations();
 
         this.year_ += 20;
         this.recordRanks();
@@ -620,6 +622,17 @@ const DEFAULT_POLITIES = [
     new PolityDef('Y', 'lightgrey'),
 ];
 
+enum Produce {
+    Barley,
+    Lentils,
+    Milk,
+    Wool
+}
+
+type Production = {
+    [key in Produce]?: number;
+};
+
 export class Tile {
     private controller_: Polity;
     private tradePartners_= new Set<Tile>();
@@ -642,6 +655,16 @@ export class Tile {
         this.population_ = Math.floor(this.capacity * capacityRatio);
         this.construction_ = Math.floor(0.1 * this.population_);
     }
+
+    get desertFraction(): number {
+        return 1 - this.wetFraction - this.dryLightSoilFraction;
+    }
+
+    //get production(): Production {
+        // Super-simple model: allocate labor equally among land types
+    //    const labor = this.population / 3;
+    //
+    //}
 
     get produceCode(): string {
         switch (true) {
