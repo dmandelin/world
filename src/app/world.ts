@@ -4,7 +4,6 @@ import {cityNames} from './content';
 import { TemplateLiteral } from "@angular/compiler";
 
 // Top TODOs
-// - adjust terrain for rivers
 // - production function with default allocations and display on map
 // - update population according to production
 // - compute better allocations
