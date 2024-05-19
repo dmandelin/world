@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Polity, World, Produce, Tile, argmax, sorted } from '../world';
 import { NgFor } from '@angular/common';
 
@@ -16,6 +16,8 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
 
   messages: string[] = [];
 
+  @Output() clickTile = new EventEmitter<Tile>();
+
   constructor(readonly world: World) {}
 
   ngAfterViewInit(): void {
@@ -29,8 +31,8 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   click(event: MouseEvent) {
     const [x, y] = [event.clientX, event.clientY];
     const [i, j] = [Math.floor(y / this.side), Math.floor(x / this.side)];
-    const target = this.world.map.tiles[i][j].controller;
-    this.world.actAttack(target);
+    const target = this.world.map.tiles[i][j];
+    this.clickTile.emit(target);
   }
 
   move(event: MouseEvent) {
