@@ -37,6 +37,11 @@ export class MapInfoPanelComponent {
     return this.tile.production[t.name][p.produce];
   }
 
+  analyzeProduction() {
+    if (!this.tile) return;
+    this.tile.analyzeProduction();
+  }
+
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }
   round(n: number|undefined, p: number): number { return n === undefined ? 0 : Math.round(n / p) * p; }
   percent(n: number): string { return `${Math.floor(n * 100)}%`; }

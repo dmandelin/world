@@ -2,8 +2,10 @@
     text-align: right;
 }
 
-.mtz {
-    margin-top: 0;
+.flex {
+    display: flex;
+    align-items: center;
+    gap: 2em;
 }
 
 #main {
