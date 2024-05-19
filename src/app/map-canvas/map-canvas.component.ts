@@ -36,6 +36,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   move(event: MouseEvent) {
+    /*
     const [x, y] = [event.clientX, event.clientY];
     const [i, j] = [Math.floor(y / this.side), Math.floor(x / this.side)];
     if (i < 0 || i >= this.world.map.height || j < 0 || j >= this.world.map.height) {
@@ -55,6 +56,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
       this.messages.push(`* Defending coalition: ${pwar.defendingCoalition.polities.map(p => p.name)}`);
       this.messages.push(`* Cultural inflence penalty: ${Math.round(pwar.influenceAttackPenalty*100)}%`);
     }
+    */
   }
 
   leave(event: MouseEvent) {
