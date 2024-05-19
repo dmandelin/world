@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { World, Polity, Tile } from '../world';
+import { World, Polity, ProduceInfo, Tile } from '../world';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
 
 @Component({
@@ -10,6 +10,8 @@ import { NgIf, NgFor, NgStyle } from '@angular/common';
   styleUrl: './map-info-panel.component.scss'
 })
 export class MapInfoPanelComponent {
+  readonly products = ProduceInfo.all;
+
   tile: Tile|undefined;
 
   constructor(readonly world: World) {

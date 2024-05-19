@@ -1,11 +1,25 @@
 <div *ngIf="tile">
-  <h1>{{tile.controller.name}}</h1>
+    <h1>{{tile.controller.name}}</h1>
+    <h2>Population: {{tile.population}}</h2>
 
-  <div>Population: {{tile.population}}</div>
-  <h2>Terrain</h2>
-  <table>
-    <tr><td>Alluvium:</td><td class="ra">{{percent(tile.wetFraction)}}</td></tr>
-    <tr><td>Dry light soil:</td><td class="ra">{{percent(tile.dryLightSoilFraction)}}</td></tr>
-    <tr><td>Desert:</td><td class="ra">{{percent(tile.desertFraction)}}</td></tr>
-  </table>
+    <div id="main">
+        <div id="leftPanel">
+            <h2 class="mtz">Terrain</h2>
+            <table>
+                <tr><td>Alluvium:</td><td class="ra">{{percent(tile.wetFraction)}}</td></tr>
+                <tr><td>Dry light soil:</td><td class="ra">{{percent(tile.dryLightSoilFraction)}}</td></tr>
+                <tr><td>Desert:</td><td class="ra">{{percent(tile.desertFraction)}}</td></tr>
+            </table>
+        </div>
+
+        <div id="rightPanel">
+            <h2 class="mtz">Production</h2>
+            <table>
+                <tr>
+                    <th>Terrain</th>
+                    <th *ngFor="let p of products">{{p.name}}</th>
+                </tr>
+            </table>
+        </div>
+    </div>
 </div>

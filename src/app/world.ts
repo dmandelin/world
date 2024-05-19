@@ -622,6 +622,25 @@ export enum Produce {
     Dairy,
 }
 
+export class ProduceInfo {
+    constructor(readonly produce: Produce, readonly name: string) {}
+
+    static Barley = new ProduceInfo(Produce.Barley, 'Barley');
+    static Lentils = new ProduceInfo(Produce.Lentils, 'Lentils');
+    static Dairy = new ProduceInfo(Produce.Dairy, 'Dairy');
+
+    static all = [ProduceInfo.Barley, ProduceInfo.Lentils, ProduceInfo.Dairy];
+
+    static get(p: Produce) {
+        switch (p) {
+            case Produce.Barley: return ProduceInfo.Barley;
+            case Produce.Lentils: return ProduceInfo.Lentils;
+            case Produce.Dairy: return ProduceInfo.Dairy;
+            throw new Error('Invalid produce');
+        }
+    }
+}
+
 type PerProduce = {
     [Produce.Barley]: number;
     [Produce.Lentils]: number;
