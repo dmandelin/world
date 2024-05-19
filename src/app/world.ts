@@ -619,11 +619,86 @@ export enum Produce {
     Dairy,
 }
 
-type Production = {
+type PerProduce = {
     [Produce.Barley]: number;
     [Produce.Lentils]: number;
     [Produce.Dairy]: number;
-};
+}
+
+class Terrain {
+    constructor(
+        readonly landUnitsPerTile: PerProduce,
+        readonly yieldFactor: PerProduce,
+    ) {}
+}
+
+const Alluvium = new Terrain({
+    [Produce.Barley]: 50000,
+    [Produce.Lentils]: 30000,
+    [Produce.Dairy]: 20000,
+}, {
+    [Produce.Barley]: 1.0,
+    [Produce.Lentils]: 1.0,
+    [Produce.Dairy]: 1.0,
+});
+const DryLightSoil = new Terrain({
+    [Produce.Barley]: 20000,
+    [Produce.Lentils]: 20000,
+    [Produce.Dairy]: 5000,
+}, {
+    [Produce.Barley]: 0.5,
+    [Produce.Lentils]: 0.8,
+    [Produce.Dairy]: 1.0,
+});
+const Desert = new Terrain({
+    [Produce.Barley]: 0,
+    [Produce.Lentils]: 0,
+    [Produce.Dairy]: 2500,
+}, {
+    [Produce.Barley]: 0,
+    [Produce.Lentils]: 0,
+    [Produce.Dairy]: 1.0,
+});
+
+class Allocation {
+    constructor(
+        readonly product: Produce,
+        readonly terrain: Terrain,
+        readonly land: number,
+        readonly labor: number) {}
+
+    production(): number {
+        return this.terrain.yieldFactor[this.product] * this.ces_production(
+            this.land * this.terrain.landUnitsPerTile[this.product], 
+            this.labor);
+    }
+
+    // CES production function.
+    // - land is fractions of a tile.
+    // - labor is total population of farming families working the best portions of that land.
+    // - unitLand is the amount of land needed to produce one unit of output.
+    // - unitLabor is the amount of labor needed to produce one unit of output.
+    private ces_production(land: number, labor: number, unitLand: number = 1, unitLabor: number = 1): number {
+        if (land === 0 || labor === 0) return 0;
+        const landUnits = land / unitLand;
+        const laborUnits = labor / unitLabor;
+        return 1 / (0.6 / laborUnits + 0.4 / landUnits);
+    }
+}
+
+function production(allocs: readonly Allocation[]): PerProduce {
+    const total = {
+        [Produce.Barley]: 0,
+        [Produce.Lentils]: 0,
+        [Produce.Dairy]: 0,
+    };
+
+    for (const alloc of allocs) {
+        total[alloc.product] += alloc.production()
+    }
+
+    return total;
+}
 
 export class Tile {
     private controller_: Polity;
@@ -633,6 +708,9 @@ export class Tile {
     private construction_: number;
 
     private dryLightSoilEnabled_ = false;
+
+    // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
+    // population of 50K+. That means each tile is apparently 50 square miles.
 
     constructor(
         public readonly world: World,
@@ -670,22 +748,12 @@ export class Tile {
     // Hunting and gathering yields a balanced combination of all products, but
     // requires 10-1000x the land area.
 
-    get production(): Production {
-        // Allocate labor and land to products. Land is in units 
-        const barleyLand = 50000 * this.wetFraction;
-        const lentilLand = 25000 * this.dryLightSoilFraction;
-        const pastureLand = 2500 * this.desertFraction;
-
-        const barleyLabor = this.population / 3;
-        const lentilLabor = this.population / 3;
-        const pastureLabor = this.population / 3;
-    
-        // Note that these formulas are only valid if land is matched to product as above.
-        return {
-            [Produce.Barley]: this.ces_production(barleyLand, barleyLabor),
-            [Produce.Lentils]: this.ces_production(lentilLand, lentilLabor),
-            [Produce.Dairy]: this.ces_production(pastureLand, pastureLabor),
-        }
+    get production(): PerProduce {
+        return production([
+            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
+            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
+            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
+        ])
     }
 
     // For now, this is a Cobb-Douglas utility function with equal weights.
@@ -698,21 +766,6 @@ export class Tile {
         }
 
         return 3 * Math.pow(p[Produce.Barley] * p[Produce.Lentils] * p[Produce.Dairy], 1/3);
-    }
-
-    // CES production function.
-    // - land is fractions of a tile.
-    // - labor is total population of farming families working the best portions of that land.
-    // - unitLand is the amount of land needed to produce one unit of output.
-    // - unitLabor is the amount of labor needed to produce one unit of output.
-    //
-    // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
-    // population of 50K+. That means each tile is apparently 50 square miles.
-    ces_production(land: number, labor: number, unitLand: number = 1, unitLabor: number = 1): number {
-        if (land === 0 || labor === 0) return 0;
-        const landUnits = land / unitLand;
-        const laborUnits = labor / unitLabor;
-        return 1 / (0.6 / laborUnits + 0.4 / landUnits);
     }
 
     get controller() { return this.controller_; }
