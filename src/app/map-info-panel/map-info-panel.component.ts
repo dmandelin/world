@@ -20,4 +20,5 @@ export class MapInfoPanelComponent {
   } 
 
   floor(n: number): number { return Math.floor(n); }
+  percent(n: number): string { return `${Math.floor(n * 100)}%`; }
 }

@@ -1,3 +1,11 @@
 <div *ngIf="tile">
-  <div>{{tile.controller.name}}</div>
+  <h1>{{tile.controller.name}}</h1>
+
+  <div>Population: {{tile.population}}</div>
+  <h2>Terrain</h2>
+  <table>
+    <tr><td>Alluvium:</td><td class="ra">{{percent(tile.wetFraction)}}</td></tr>
+    <tr><td>Dry light soil:</td><td class="ra">{{percent(tile.dryLightSoilFraction)}}</td></tr>
+    <tr><td>Desert:</td><td class="ra">{{percent(tile.desertFraction)}}</td></tr>
+  </table>
 </div>
