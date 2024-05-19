@@ -5,6 +5,10 @@ import { TemplateLiteral } from "@angular/compiler";
 
 // Top TODOs
 // - compute better allocations
+//   - plan: pull out production into a function we can call for hypotheticals
+//           create routine to do gradient ascent on land and/or labor allocations
+//           at first, log the results and examine what we get
+//           later, apply to actual allocations
 // - trade food for increased production
 // - trade for obsidian for labor productivity and health bonuses
 // - trade for lapis lazuli for culture bonuses
