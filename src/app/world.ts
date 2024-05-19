@@ -634,16 +634,16 @@ class Terrain {
 
 const Alluvium = new Terrain({
     [Produce.Barley]: 50000,
-    [Produce.Lentils]: 30000,
+    [Produce.Lentils]: 50000,
     [Produce.Dairy]: 20000,
 }, {
-    [Produce.Barley]: 1.0,
+    [Produce.Barley]: 1.5,
     [Produce.Lentils]: 1.0,
     [Produce.Dairy]: 1.0,
 });
 const DryLightSoil = new Terrain({
-    [Produce.Barley]: 20000,
-    [Produce.Lentils]: 20000,
+    [Produce.Barley]: 50000,
+    [Produce.Lentils]: 50000,
     [Produce.Dairy]: 5000,
 }, {
     [Produce.Barley]: 0.5,
@@ -700,6 +700,17 @@ function production(allocs: readonly Allocation[]): PerProduce {
     return total;
 }
 
+// For now, this is a Cobb-Douglas utility function with equal weights.
+// - p is production
+function capacity(p: PerProduce) {
+    // Without barley is OK.
+    if (p[Produce.Barley] === 0) {
+        return 2 * Math.pow(p[Produce.Lentils] * p[Produce.Dairy], 1/2)
+    }
+
+    return 3 * Math.pow(p[Produce.Barley] * p[Produce.Lentils] * p[Produce.Dairy], 1/3);
+}
+
 export class Tile {
     private controller_: Polity;
     private tradePartners_= new Set<Tile>();
@@ -749,23 +760,27 @@ export class Tile {
     // requires 10-1000x the land area.
 
     get production(): PerProduce {
-        return production([
+        const allocs = [
             new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
             new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
             new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
-        ])
+        ];
+        const initialProduction = production(allocs);
+
+        const initialCapacity = capacity(initialProduction);
+        console.log(`* Production log for ${this.controller.name}`);
+        console.log('Initial allocs', allocs);
+        console.log('Initial production', initialProduction);
+        console.log('Initial capacity', initialCapacity);
+        const totalInitialProduction = initialProduction[Produce.Barley] + initialProduction[Produce.Lentils] + initialProduction[Produce.Dairy];
+        console.log('Dietary efficiency', initialCapacity/totalInitialProduction);
+
+        return initialProduction;
     }
 
     // For now, this is a Cobb-Douglas utility function with equal weights.
     get capacity() {
-        const p = this.production;
-
-        // Without barley is OK.
-        if (p[Produce.Barley] === 0) {
-            return 2 * Math.pow(p[Produce.Lentils] * p[Produce.Dairy], 1/2)
-        }
-
-        return 3 * Math.pow(p[Produce.Barley] * p[Produce.Lentils] * p[Produce.Dairy], 1/3);
+        return capacity(this.production);
     }
 
     get controller() { return this.controller_; }
