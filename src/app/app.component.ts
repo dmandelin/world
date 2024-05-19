@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { MapCanvasComponent } from './map-canvas/map-canvas.component';
 import { MapComponent } from './map/map.component';
 import { MapInfoPanelComponent } from './map-info-panel/map-info-panel.component';
+import { WorldInfoPanelComponent } from './world-info-panel/world-info-panel.component';
 import { WorldLogPanelComponent } from "./world-log-panel/world-log-panel.component";
 
 @Component({
@@ -10,7 +11,14 @@ import { WorldLogPanelComponent } from "./world-log-panel/world-log-panel.compon
     standalone: true,
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
-    imports: [RouterOutlet, MapCanvasComponent, MapComponent, MapInfoPanelComponent, WorldLogPanelComponent]
+    imports: [
+      RouterOutlet, 
+      MapCanvasComponent, 
+      MapComponent, 
+      MapInfoPanelComponent, 
+      WorldInfoPanelComponent, 
+      WorldLogPanelComponent,
+    ],
 })
 export class AppComponent {
   title = 'world';
