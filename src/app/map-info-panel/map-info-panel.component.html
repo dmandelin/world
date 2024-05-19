@@ -25,7 +25,23 @@
                 </tr>
                 <tr>
                     <th>Total</th>
-                    <td *ngFor="let p of products" class="ra">{{floor(totalProduction(p))}}</td>
+                    <td *ngFor="let p of products" class="ra">{{floor(production(p))}}</td>
+                </tr>
+            </table>
+
+            <h2>Utility</h2>
+            <table>
+                <tr>
+                    <td>Total Produce</td>
+                    <td class="ra">{{floor(totalProduction)}}</td>
+                </tr>
+                <tr>
+                    <td>Nutritional Quality</td>
+                    <td class="ra">x {{round(nutritionalQuality, 0.01)}}</td>
+                </tr>
+                <tr>
+                    <td>Population Capacity</td>
+                    <td class="ra">= {{floor(capacity)}}</td>
                 </tr>
             </table>
         </div>
