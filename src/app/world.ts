@@ -158,6 +158,9 @@ export class World {
 
     advanceTurnStart() {
         this.updateLastPopulation();
+        for (const t of this.map.tiles.flat()) {
+            t.analyzeProduction();
+        }
         /*
         this.lastAttacks.clear();
         this.log.turnlogClear();
@@ -765,17 +768,43 @@ export class Tile {
             new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
             new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
         ];
-        const initialProduction = production(allocs);
+        return production(allocs);
+    }
 
-        const initialCapacity = capacity(initialProduction);
-        console.log(`* Production log for ${this.controller.name}`);
-        console.log('Initial allocs', allocs);
-        console.log('Initial production', initialProduction);
-        console.log('Initial capacity', initialCapacity);
-        const totalInitialProduction = initialProduction[Produce.Barley] + initialProduction[Produce.Lentils] + initialProduction[Produce.Dairy];
-        console.log('Dietary efficiency', initialCapacity/totalInitialProduction);
+    analyzeProduction() {
+        console.log();
+        console.log('Production report for', this.controller.name);
 
-        return initialProduction;
+        const allocs = [
+            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
+            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
+            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
+        ];
+        const [ip, ic] = this.analyzeAllocation('Initial', allocs);
+
+        // Try some different labor allocations.
+        const diffs = [[0.1, -0.05, -0.05], [-0.05, 0.1, -0.05], [-0.05, -0.05, 0.1]];
+        for (const diff of diffs) {
+            const newAllocs = [
+                new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3 + diff[0]*this.population),
+                new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3 + diff[1]*this.population),
+                new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3 + diff[2]*this.population),
+            ];
+            this.analyzeAllocation(diff.join('|'), newAllocs);
+        }
+    }
+
+    analyzeAllocation(name: string, allocs: readonly Allocation[]): [PerProduce, number] {
+        const p = production(allocs);
+        const c = capacity(p);
+
+        console.log('-', name)
+        console.log('  allocs', allocs);
+        console.log('  production', p);
+        console.log('  capacity', c);
+        const totalInitialProduction = p[Produce.Barley] + p[Produce.Lentils] + p[Produce.Dairy];
+        console.log('  nutritiousness', c/totalInitialProduction);
+        return [p, c];
     }
 
     // For now, this is a Cobb-Douglas utility function with equal weights.
