@@ -19,6 +19,9 @@
                     <th>Terrain</th>
                     <th *ngFor="let p of products">{{p.name}}</th>
                 </tr>
+                <tr *ngFor="let t of terrainTypes">
+                    <td>{{t.name}}</td>
+                </tr>
             </table>
         </div>
     </div>

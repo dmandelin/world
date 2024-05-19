@@ -649,12 +649,13 @@ type PerProduce = {
 
 class Terrain {
     constructor(
+        readonly name: string,
         readonly landUnitsPerTile: PerProduce,
         readonly yieldFactor: PerProduce,
     ) {}
 }
 
-const Alluvium = new Terrain({
+const Alluvium = new Terrain('Alluvium', {
     [Produce.Barley]: 50000,
     [Produce.Lentils]: 50000,
     [Produce.Dairy]: 20000,
@@ -663,7 +664,7 @@ const Alluvium = new Terrain({
     [Produce.Lentils]: 1.0,
     [Produce.Dairy]: 1.0,
 });
-const DryLightSoil = new Terrain({
+const DryLightSoil = new Terrain('DryLightSoil', {
     [Produce.Barley]: 50000,
     [Produce.Lentils]: 50000,
     [Produce.Dairy]: 5000,
@@ -672,7 +673,7 @@ const DryLightSoil = new Terrain({
     [Produce.Lentils]: 0.8,
     [Produce.Dairy]: 1.0,
 });
-const Desert = new Terrain({
+const Desert = new Terrain('Desert', {
     [Produce.Barley]: 0,
     [Produce.Lentils]: 0,
     [Produce.Dairy]: 2500,
@@ -681,6 +682,8 @@ const Desert = new Terrain({
     [Produce.Lentils]: 0,
     [Produce.Dairy]: 1.0,
 });
+
+export const AllTerrainTypes = [Alluvium, DryLightSoil, Desert];
 
 class Allocation {
     constructor(

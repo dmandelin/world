@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { World, Polity, ProduceInfo, Tile } from '../world';
+import { World, Polity, AllTerrainTypes, ProduceInfo, Tile } from '../world';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
 
 @Component({
@@ -11,6 +11,7 @@ import { NgIf, NgFor, NgStyle } from '@angular/common';
 })
 export class MapInfoPanelComponent {
   readonly products = ProduceInfo.all;
+  readonly terrainTypes = AllTerrainTypes;
 
   tile: Tile|undefined;
 

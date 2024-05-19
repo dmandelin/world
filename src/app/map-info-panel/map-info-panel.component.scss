@@ -10,3 +10,11 @@
     display: flex;
     gap: 2em;
 }
+
+th:first-child {
+    text-align: left;
+}
+
+th:not(first-child) {
+    text-align: right;
+}
