@@ -21,6 +21,11 @@
                 </tr>
                 <tr *ngFor="let t of terrainTypes">
                     <td>{{t.name}}</td>
+                    <td *ngFor="let p of products">-</td>
+                </tr>
+                <tr>
+                    <th>Total</th>
+                    <td *ngFor="let p of products" class="ra">{{floor(totalProduction(p))}}</td>
                 </tr>
             </table>
         </div>

@@ -22,6 +22,11 @@ export class MapInfoPanelComponent {
     this.tile = tile;
   } 
 
+  totalProduction(p: ProduceInfo): number {
+    if (!this.tile) return 0;
+    return this.tile.production[p.produce];
+  }
+
   floor(n: number): number { return Math.floor(n); }
   percent(n: number): string { return `${Math.floor(n * 100)}%`; }
 }
