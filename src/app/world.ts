@@ -4,10 +4,11 @@ import {cityNames} from './content';
 import { TemplateLiteral } from "@angular/compiler";
 
 // Top TODOs
-// - production function with default allocations and display on map
-// - update population according to production
 // - compute better allocations
-// - display production statistics in more detail
+// - trade food for increased production
+// - trade for obsidian for labor productivity and health bonuses
+// - trade for lapis lazuli for culture bonuses
+// - craft specialists: tools, cloth, pottery, jewelry
 
 @Injectable({providedIn: 'root'})
 export class World {
@@ -152,8 +153,8 @@ export class World {
     }
 
     advanceTurnStart() {
-        /*
         this.updateLastPopulation();
+        /*
         this.lastAttacks.clear();
         this.log.turnlogClear();
 
@@ -207,7 +208,7 @@ export class World {
 
     advanceTurnFinish() {
         //this.updateTradeLinks();
-        //this.map.updatePopulations();
+        this.map.updatePopulations();
 
         this.year_ += 20;
         this.recordRanks();
