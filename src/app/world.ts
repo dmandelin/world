@@ -647,9 +647,17 @@ type PerProduce = {
     [Produce.Dairy]: number;
 }
 
-class Terrain {
+function newPerProduce(): PerProduce {
+    return {
+        [Produce.Barley]: 0,
+        [Produce.Lentils]: 0,
+        [Produce.Dairy]: 0,
+    };
+}
+
+export class Terrain {
     constructor(
-        readonly name: string,
+        readonly name: 'Alluvium'|'DryLightSoil'|'Desert',
         readonly landUnitsPerTile: PerProduce,
         readonly yieldFactor: PerProduce,
     ) {}
@@ -711,18 +719,28 @@ class Allocation {
     }
 }
 
-function production(allocs: readonly Allocation[]): PerProduce {
-    const total = {
-        [Produce.Barley]: 0,
-        [Produce.Lentils]: 0,
-        [Produce.Dairy]: 0,
+export type PerTerrainPerProduce = {
+    Alluvium: PerProduce;
+    DryLightSoil: PerProduce;
+    Desert: PerProduce;
+    Total: PerProduce;
+}
+
+function production(allocs: readonly Allocation[]): PerTerrainPerProduce {
+    const totals = {
+        Alluvium: newPerProduce(),
+        DryLightSoil: newPerProduce(),
+        Desert: newPerProduce(),
+        Total: newPerProduce(),
     };
 
     for (const alloc of allocs) {
-        total[alloc.product] += alloc.production()
+        const p = alloc.production();
+        totals[alloc.terrain.name][alloc.product] += p;
+        totals.Total[alloc.product] += p;
     }
 
-    return total;
+    return totals;
 }
 
 // For now, this is a Cobb-Douglas utility function with equal weights.
@@ -784,7 +802,7 @@ export class Tile {
     // Hunting and gathering yields a balanced combination of all products, but
     // requires 10-1000x the land area.
 
-    get production(): PerProduce {
+    get production(): PerTerrainPerProduce {
         const allocs = [
             new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
             new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
@@ -817,7 +835,7 @@ export class Tile {
     }
 
     analyzeAllocation(name: string, allocs: readonly Allocation[]): [PerProduce, number] {
-        const p = production(allocs);
+        const p = production(allocs).Total;
         const c = capacity(p);
 
         console.log('-', name)
@@ -831,7 +849,7 @@ export class Tile {
 
     // For now, this is a Cobb-Douglas utility function with equal weights.
     get capacity() {
-        return capacity(this.production);
+        return capacity(this.production.Total);
     }
 
     get controller() { return this.controller_; }

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { World, Polity, AllTerrainTypes, ProduceInfo, Tile } from '../world';
+import { World, Polity, AllTerrainTypes, ProduceInfo, Terrain, Tile } from '../world';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
 
 @Component({
@@ -26,14 +26,15 @@ export class MapInfoPanelComponent {
     this.tile = tile;
 
     const production = this.tile.production;
-    this.totalProduction = this.products.reduce((total, p) => total + production[p.produce], 0);
+    this.totalProduction = this.products.reduce((total, p) => total + production.Total[p.produce], 0);
     this.capacity = this.tile.capacity;
     this.nutritionalQuality = this.capacity / this.totalProduction;
   } 
 
-  production(p: ProduceInfo): number {
+  production(p: ProduceInfo, t?: Terrain): number {
     if (!this.tile) return 0;
-    return this.tile.production[p.produce];
+    if (!t) return this.tile.production.Total[p.produce];
+    return this.tile.production[t.name][p.produce];
   }
 
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }

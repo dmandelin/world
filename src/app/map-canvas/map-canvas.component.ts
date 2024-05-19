@@ -92,7 +92,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
 
         ctx.fillStyle = '#eee';
 
-        const p = tile.production;
+        const p = tile.production.Total;
         ctx.font = '10px sans-serif';
         this.drawTextCentered(ctx,
           `${Math.floor(p[Produce.Barley])} | ${Math.floor(p[Produce.Lentils])} | ${Math.floor(p[Produce.Dairy])}`, 
