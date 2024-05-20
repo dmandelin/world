@@ -4,11 +4,11 @@ import {cityNames} from './content';
 import { TemplateLiteral } from "@angular/compiler";
 
 // Top TODOs
-// - compute better allocations
-//   - plan: pull out production into a function we can call for hypotheticals
-//           create routine to do gradient ascent on land and/or labor allocations
-//           at first, log the results and examine what we get
-//           later, apply to actual allocations
+// - allocations
+//   - understand why relatively equal allocations are usually still about optimal
+//   - experiment with land allocation and both allocation
+//   - retune production functions based on above analysis
+//   - apply to actual production
 // - trade food for increased production
 // - trade for obsidian for labor productivity and health bonuses
 // - trade for lapis lazuli for culture bonuses
@@ -851,6 +851,50 @@ export class Tile {
             }
         }
         console.log(`- Improved capacity by ${Math.round(100 * (bestCapacity / ic - 1))}%`);
+        console.log(`  Best allocation found: ${bestlf.join(' | ')}`)
+    }
+
+    analyzeProductionExhaustive() {
+        console.log();
+        console.log('Production report for', this.controller.name);
+
+        const ilf = [0.34, 0.33, 0.33];
+        const allocs = [
+            new Allocation(Produce.Barley, Alluvium, this.wetFraction, ilf[0] * this.population),
+            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, ilf[1] * this.population),
+            new Allocation(Produce.Dairy, Desert, this.desertFraction, ilf[2] * this.population),
+        ];
+        const [ip, ic] = this.analyzeAllocation('Initial', allocs);
+
+        // Coordinate ascent on labor allocations. For N products there are N-1 degrees of freedom.
+        let bestlf = ilf;
+        let bestAllocs = allocs;
+        let bestCapacity = ic;
+        for (let i = 1; i >= 0; i -= 0.1) {
+            for (let j = 1 - i; j >= 0; j -= 0.1) {
+                if (j < 0) {
+                    console.log("JLZ");
+                    break;
+                }
+                const k = 1 - i - j;
+                console.log(`* Try ${i}, ${j}, ${k}`);
+                const lf = [i, j, k];
+                const newAllocs = [
+                    new Allocation(Produce.Barley, Alluvium, this.wetFraction, lf[0] * this.population),
+                    new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, lf[1]*this.population),
+                    new Allocation(Produce.Dairy, Desert, this.desertFraction, lf[2]*this.population),
+                ];
+                const [p, c] = this.analyzeAllocation(lf.join('|'), newAllocs);
+                if (c > bestCapacity) {
+                    console.log('  ** new best')
+                    bestlf = lf;
+                    bestAllocs = newAllocs;
+                    bestCapacity = c;
+                }
+            }
+        }
+ 
+        console.log(`- Improved capacity by ${Math.round(100 * (bestCapacity / ic - 1))}% to ${bestCapacity}`);
         console.log(`  Best allocation found: ${bestlf.join(' | ')}`)
     }
 
