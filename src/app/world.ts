@@ -158,9 +158,6 @@ export class World {
 
     advanceTurnStart() {
         this.updateLastPopulation();
-        for (const t of this.map.tiles.flat()) {
-            t.analyzeProduction();
-        }
         /*
         this.lastAttacks.clear();
         this.log.turnlogClear();
@@ -815,23 +812,46 @@ export class Tile {
         console.log();
         console.log('Production report for', this.controller.name);
 
+        const ilf = [0.34, 0.33, 0.33];
         const allocs = [
-            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
-            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
-            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
+            new Allocation(Produce.Barley, Alluvium, this.wetFraction, ilf[0] * this.population),
+            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, ilf[1] * this.population),
+            new Allocation(Produce.Dairy, Desert, this.desertFraction, ilf[2] * this.population),
         ];
         const [ip, ic] = this.analyzeAllocation('Initial', allocs);
 
-        // Try some different labor allocations.
-        const diffs = [[0.1, -0.05, -0.05], [-0.05, 0.1, -0.05], [-0.05, -0.05, 0.1]];
-        for (const diff of diffs) {
-            const newAllocs = [
-                new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3 + diff[0]*this.population),
-                new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3 + diff[1]*this.population),
-                new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3 + diff[2]*this.population),
-            ];
-            this.analyzeAllocation(diff.join('|'), newAllocs);
+        // Coordinate ascent on labor allocations. For N products there are N-1 degrees of freedom.
+        let bestlf = ilf;
+        let bestAllocs = allocs;
+        let bestCapacity = ic;
+        const diffs = [[0.01, -0.01, 0], [-0.01, 0.01, 0], [0, 0.01, -0.01], [0, -0.01, 0.01]];
+        for (let i = 0; i < 100; ++i) {
+            console.log(`* Search iteration ${i+1}`);
+            let foundNewBest = false;
+            for (const diff of diffs) {
+                const lf = [bestlf[0] + diff[0], bestlf[1] + diff[1], bestlf[2] + diff[2]];
+                if (lf.some(f => f < 0 || f > 1)) continue;
+                const newAllocs = [
+                    new Allocation(Produce.Barley, Alluvium, this.wetFraction, lf[0] * this.population),
+                    new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, lf[1]*this.population),
+                    new Allocation(Produce.Dairy, Desert, this.desertFraction, lf[2]*this.population),
+                ];
+                const [p, c] = this.analyzeAllocation(lf.join('|'), newAllocs);
+                if (c > bestCapacity) {
+                    console.log('  ** new best')
+                    foundNewBest = true;
+                    bestlf = lf;
+                    bestAllocs = newAllocs;
+                    bestCapacity = c;
+                }
+            }
+            if (!foundNewBest) {
+                console.log('  *** no further improvements found')
+                break;
+            }
         }
+        console.log(`- Improved capacity by ${Math.round(100 * (bestCapacity / ic - 1))}%`);
+        console.log(`  Best allocation found: ${bestlf.join(' | ')}`)
     }
 
     analyzeAllocation(name: string, allocs: readonly Allocation[]): [PerProduce, number] {
