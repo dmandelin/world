@@ -661,21 +661,21 @@ export class Terrain {
 }
 
 const Alluvium = new Terrain('Alluvium', {
-    [Produce.Barley]: 50000,
-    [Produce.Lentils]: 50000,
-    [Produce.Dairy]: 20000,
+    [Produce.Barley]: 60000,
+    [Produce.Lentils]: 30000,
+    [Produce.Dairy]: 10000,
 }, {
-    [Produce.Barley]: 1.5,
+    [Produce.Barley]: 1.0,
     [Produce.Lentils]: 1.0,
     [Produce.Dairy]: 1.0,
 });
 const DryLightSoil = new Terrain('DryLightSoil', {
-    [Produce.Barley]: 50000,
-    [Produce.Lentils]: 50000,
+    [Produce.Barley]: 10000,
+    [Produce.Lentils]: 20000,
     [Produce.Dairy]: 5000,
 }, {
-    [Produce.Barley]: 0.5,
-    [Produce.Lentils]: 0.8,
+    [Produce.Barley]: 1.0,
+    [Produce.Lentils]: 1.0,
     [Produce.Dairy]: 1.0,
 });
 const Desert = new Terrain('Desert', {
@@ -809,6 +809,31 @@ export class Tile {
     }
 
     analyzeProduction() {
+        this.analyzeProductionPopulationSizes();
+    }
+
+    analyzeProductionPopulationSizes() {
+        console.log();
+        console.log('Production report (population sizes) for', this.controller.name);
+        // Simplest version: allocate everyone to desert herding, with different population sizes
+        let incr = 100;
+        let pop = 100;
+        while (pop < 10000) {
+            const allocs = [
+                new Allocation(Produce.Barley, Alluvium, this.wetFraction, 0),
+                new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, 0),
+                new Allocation(Produce.Dairy, Desert, this.desertFraction, pop),
+            ];
+            const [ip, ic] = this.analyzeAllocation(`Pop ${pop}`, allocs);
+
+            pop += incr;
+            if (pop >= incr * 10) {
+                incr = pop;
+            }
+        }
+    }
+
+    analyzeProductionGradientAscent() {
         console.log();
         console.log('Production report for', this.controller.name);
 

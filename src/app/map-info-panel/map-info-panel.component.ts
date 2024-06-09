@@ -39,7 +39,7 @@ export class MapInfoPanelComponent {
 
   analyzeProduction() {
     if (!this.tile) return;
-    this.tile.analyzeProductionExhaustive();
+    this.tile.analyzeProduction();
   }
 
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }
