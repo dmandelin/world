@@ -743,12 +743,25 @@ function production(allocs: readonly Allocation[]): PerTerrainPerProduce {
 // For now, this is a Cobb-Douglas utility function with equal weights.
 // - p is production
 function capacity(p: PerProduce) {
-    // Without barley is OK.
-    if (p[Produce.Barley] === 0) {
-        return 2 * Math.pow(p[Produce.Lentils] * p[Produce.Dairy], 1/2)
-    }
+    const pdv = pastoralDietValue(p);
+    const adv = agrarianDietValue(p);
+    return Math.max(pdv, adv);
+}
 
-    return 3 * Math.pow(p[Produce.Barley] * p[Produce.Lentils] * p[Produce.Dairy], 1/3);
+function pastoralDietValue(p: PerProduce) {
+    let plants = p[Produce.Barley] + p[Produce.Lentils];
+    let animals = p[Produce.Dairy];
+    if (plants < 0.2 * (plants + animals)) {
+        const convert = 0.2 * (plants + animals) - plants;
+        plants += convert / 2;
+        animals -= convert;
+    }
+    return 2 * Math.pow(plants, 0.5) * Math.pow(animals, 0.5);
+}
+
+function agrarianDietValue(p: PerProduce) {
+    let [c, l, a] = [p[Produce.Barley], p[Produce.Lentils], p[Produce.Dairy]];
+    return 3 * Math.pow(c, 0.25) * Math.pow(l, 0.25), Math.pow(a, 0.5);
 }
 
 export class Tile {
@@ -816,20 +829,48 @@ export class Tile {
         console.log();
         console.log('Production report (population sizes) for', this.controller.name);
         // Simplest version: allocate everyone to desert herding, with different population sizes
-        let incr = 100;
-        let pop = 100;
+        let incr = 2000;
+        let pop = 2000;
         while (pop < 10000) {
-            const allocs = [
-                new Allocation(Produce.Barley, Alluvium, this.wetFraction, 0),
-                new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, 0),
-                new Allocation(Produce.Dairy, Desert, this.desertFraction, pop),
-            ];
-            const [ip, ic] = this.analyzeAllocation(`Pop ${pop}`, allocs);
+            this.analyzeOptimalProductionLentilsAndDairy(pop);
 
             pop += incr;
             if (pop >= incr * 10) {
                 incr = pop;
             }
+        }
+    }
+
+    analyzeOptimalProductionLentilsAndDairy(pop: number) {
+        console.log(`* Pop ${pop}`)
+        let bestCapacity = 0;
+        let bestLf = 0;
+        let bestAllocs = [];
+        for (let lentilFraction = 0; lentilFraction <= 1; lentilFraction += 0.01) {
+            const dairyFraction = 1 - lentilFraction;
+            const allocs = [
+                new Allocation(Produce.Barley, Alluvium, this.wetFraction, 0),
+                new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, lentilFraction * pop),
+                new Allocation(Produce.Dairy, Desert, this.desertFraction, dairyFraction * pop),
+            ];
+            const p = production(allocs).Total;
+            const c = capacity(p);
+            console.log(`  lf=${lentilFraction}: ${p[Produce.Barley]}, ${p[Produce.Lentils]}, ${p[Produce.Dairy]} -> ${c}`)
+            if (c > bestCapacity) {
+                bestLf = lentilFraction;
+                bestAllocs = allocs;
+                bestCapacity = c;
+            }
+        }
+
+        for (const lf of [0, bestLf, 1]) {
+            const df = 1 - lf;
+            const newAllocs = [
+                new Allocation(Produce.Barley, Alluvium, this.wetFraction, 0),
+                new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, lf * pop),
+                new Allocation(Produce.Dairy, Desert, this.desertFraction, df * pop),
+            ];
+            const [p, c] = this.analyzeAllocation(`${lf}|${df}`, newAllocs);
         }
     }
 
