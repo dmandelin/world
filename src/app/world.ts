@@ -636,6 +636,10 @@ export class ProduceInfo {
             throw new Error('Invalid produce');
         }
     }
+
+    static getName(p: Produce) {
+        return ProduceInfo.get(p).name;
+    }
 }
 
 type PerProduce = {
@@ -663,7 +667,7 @@ export class Terrain {
 const Alluvium = new Terrain('Alluvium', {
     [Produce.Barley]: 60000,
     [Produce.Lentils]: 30000,
-    [Produce.Dairy]: 10000,
+    [Produce.Dairy]: 6000,
 }, {
     [Produce.Barley]: 1.0,
     [Produce.Lentils]: 1.0,
@@ -672,7 +676,7 @@ const Alluvium = new Terrain('Alluvium', {
 const DryLightSoil = new Terrain('DryLightSoil', {
     [Produce.Barley]: 10000,
     [Produce.Lentils]: 20000,
-    [Produce.Dairy]: 5000,
+    [Produce.Dairy]: 4000,
 }, {
     [Produce.Barley]: 1.0,
     [Produce.Lentils]: 1.0,
@@ -690,7 +694,7 @@ const Desert = new Terrain('Desert', {
 
 export const AllTerrainTypes = [Alluvium, DryLightSoil, Desert];
 
-class Allocation {
+export class Allocation {
     constructor(
         readonly product: Produce,
         readonly terrain: Terrain,
@@ -771,7 +775,7 @@ export class Tile {
     private population_: number;
     private construction_: number;
 
-    private dryLightSoilEnabled_ = false;
+    private allocs_: Allocation[];
 
     // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
     // population of 50K+. That means each tile is apparently 50 square miles.
@@ -794,6 +798,12 @@ export class Tile {
         const basePopulation = this.isRiver ? randint(1000, 3000) : randint(80, 250);
         this.population_ = Math.floor(basePopulation * popFactor);
         this.construction_ = Math.floor(0.1 * this.population_);
+
+        this.allocs_ = [
+            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
+            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
+            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
+        ];
     }
 
     get desertFraction(): number {
@@ -817,13 +827,12 @@ export class Tile {
     // Hunting and gathering yields a balanced combination of all products, but
     // requires 10-1000x the land area.
 
+    get allocs(): readonly Allocation[] {
+        return this.allocs_;
+    }
+
     get production(): PerTerrainPerProduce {
-        const allocs = [
-            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
-            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
-            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
-        ];
-        return production(allocs);
+        return production(this.allocs_);
     }
 
     analyzeProduction() {
@@ -1019,10 +1028,6 @@ export class Tile {
         const r = this.population / this.capacity;
         const dp = Math.floor(0.4 * r * (1 - r) * this.population);
         this.population += dp;
-    }
-
-    enableDryLightSoil() {
-        this.dryLightSoilEnabled_ = true;
     }
 
     get tradePartners(): ReadonlySet<Tile> {

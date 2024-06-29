@@ -10,6 +10,24 @@
                 <tr><td>Dry light soil:</td><td class="ra">{{percent(tile.dryLightSoilFraction)}}</td></tr>
                 <tr><td>Desert:</td><td class="ra">{{percent(tile.desertFraction)}}</td></tr>
             </table>
+
+            <h2 class="mtz">Allocations</h2>
+            <table>
+                <tr>
+                    <th>Terrain</th>
+                    <th>Area</th>
+                    <th>People</th>
+                    <th>Product</th>
+                    <th>Output</th>
+                </tr>
+                <tr *ngFor="let a of allocs">
+                    <td>{{a.terrain.name}}</td>
+                    <td class="ra">{{floor(a.land * 100)}}%</td>
+                    <td class="ra">{{floor(a.labor)}}</td>
+                    <td class="ra">{{productName(a.product)}}</td>
+                    <td class="ra">{{floor(a.production())}}</td>
+                </tr>
+            </table>
         </div>
 
         <div id="rightPanel">
