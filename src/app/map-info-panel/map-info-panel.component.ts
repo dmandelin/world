@@ -60,6 +60,11 @@ export class MapInfoPanelComponent {
     this.refresh();
   }
 
+  optimizeLaborOneStep() {
+    this.tile?.optimizeLaborOneStep();
+    this.refresh();
+  }
+
   productName(p: Produce): string {
     return ProduceInfo.getName(p);
   }

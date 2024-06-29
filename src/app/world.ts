@@ -695,11 +695,12 @@ const Desert = new Terrain('Desert', {
 export const AllTerrainTypes = [Alluvium, DryLightSoil, Desert];
 
 export class Allocation {
+    // TODO - make labor readonly
     constructor(
         readonly product: Produce,
         readonly terrain: Terrain,
         readonly land: number,
-        readonly labor: number) {}
+        public labor: number) {}
 
     production(): number {
         return this.terrain.yieldFactor[this.product] * this.ces_production(
@@ -718,6 +719,19 @@ export class Allocation {
         const laborUnits = labor / unitLabor;
         return 1 / (0.6 / laborUnits + 0.4 / landUnits);
     }
+}
+
+function reallocated(allocs: readonly Allocation[], from: Terrain, to: Terrain, people: number): Allocation[]|undefined {
+    const as = allocs.map(a => new Allocation(a.product, a.terrain, a.land, a.labor))
+
+    const fromAlloc = as.find(a => a.terrain == from);
+    const toAlloc = as.find(a => a.terrain == to);
+    if (fromAlloc === undefined || toAlloc === undefined) return undefined;
+
+    const dp = Math.min(fromAlloc.labor, people);
+    fromAlloc.labor -= dp;
+    toAlloc.labor += dp;
+    return as;
 }
 
 export type PerTerrainPerProduce = {
@@ -836,11 +850,38 @@ export class Tile {
     }
 
     equalizeLabor() {
+        const f = Math.floor(this.population / 3);
+        let b = f, l = f, d = f;
+        if (b + d + l < this.population) ++b;
+        if (b + d + l < this.population) ++l;
         this.allocs_ = [
-            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
-            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
-            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
+            new Allocation(Produce.Barley, Alluvium, this.wetFraction, b),
+            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, l),
+            new Allocation(Produce.Dairy, Desert, this.desertFraction, d),
         ];
+    }
+
+    optimizeLaborOneStep() {
+        let bestAllocs: Allocation[] = [];
+        let bestCapacity = 0;
+        for (const terrainFrom of AllTerrainTypes) {
+            for (const terrainTo of AllTerrainTypes) {
+                if (terrainFrom === terrainTo) continue;
+                const allocs = reallocated(
+                    this.allocs_, terrainFrom, terrainTo, Math.max(1, Math.floor(0.01 * this.population)));
+                if (allocs === undefined) continue;
+                const p = production(allocs);
+                const c = capacity(p.Total);
+                if (c > bestCapacity) {
+                    bestAllocs = allocs;
+                    bestCapacity = c;
+                }
+            }
+        }
+
+        if (bestCapacity) {
+            this.allocs_ = bestAllocs;
+        }
     }
 
     get production(): PerTerrainPerProduce {
