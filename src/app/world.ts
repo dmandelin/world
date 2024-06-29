@@ -219,6 +219,7 @@ export class World {
     }
 
     notifyWatchers() {
+        if (this.watchers_ === undefined) return;
         for (const w of this.watchers_) {
             w();
         }
@@ -813,7 +814,8 @@ export class Tile {
         this.population_ = Math.floor(basePopulation * popFactor);
         this.construction_ = Math.floor(0.1 * this.population_);
 
-        this.equalizeLabor();
+        this.ratioizeLabor();
+        this.optimizeLabor();
     }
 
     get desertFraction(): number {
@@ -847,6 +849,7 @@ export class Tile {
             new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population * this.dryLightSoilFraction),
             new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population * this.desertFraction),
         ];
+        this.world.notifyWatchers();
     }
 
     equalizeLabor() {
@@ -859,9 +862,10 @@ export class Tile {
             new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, l),
             new Allocation(Produce.Dairy, Desert, this.desertFraction, d),
         ];
+        this.world.notifyWatchers();
     }
 
-    optimizeLaborOneStep() {
+    optimizeLaborOneStep(batch = false): number {
         let bestAllocs: Allocation[] = [];
         let bestCapacity = 0;
         for (const terrainFrom of AllTerrainTypes) {
@@ -882,6 +886,19 @@ export class Tile {
         if (bestCapacity) {
             this.allocs_ = bestAllocs;
         }
+        if (!batch) {
+            this.world.notifyWatchers();
+        }
+        return bestCapacity;
+    }
+
+    optimizeLabor() {
+        let bestCapacity = 0;
+        for (let i = 0; i < 200; ++i) {
+            const c = this.optimizeLaborOneStep(true);
+            if (c <= bestCapacity) break;
+        }
+        this.world.notifyWatchers();
     }
 
     get production(): PerTerrainPerProduce {

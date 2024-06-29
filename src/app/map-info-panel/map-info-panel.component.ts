@@ -60,6 +60,11 @@ export class MapInfoPanelComponent {
     this.refresh();
   }
 
+  optimize() {
+    this.tile?.optimizeLabor();
+    this.refresh();
+  }
+
   optimizeLaborOneStep() {
     this.tile?.optimizeLaborOneStep();
     this.refresh();
