@@ -787,7 +787,12 @@ export class Tile {
         capacityRatio: number,
         ) {
         this.controller_ = controller;
-        this.population_ = this.isRiver ? randint(1000, 3000) : randint(80, 250);
+        //this.population_ = this.isRiver ? randint(1000, 3000) : randint(80, 250);
+        // Put a wide range of populations on the map so we can see how that
+        // affects economics.
+        const popFactor = (1 + i * 5 + j) / 2.5;
+        const basePopulation = this.isRiver ? randint(1000, 3000) : randint(80, 250);
+        this.population_ = Math.floor(basePopulation * popFactor);
         this.construction_ = Math.floor(0.1 * this.population_);
     }
 

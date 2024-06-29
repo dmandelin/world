@@ -46,6 +46,10 @@
                     <td>Population Capacity</td>
                     <td class="ra">= {{floor(capacity)}}</td>
                 </tr>
+                <tr>
+                    <td>Nutrition</td>
+                    <td class="ra">{{round((capacity || 0) / (population || 1), 0.01)}}</td>
+                </tr>
             </table>
         </div>
     </div>

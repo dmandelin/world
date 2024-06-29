@@ -18,6 +18,7 @@ export class MapInfoPanelComponent {
   totalProduction: number|undefined;
   nutritionalQuality: number|undefined;
   capacity: number|undefined;
+  population: number|undefined;
 
   constructor(readonly world: World) {
   }
@@ -29,7 +30,8 @@ export class MapInfoPanelComponent {
     this.totalProduction = this.products.reduce((total, p) => total + production.Total[p.produce], 0);
     this.capacity = this.tile.capacity;
     this.nutritionalQuality = this.capacity / this.totalProduction;
-  } 
+    this.population = tile.population;
+  }
 
   production(p: ProduceInfo, t?: Terrain): number {
     if (!this.tile) return 0;
