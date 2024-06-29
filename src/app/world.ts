@@ -775,7 +775,7 @@ export class Tile {
     private population_: number;
     private construction_: number;
 
-    private allocs_: Allocation[];
+    private allocs_: Allocation[] = [];
 
     // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
     // population of 50K+. That means each tile is apparently 50 square miles.
@@ -799,11 +799,7 @@ export class Tile {
         this.population_ = Math.floor(basePopulation * popFactor);
         this.construction_ = Math.floor(0.1 * this.population_);
 
-        this.allocs_ = [
-            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
-            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
-            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
-        ];
+        this.equalizeLabor();
     }
 
     get desertFraction(): number {
@@ -829,6 +825,22 @@ export class Tile {
 
     get allocs(): readonly Allocation[] {
         return this.allocs_;
+    }
+
+    ratioizeLabor() {
+        this.allocs_ = [
+            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population * this.wetFraction),
+            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population * this.dryLightSoilFraction),
+            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population * this.desertFraction),
+        ];
+    }
+
+    equalizeLabor() {
+        this.allocs_ = [
+            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population / 3),
+            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population / 3),
+            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population / 3),
+        ];
     }
 
     get production(): PerTerrainPerProduce {

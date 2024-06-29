@@ -26,13 +26,18 @@ export class MapInfoPanelComponent {
 
   showTile(tile: Tile) {
     this.tile = tile;
+    this.refresh();
+  }
 
-    this.allocs = tile.allocs;
+  refresh() {
+    if (!this.tile) return;
+
+    this.allocs = this.tile.allocs;
     const production = this.tile.production;
     this.totalProduction = this.products.reduce((total, p) => total + production.Total[p.produce], 0);
     this.capacity = this.tile.capacity;
     this.nutritionalQuality = this.capacity / this.totalProduction;
-    this.population = tile.population;
+    this.population = this.tile.population;
   }
 
   production(p: ProduceInfo, t?: Terrain): number {
@@ -42,8 +47,17 @@ export class MapInfoPanelComponent {
   }
 
   analyzeProduction() {
-    if (!this.tile) return;
-    this.tile.analyzeProduction();
+    this.tile?.analyzeProduction();
+  }
+
+  ratioize() {
+    this.tile?.ratioizeLabor();
+    this.refresh();
+  }
+
+  equalize() {
+    this.tile?.equalizeLabor();
+    this.refresh();
   }
 
   productName(p: Produce): string {
