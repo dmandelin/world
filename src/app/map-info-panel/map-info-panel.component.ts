@@ -10,6 +10,8 @@ import { NgIf, NgFor, NgStyle } from '@angular/common';
   styleUrl: './map-info-panel.component.scss'
 })
 export class MapInfoPanelComponent {
+  private deleteWatcher: Function|undefined;
+
   readonly products = ProduceInfo.all;
   readonly terrainTypes = AllTerrainTypes;
 
@@ -22,6 +24,14 @@ export class MapInfoPanelComponent {
   population: number|undefined;
 
   constructor(readonly world: World) {
+  }
+
+  ngAfterViewInit(): void {
+    this.deleteWatcher = this.world.addWatcher(this.refresh.bind(this));
+  }
+
+  ngOnDestroy(): void {
+    this.world.removeWatcher(this.deleteWatcher);
   }
 
   showTile(tile: Tile) {

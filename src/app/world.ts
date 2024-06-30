@@ -74,8 +74,8 @@ export class World {
         return w;
     }
 
-    removeWatcher(w: Function) {
-        this.watchers_.delete(w);
+    removeWatcher(w: Function|undefined) {
+        if (w) this.watchers_.delete(w);
     }
 
     setBrains(brains: readonly Brain[]) {

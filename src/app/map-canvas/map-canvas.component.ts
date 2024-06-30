@@ -26,6 +26,10 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     this.deleteWatcher = this.world.addWatcher(this.draw.bind(this));
   }
 
+  ngOnDestroy(): void {
+    this.world.removeWatcher(this.deleteWatcher);
+  }
+
   readonly side = 80;
 
   click(event: MouseEvent) {
@@ -258,11 +262,5 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   private drawTextRightAligned(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number) {
     const textWidth = ctx.measureText(text).width;
     ctx.fillText(text, x + width - textWidth, y);
-  }
-
-  ngOnDestroy(): void {
-    if (this.deleteWatcher) {
-      this.world.removeWatcher(this.deleteWatcher);
-    }
   }
 }
