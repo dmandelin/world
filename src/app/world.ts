@@ -661,7 +661,6 @@ export class Terrain {
     constructor(
         readonly name: 'Alluvium'|'DryLightSoil'|'Desert',
         readonly landUnitsPerTile: PerProduce,
-        readonly yieldFactor: PerProduce,
     ) {}
 }
 
@@ -669,44 +668,37 @@ const Alluvium = new Terrain('Alluvium', {
     [Produce.Barley]: 60000,
     [Produce.Lentils]: 30000,
     [Produce.Dairy]: 6000,
-}, {
-    [Produce.Barley]: 1.0,
-    [Produce.Lentils]: 1.0,
-    [Produce.Dairy]: 1.0,
 });
 const DryLightSoil = new Terrain('DryLightSoil', {
     [Produce.Barley]: 10000,
     [Produce.Lentils]: 20000,
     [Produce.Dairy]: 4000,
-}, {
-    [Produce.Barley]: 1.0,
-    [Produce.Lentils]: 1.0,
-    [Produce.Dairy]: 1.0,
 });
 const Desert = new Terrain('Desert', {
     [Produce.Barley]: 0,
     [Produce.Lentils]: 0,
     [Produce.Dairy]: 2500,
-}, {
-    [Produce.Barley]: 0,
-    [Produce.Lentils]: 0,
-    [Produce.Dairy]: 1.0,
 });
 
 export const AllTerrainTypes = [Alluvium, DryLightSoil, Desert];
 
 export class Allocation {
-    // TODO - make labor readonly
     constructor(
+        readonly tile: Tile,
         readonly product: Produce,
         readonly terrain: Terrain,
-        readonly land: number,
-        public labor: number) {}
+        readonly landFraction: number,
+        readonly laborFraction: number) {}
 
     production(): number {
-        return this.terrain.yieldFactor[this.product] * this.ces_production(
-            this.land * this.terrain.landUnitsPerTile[this.product], 
-            this.labor);
+        const landUnits = this.landFraction * this.tile.areaFraction(this.terrain) * 
+            this.terrain.landUnitsPerTile[this.product]
+        const laborUnits = this.laborFraction * this.tile.population;
+        return this.ces_production(landUnits, laborUnits);
+    }
+
+    laborFractionIncr(incr: number): Allocation {
+        return new Allocation(this.tile, this.product, this.terrain, this.landFraction, this.laborFraction + incr);
     }
 
     // CES production function.
@@ -722,17 +714,25 @@ export class Allocation {
     }
 }
 
-function reallocated(allocs: readonly Allocation[], from: Terrain, to: Terrain, people: number): Allocation[]|undefined {
-    const as = allocs.map(a => new Allocation(a.product, a.terrain, a.land, a.labor))
+function replaceAlloc(allocs: readonly Allocation[], original: Allocation, replacement: Allocation) {
+    const i = allocs.findIndex(a => a === original);
+    if (i == -1) throw `Can't find alloc ${original} in ${allocs}`;
+    return allocs.with(i, replacement);
+}
 
-    const fromAlloc = as.find(a => a.terrain == from);
-    const toAlloc = as.find(a => a.terrain == to);
+function reallocated(allocs: readonly Allocation[], from: Terrain, to: Terrain, peopleFraction: number): Allocation[]|undefined {
+    const fromAlloc = allocs.find(a => a.terrain == from);
+    const toAlloc = allocs.find(a => a.terrain == to);
     if (fromAlloc === undefined || toAlloc === undefined) return undefined;
+    if (fromAlloc.laborFraction - peopleFraction < 0) return undefined;
 
-    const dp = Math.min(fromAlloc.labor, people);
-    fromAlloc.labor -= dp;
-    toAlloc.labor += dp;
-    return as;
+    return allocs.map(a => {
+        switch (a) {
+            case fromAlloc: return a.laborFractionIncr(-peopleFraction);
+            case toAlloc: return a.laborFractionIncr(peopleFraction);
+            default: return a;
+        }
+    });
 }
 
 export type PerTerrainPerProduce = {
@@ -818,6 +818,15 @@ export class Tile {
         this.optimizeLabor();
     }
 
+    areaFraction(terrain: Terrain): number {
+        switch (terrain) {
+            case Alluvium: return this.wetFraction;
+            case DryLightSoil: return this.dryLightSoilFraction;
+            case Desert: return this.desertFraction;
+            default: throw new Error(`Invalid terrain ${terrain}`);
+        }
+    }
+
     get desertFraction(): number {
         return 1 - this.wetFraction - this.dryLightSoilFraction;
     }
@@ -845,22 +854,18 @@ export class Tile {
 
     ratioizeLabor() {
         this.allocs_ = [
-            new Allocation(Produce.Barley, Alluvium, this.wetFraction, this.population * this.wetFraction),
-            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, this.population * this.dryLightSoilFraction),
-            new Allocation(Produce.Dairy, Desert, this.desertFraction, this.population * this.desertFraction),
+            new Allocation(this, Produce.Barley, Alluvium, 1, this.wetFraction),
+            new Allocation(this, Produce.Lentils, DryLightSoil, 1, this.dryLightSoilFraction),
+            new Allocation(this, Produce.Dairy, Desert, 1, this.desertFraction),
         ];
         this.world.notifyWatchers();
     }
 
     equalizeLabor() {
-        const f = Math.floor(this.population / 3);
-        let b = f, l = f, d = f;
-        if (b + d + l < this.population) ++b;
-        if (b + d + l < this.population) ++l;
         this.allocs_ = [
-            new Allocation(Produce.Barley, Alluvium, this.wetFraction, b),
-            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, l),
-            new Allocation(Produce.Dairy, Desert, this.desertFraction, d),
+            new Allocation(this, Produce.Barley, Alluvium, 1, 0.34),
+            new Allocation(this, Produce.Lentils, DryLightSoil, 1, 0.33),
+            new Allocation(this, Produce.Dairy, Desert, 1, 0.33),
         ];
         this.world.notifyWatchers();
     }
@@ -871,8 +876,7 @@ export class Tile {
         for (const terrainFrom of AllTerrainTypes) {
             for (const terrainTo of AllTerrainTypes) {
                 if (terrainFrom === terrainTo) continue;
-                const allocs = reallocated(
-                    this.allocs_, terrainFrom, terrainTo, Math.max(1, Math.floor(0.01 * this.population)));
+                const allocs = reallocated(this.allocs_, terrainFrom, terrainTo, 0.01);
                 if (allocs === undefined) continue;
                 const p = production(allocs);
                 const c = capacity(p.Total);
@@ -905,163 +909,6 @@ export class Tile {
         return production(this.allocs_);
     }
 
-    analyzeProduction() {
-        this.analyzeProductionPopulationSizes();
-    }
-
-    analyzeProductionPopulationSizes() {
-        console.log();
-        console.log('Production report (population sizes) for', this.controller.name);
-        // Simplest version: allocate everyone to desert herding, with different population sizes
-        let incr = 2000;
-        let pop = 2000;
-        while (pop < 10000) {
-            this.analyzeOptimalProductionLentilsAndDairy(pop);
-
-            pop += incr;
-            if (pop >= incr * 10) {
-                incr = pop;
-            }
-        }
-    }
-
-    analyzeOptimalProductionLentilsAndDairy(pop: number) {
-        console.log(`* Pop ${pop}`)
-        let bestCapacity = 0;
-        let bestLf = 0;
-        let bestAllocs = [];
-        for (let lentilFraction = 0; lentilFraction <= 1; lentilFraction += 0.01) {
-            const dairyFraction = 1 - lentilFraction;
-            const allocs = [
-                new Allocation(Produce.Barley, Alluvium, this.wetFraction, 0),
-                new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, lentilFraction * pop),
-                new Allocation(Produce.Dairy, Desert, this.desertFraction, dairyFraction * pop),
-            ];
-            const p = production(allocs).Total;
-            const c = capacity(p);
-            console.log(`  lf=${lentilFraction}: ${p[Produce.Barley]}, ${p[Produce.Lentils]}, ${p[Produce.Dairy]} -> ${c}`)
-            if (c > bestCapacity) {
-                bestLf = lentilFraction;
-                bestAllocs = allocs;
-                bestCapacity = c;
-            }
-        }
-
-        for (const lf of [0, bestLf, 1]) {
-            const df = 1 - lf;
-            const newAllocs = [
-                new Allocation(Produce.Barley, Alluvium, this.wetFraction, 0),
-                new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, lf * pop),
-                new Allocation(Produce.Dairy, Desert, this.desertFraction, df * pop),
-            ];
-            const [p, c] = this.analyzeAllocation(`${lf}|${df}`, newAllocs);
-        }
-    }
-
-    analyzeProductionGradientAscent() {
-        console.log();
-        console.log('Production report for', this.controller.name);
-
-        const ilf = [0.34, 0.33, 0.33];
-        const allocs = [
-            new Allocation(Produce.Barley, Alluvium, this.wetFraction, ilf[0] * this.population),
-            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, ilf[1] * this.population),
-            new Allocation(Produce.Dairy, Desert, this.desertFraction, ilf[2] * this.population),
-        ];
-        const [ip, ic] = this.analyzeAllocation('Initial', allocs);
-
-        // Coordinate ascent on labor allocations. For N products there are N-1 degrees of freedom.
-        let bestlf = ilf;
-        let bestAllocs = allocs;
-        let bestCapacity = ic;
-        const diffs = [[0.01, -0.01, 0], [-0.01, 0.01, 0], [0, 0.01, -0.01], [0, -0.01, 0.01]];
-        for (let i = 0; i < 100; ++i) {
-            console.log(`* Search iteration ${i+1}`);
-            let foundNewBest = false;
-            for (const diff of diffs) {
-                const lf = [bestlf[0] + diff[0], bestlf[1] + diff[1], bestlf[2] + diff[2]];
-                if (lf.some(f => f < 0 || f > 1)) continue;
-                const newAllocs = [
-                    new Allocation(Produce.Barley, Alluvium, this.wetFraction, lf[0] * this.population),
-                    new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, lf[1]*this.population),
-                    new Allocation(Produce.Dairy, Desert, this.desertFraction, lf[2]*this.population),
-                ];
-                const [p, c] = this.analyzeAllocation(lf.join('|'), newAllocs);
-                if (c > bestCapacity) {
-                    console.log('  ** new best')
-                    foundNewBest = true;
-                    bestlf = lf;
-                    bestAllocs = newAllocs;
-                    bestCapacity = c;
-                }
-            }
-            if (!foundNewBest) {
-                console.log('  *** no further improvements found')
-                break;
-            }
-        }
-        console.log(`- Improved capacity by ${Math.round(100 * (bestCapacity / ic - 1))}%`);
-        console.log(`  Best allocation found: ${bestlf.join(' | ')}`)
-    }
-
-    analyzeProductionExhaustive() {
-        console.log();
-        console.log('Production report for', this.controller.name);
-
-        const ilf = [0.34, 0.33, 0.33];
-        const allocs = [
-            new Allocation(Produce.Barley, Alluvium, this.wetFraction, ilf[0] * this.population),
-            new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, ilf[1] * this.population),
-            new Allocation(Produce.Dairy, Desert, this.desertFraction, ilf[2] * this.population),
-        ];
-        const [ip, ic] = this.analyzeAllocation('Initial', allocs);
-
-        // Coordinate ascent on labor allocations. For N products there are N-1 degrees of freedom.
-        let bestlf = ilf;
-        let bestAllocs = allocs;
-        let bestCapacity = ic;
-        for (let i = 1; i >= 0; i -= 0.1) {
-            for (let j = 1 - i; j >= 0; j -= 0.1) {
-                if (j < 0) {
-                    console.log("JLZ");
-                    break;
-                }
-                const k = 1 - i - j;
-                console.log(`* Try ${i}, ${j}, ${k}`);
-                const lf = [i, j, k];
-                const newAllocs = [
-                    new Allocation(Produce.Barley, Alluvium, this.wetFraction, lf[0] * this.population),
-                    new Allocation(Produce.Lentils, DryLightSoil, this.dryLightSoilFraction, lf[1]*this.population),
-                    new Allocation(Produce.Dairy, Desert, this.desertFraction, lf[2]*this.population),
-                ];
-                const [p, c] = this.analyzeAllocation(lf.join('|'), newAllocs);
-                if (c > bestCapacity) {
-                    console.log('  ** new best')
-                    bestlf = lf;
-                    bestAllocs = newAllocs;
-                    bestCapacity = c;
-                }
-            }
-        }
- 
-        console.log(`- Improved capacity by ${Math.round(100 * (bestCapacity / ic - 1))}% to ${bestCapacity}`);
-        console.log(`  Best allocation found: ${bestlf.join(' | ')}`)
-    }
-
-    analyzeAllocation(name: string, allocs: readonly Allocation[]): [PerProduce, number] {
-        const p = production(allocs).Total;
-        const c = capacity(p);
-
-        console.log('-', name)
-        console.log('  allocs', allocs);
-        console.log('  production', p);
-        console.log('  capacity', c);
-        const totalInitialProduction = p[Produce.Barley] + p[Produce.Lentils] + p[Produce.Dairy];
-        console.log('  nutritiousness', c/totalInitialProduction);
-        return [p, c];
-    }
-
-    // For now, this is a Cobb-Douglas utility function with equal weights.
     get capacity() {
         return capacity(this.production.Total);
     }

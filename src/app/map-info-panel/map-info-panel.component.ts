@@ -56,10 +56,6 @@ export class MapInfoPanelComponent {
     return this.tile.production[t.name][p.produce];
   }
 
-  analyzeProduction() {
-    this.tile?.analyzeProduction();
-  }
-
   ratioize() {
     this.tile?.ratioizeLabor();
     this.refresh();
