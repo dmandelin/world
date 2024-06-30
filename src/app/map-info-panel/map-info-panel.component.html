@@ -4,6 +4,11 @@
 
     <div id="main">
         <div id="leftPanel">
+            <h2 class="mtz">Settlements</h2>
+            <table>
+                <tr *ngFor="let s of tile.settlements()"><td class="ra">{{s.population}}</td></tr>
+            </table>
+
             <h2 class="mtz">Terrain</h2>
             <table>
                 <tr><td>Alluvium:</td><td class="ra">{{percent(tile.wetFraction)}}</td></tr>

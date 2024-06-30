@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import {Brain, BasicBrain, DefensiveBrain, NullBrain, SubjectBrain} from "./brains";
 import {cityNames} from './content';
 import { TemplateLiteral } from "@angular/compiler";
+import {Settlement} from "./model/settlements";
 
 // Top TODOs
 // - allocations
@@ -816,6 +817,10 @@ export class Tile {
 
         this.ratioizeLabor();
         this.optimizeLabor();
+    }
+
+    settlements(): Settlement[] {
+        return Settlement.zipfSettlements(this.population);
     }
 
     areaFraction(terrain: Terrain): number {

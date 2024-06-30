@@ -37,6 +37,8 @@ export class MapInfoPanelComponent {
   showTile(tile: Tile) {
     this.tile = tile;
     this.refresh();
+
+    this.tile?.settlements();
   }
 
   refresh() {
