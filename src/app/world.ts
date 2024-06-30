@@ -1095,9 +1095,10 @@ export class Tile {
     }
 
     updatePopulation() {
-        const r = this.population / this.capacity;
-        const dp = Math.floor(0.4 * r * (1 - r) * this.population);
-        this.population += dp;
+        const [p, c] = [this.population, this.capacity];
+        const r = p / c;
+        const dp = Math.floor(0.4 * r * (1 - r) * p);
+        this.population = Math.max(p + dp, Math.floor(0.65 * c));
     }
 
     get tradePartners(): ReadonlySet<Tile> {
