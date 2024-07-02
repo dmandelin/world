@@ -6,7 +6,18 @@
         <div id="leftPanel">
             <h2 class="mtz">Settlements</h2>
             <table>
-                <tr *ngFor="let s of tile.settlements()"><td class="ra">{{s.population}}</td></tr>
+                <tr>
+                    <th>Tier</th>
+                    <th>#</th>
+                    <th>Avg Pop</th>
+                    <th>Total Pop</th>
+                </tr>
+                <tr *ngFor="let s of tile.settlementTiers()">
+                    <td>{{s.name}}</td>
+                    <td class="ra">{{s.settlements.length}}</td>
+                    <td class="ra">{{s.averagePopulation}}</td>
+                    <td class="ra">{{s.totalPopulation}}</td>
+                </tr>
             </table>
 
             <h2 class="mtz">Terrain</h2>
