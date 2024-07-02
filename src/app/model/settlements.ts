@@ -2,7 +2,6 @@ export class SettlementLevel {
     static readonly levels = [
         new SettlementLevel('Camp', 1),
         new SettlementLevel('Village', 150),
-        new SettlementLevel('Large Village', 300),
         new SettlementLevel('Small Town', 1000),
         new SettlementLevel('Large Town', 5000),
         new SettlementLevel('City', 10000),

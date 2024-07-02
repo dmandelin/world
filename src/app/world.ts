@@ -913,6 +913,7 @@ export class Tile {
         }
         this.world.notifyWatchers();
     }
+    
 
     get production(): PerTerrainPerProduce {
         return production(this.allocs_);
