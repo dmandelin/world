@@ -48,7 +48,7 @@
                     <td class="ra">{{floor(a.landFraction * tile.areaFraction(a.terrain) * 100)}}%</td>
                     <td class="ra">{{floor(a.laborFraction * a.tile.population)}}</td>
                     <td class="ra">{{floor(a.laborFraction * 100)}}%</td>
-                    <td class="ra">{{productName(a.product)}}</td>
+                    <td class="ra">{{a.product.name}}</td>
                     <td class="ra">{{floor(a.production())}}</td>
                 </tr>
             </table>
@@ -79,7 +79,7 @@
                 </tr>
                 <tr>
                     <td>Nutritional Quality</td>
-                    <td class="ra">x {{round(nutritionalQuality, 0.01)}}</td>
+                    <td class="ra">x {{round(nutritionalQuality, 2)}}</td>
                 </tr>
                 <tr>
                     <td>Population Capacity</td>
@@ -87,7 +87,14 @@
                 </tr>
                 <tr>
                     <td>Nutrition</td>
-                    <td class="ra">{{round((capacity || 0) / (population || 1), 0.01)}}</td>
+                    <td class="ra">{{round((capacity || 0) / (population || 1), 2)}}</td>
+                </tr>
+            </table>
+            <h3>Marginal Capacity</h3>
+            <table>
+                <tr *ngFor="let e of marginalCapacity.entries()">
+                    <td>{{e[0].name}}</td>
+                    <td class="ra">{{round(e[1], 2)}}</td>
                 </tr>
             </table>
         </div>

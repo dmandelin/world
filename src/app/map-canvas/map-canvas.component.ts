@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { Polity, World, Produce, Tile, argmax, sorted } from '../world';
+import { Polity, World, Produce, ProduceInfo, Tile, argmax, sorted } from '../world';
 import { NgFor } from '@angular/common';
 
 @Component({
@@ -99,7 +99,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         const p = tile.production.Total;
         ctx.font = '10px sans-serif';
         this.drawTextCentered(ctx,
-          `${Math.floor(p[Produce.Barley])} | ${Math.floor(p[Produce.Lentils])} | ${Math.floor(p[Produce.Dairy])}`, 
+          `${Math.floor(p.get(ProduceInfo.Barley))} | ${Math.floor(p.get(ProduceInfo.Lentils))} | ${Math.floor(p.get(ProduceInfo.Dairy))}`, 
           x, y + 12, this.side);
 
           // Draw controller name

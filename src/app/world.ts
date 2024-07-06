@@ -635,7 +635,16 @@ export class ProduceInfo {
             case Produce.Barley: return ProduceInfo.Barley;
             case Produce.Lentils: return ProduceInfo.Lentils;
             case Produce.Dairy: return ProduceInfo.Dairy;
-            throw new Error('Invalid produce');
+            default: throw new Error('Invalid produce');
+        }
+    }
+
+    static of(produceName: string) {
+        switch (produceName) {
+            case 'Barley': return ProduceInfo.Barley;
+            case 'Lentils': return ProduceInfo.Lentils;
+            case 'Dairy': return ProduceInfo.Dairy;
+            default: throw new Error('Invalid produce');
         }
     }
 
@@ -644,18 +653,38 @@ export class ProduceInfo {
     }
 }
 
-type PerProduce = {
-    [Produce.Barley]: number;
-    [Produce.Lentils]: number;
-    [Produce.Dairy]: number;
-}
+export class PerProduce {
+    private m: Map<ProduceInfo, number>;
 
-function newPerProduce(): PerProduce {
-    return {
-        [Produce.Barley]: 0,
-        [Produce.Lentils]: 0,
-        [Produce.Dairy]: 0,
-    };
+    constructor(m: Map<ProduceInfo, number> = new Map()) {
+        this.m = m;
+    }
+
+    get(p: ProduceInfo): number {
+        return this.m.get(p) || 0;
+    }
+
+    incr(p: ProduceInfo, incr: number): void {
+        this.m.set(p, this.get(p) + incr);
+    }
+
+    map(f: (p: ProduceInfo, v: number) => number): PerProduce {
+        return new PerProduce(new Map([...this.m].map(([p, v]) => [p, f(p, v)])));
+    }
+
+    entries(): [ProduceInfo, number][] {
+        return [...this.m.entries()];
+    }
+    
+    static of(o: [string, number][] = []) {
+        return new PerProduce(new Map(o.map(([k, v]) => [ProduceInfo.of(k), v])));
+    }
+
+    withIncr(p: ProduceInfo, incr: number): PerProduce {
+        const m = new Map(this.m);
+        m.set(p, this.get(p) + incr);
+        return new PerProduce(m);
+    }
 }
 
 export class Terrain {
@@ -665,35 +694,35 @@ export class Terrain {
     ) {}
 }
 
-const Alluvium = new Terrain('Alluvium', {
-    [Produce.Barley]: 60000,
-    [Produce.Lentils]: 30000,
-    [Produce.Dairy]: 6000,
-});
-const DryLightSoil = new Terrain('DryLightSoil', {
-    [Produce.Barley]: 10000,
-    [Produce.Lentils]: 20000,
-    [Produce.Dairy]: 4000,
-});
-const Desert = new Terrain('Desert', {
-    [Produce.Barley]: 0,
-    [Produce.Lentils]: 0,
-    [Produce.Dairy]: 2500,
-});
+const Alluvium = new Terrain('Alluvium', PerProduce.of([
+    ['Barley', 60000],
+    ['Lentils', 30000],
+    ['Dairy', 6000],
+]));
+const DryLightSoil = new Terrain('DryLightSoil', PerProduce.of([
+    ['Barley', 10000],
+    ['Lentils', 20000],
+    ['Dairy', 4000],
+]));
+const Desert = new Terrain('Desert', PerProduce.of([
+    ['Barley', 0],
+    ['Lentils', 0],
+    ['Dairy', 2500],
+]));
 
 export const AllTerrainTypes = [Alluvium, DryLightSoil, Desert];
 
 export class Allocation {
     constructor(
         readonly tile: Tile,
-        readonly product: Produce,
+        readonly product: ProduceInfo,
         readonly terrain: Terrain,
         readonly landFraction: number,
         readonly laborFraction: number) {}
 
     production(): number {
         const landUnits = this.landFraction * this.tile.areaFraction(this.terrain) * 
-            this.terrain.landUnitsPerTile[this.product]
+            (this.terrain.landUnitsPerTile.get(this.product) || 0);
         const laborUnits = this.laborFraction * this.tile.population;
         return this.ces_production(landUnits, laborUnits);
     }
@@ -745,16 +774,16 @@ export type PerTerrainPerProduce = {
 
 function production(allocs: readonly Allocation[]): PerTerrainPerProduce {
     const totals = {
-        Alluvium: newPerProduce(),
-        DryLightSoil: newPerProduce(),
-        Desert: newPerProduce(),
-        Total: newPerProduce(),
+        Alluvium: new PerProduce(),
+        DryLightSoil: new PerProduce(),
+        Desert: new PerProduce(),
+        Total: new PerProduce(),
     };
 
     for (const alloc of allocs) {
         const p = alloc.production();
-        totals[alloc.terrain.name][alloc.product] += p;
-        totals.Total[alloc.product] += p;
+        totals[alloc.terrain.name].incr(alloc.product, p);
+        totals.Total.incr(alloc.product, p);
     }
 
     return totals;
@@ -768,9 +797,15 @@ function capacity(p: PerProduce) {
     return Math.max(pdv, adv);
 }
 
+function marginalCapacity(p: PerProduce): PerProduce {
+    const e = 0.001;
+    const c = capacity(p);
+    return p.map((k, v) => (capacity(p.withIncr(k, e)) - c) / e);
+}
+
 function pastoralDietValue(p: PerProduce) {
-    let plants = p[Produce.Barley] + p[Produce.Lentils];
-    let animals = p[Produce.Dairy];
+    let plants = p.get(ProduceInfo.Barley) + p.get(ProduceInfo.Lentils);
+    let animals = p.get(ProduceInfo.Dairy);
     if (plants < 0.2 * (plants + animals)) {
         const convert = 0.2 * (plants + animals) - plants;
         plants += convert / 2;
@@ -780,7 +815,7 @@ function pastoralDietValue(p: PerProduce) {
 }
 
 function agrarianDietValue(p: PerProduce) {
-    let [c, l, a] = [p[Produce.Barley], p[Produce.Lentils], p[Produce.Dairy]];
+    let [c, l, a] = [p.get(ProduceInfo.Barley), p.get(ProduceInfo.Lentils), p.get(ProduceInfo.Dairy)];
     return 3 * Math.pow(c, 0.25) * Math.pow(l, 0.25), Math.pow(a, 0.5);
 }
 
@@ -863,18 +898,18 @@ export class Tile {
 
     ratioizeLabor() {
         this.allocs_ = [
-            new Allocation(this, Produce.Barley, Alluvium, 1, this.wetFraction),
-            new Allocation(this, Produce.Lentils, DryLightSoil, 1, this.dryLightSoilFraction),
-            new Allocation(this, Produce.Dairy, Desert, 1, this.desertFraction),
+            new Allocation(this, ProduceInfo.Barley, Alluvium, 1, this.wetFraction),
+            new Allocation(this, ProduceInfo.Lentils, DryLightSoil, 1, this.dryLightSoilFraction),
+            new Allocation(this, ProduceInfo.Dairy, Desert, 1, this.desertFraction),
         ];
         this.world.notifyWatchers();
     }
 
     equalizeLabor() {
         this.allocs_ = [
-            new Allocation(this, Produce.Barley, Alluvium, 1, 0.34),
-            new Allocation(this, Produce.Lentils, DryLightSoil, 1, 0.33),
-            new Allocation(this, Produce.Dairy, Desert, 1, 0.33),
+            new Allocation(this, ProduceInfo.Barley, Alluvium, 1, 0.34),
+            new Allocation(this, ProduceInfo.Lentils, DryLightSoil, 1, 0.33),
+            new Allocation(this, ProduceInfo.Dairy, Desert, 1, 0.33),
         ];
         this.world.notifyWatchers();
     }
@@ -921,6 +956,10 @@ export class Tile {
 
     get capacity() {
         return capacity(this.production.Total);
+    }
+
+    get marginalCapacity(): PerProduce {
+        return marginalCapacity(this.production.Total);
     }
 
     get controller() { return this.controller_; }
