@@ -50,6 +50,11 @@ export class World {
     private locallyControlledPolities = new Set<string>(['E']);
 
     constructor() {
+        // Initialize trade links.
+        for (const t of this.map.tiles.flat()) {
+            t.initializeTradeLinks();
+        }
+
         this.updateLastPopulation();
         this.recordRanks();
     }

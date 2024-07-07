@@ -20,6 +20,13 @@
                 </tr>
             </table>
 
+            <h2 class="mtz">Trade Links</h2>
+            <table>
+                <tr *ngFor="let l of tile.tradeLinks">
+                    <td>{{l.dst.controller.name}}{{l.alongRiver ? ' (along river)' : ''}}</td>
+                </tr>
+            </table>
+
             <h2 class="mtz">Terrain</h2>
             <table>
                 <tr><td>Alluvium:</td><td class="ra">{{percent(tile.wetFraction)}}</td></tr>

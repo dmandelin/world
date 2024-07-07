@@ -1,10 +1,11 @@
-import { World } from './world';
-import { Polity } from './polity';
-import { Allocation, ProduceInfo } from './production';
-import { PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated } from './production';
-import { Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert } from './production';
-import { Settlement, SettlementTier } from './settlements';
-import { randint } from './lib';
+import {World} from './world';
+import {Polity} from './polity';
+import {Allocation, ProduceInfo} from './production';
+import {PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated} from './production';
+import {Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert} from './production';
+import {TradeLink} from './trade';
+import {Settlement, SettlementTier} from './settlements';
+import {randint} from './lib';
 
 export class Tile {
     private controller_: Polity;
@@ -14,6 +15,7 @@ export class Tile {
     private construction_: number;
 
     private allocs_: Allocation[] = [];
+    private tradeLinks_: TradeLink[] = [];
 
     // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
     // population of 50K+. That means each tile is apparently 50 square miles.
@@ -39,6 +41,21 @@ export class Tile {
 
         this.ratioizeLabor();
         this.optimizeLabor();
+    }
+
+    initializeTradeLinks() {
+        for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+            const [ni, nj] = [this.i + dx, this.j + dy];
+            if (ni >= 0 && ni < this.world.map.height && nj >= 0 && nj < this.world.map.width) {
+                const neighbor = this.world.map.tiles[ni][nj];
+                const tradeLink = new TradeLink(this, neighbor, this.isRiver && neighbor.isRiver);
+                this.tradeLinks_.push(tradeLink);
+            }
+        }
+    }
+
+    get tradeLinks(): readonly TradeLink[] {
+        return this.tradeLinks_;
     }
 
     settlements(): Settlement[] {
