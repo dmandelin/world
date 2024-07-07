@@ -44,18 +44,25 @@ export class Tile {
     }
 
     initializeTradeLinks() {
-        for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        for (const [dx, dy] of [[1, 0], [0, 1]]) {
             const [ni, nj] = [this.i + dx, this.j + dy];
             if (ni >= 0 && ni < this.world.map.height && nj >= 0 && nj < this.world.map.width) {
                 const neighbor = this.world.map.tiles[ni][nj];
                 const tradeLink = new TradeLink(this, neighbor, this.isRiver && neighbor.isRiver);
                 this.tradeLinks_.push(tradeLink);
+                neighbor.tradeLinks_.push(tradeLink);
             }
         }
     }
 
     get tradeLinks(): readonly TradeLink[] {
         return this.tradeLinks_;
+    }
+
+    updateTradeLinks(): void {
+        for (const tl of this.tradeLinks_) {
+            tl.update();
+        }
     }
 
     settlements(): Settlement[] {

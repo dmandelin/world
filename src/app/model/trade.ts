@@ -36,5 +36,45 @@ export class TradeLink {
         ? PerProduce.of([['Barley', 0.02], ['Lentils', 0.02], ['Dairy', 0.02]])
         : PerProduce.of([['Barley', 0.2], ['Lentils', 0.2], ['Dairy', 0.02]]);
 
+    srcAmounts: PerProduce = PerProduce.of();
+    dstAmounts: PerProduce = PerProduce.of();
+
     constructor(readonly src: Tile, readonly dst: Tile, readonly alongRiver: boolean) {}
+
+    other(t: Tile) {
+        return t === this.src ? this.dst : this.src;
+    }
+
+    update() {
+        console.log(`Trade links update for ${this.src.controller.name} to ${this.dst.controller.name}`);
+
+        // Search for unit-for-unit trades that increase capacity on both sides.
+        const sc = this.src.capacity;
+        const dc = this.dst.capacity;
+
+        const smc = this.src.marginalCapacity;
+        const dmc = this.dst.marginalCapacity;
+
+        for (const sg of ProduceInfo.all) { // Source good traded away
+            for (const dg of ProduceInfo.all) {
+                if (sg === dg) continue;
+
+                const sgr = 1.0 - this.cost.get(sg);
+                const dgr = 1.0 - this.cost.get(dg);
+
+                const su = smc.get(dg) * dgr - smc.get(sg) * sgr;
+                const du = dmc.get(sg) * sgr - dmc.get(dg) * dgr;
+                let label = 'no benefit';
+                switch (true) {
+                    case su > 0 && du > 0:
+                        label = '+++ mutual benefit';
+                        break;
+                    case su > 0 || du > 0:
+                        label = '~~~ one-sided benefit, variable prices could enable';
+                        break;
+                }
+                console.log(`Trade ${sg.name} for ${dg.name}: ${su.toFixed(3)}/${du.toFixed(3)} -> ${label}`);
+            }
+        }
+    }
 }

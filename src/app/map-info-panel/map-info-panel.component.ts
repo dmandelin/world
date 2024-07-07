@@ -83,6 +83,11 @@ export class MapInfoPanelComponent {
     this.refresh();
   }
 
+  updateTradeLinks() {
+    this.tile?.updateTradeLinks();
+    this.refresh();
+  }
+
   productName(p: Produce): string {
     return ProduceInfo.getName(p);
   }

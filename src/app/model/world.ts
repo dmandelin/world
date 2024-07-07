@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Brain, BasicBrain, DefensiveBrain, NullBrain, SubjectBrain} from "./agents/brains";
+import {Brain, BasicBrain, DefensiveBrain, SubjectBrain} from "./agents/brains";
 import {NAMED_DEFAULT_POLITIES, Polity} from "./polity";
 import {Tile} from "./tile";
 import {Combatant, War} from "./legacy_war";
@@ -450,7 +450,9 @@ class WorldMap {
                 const wetFraction = 0.01 * (isRiver
                     ? 10 + randint(10) + randint(10)
                     : 0)
-                const dryLightSoilFraction = Math.random() * (1 - wetFraction);
+                const dryLightSoilFraction = isRiver
+                    ? Math.random() * (1 - wetFraction)
+                    : Math.random() * 0.3;
                 const capacityRatio = Math.random() * 0.3 + 0.5;
                 this.tiles[i][j] = new Tile(world, i, j, polity, isRiver, wetFraction, dryLightSoilFraction, capacityRatio);
             }
