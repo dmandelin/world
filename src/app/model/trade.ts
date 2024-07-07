@@ -38,6 +38,7 @@ export class TradeLink {
 
     srcAmounts: PerProduce = PerProduce.of();
     dstAmounts: PerProduce = PerProduce.of();
+    message: string = '';
 
     constructor(readonly src: Tile, readonly dst: Tile, readonly alongRiver: boolean) {}
 
@@ -45,9 +46,23 @@ export class TradeLink {
         return t === this.src ? this.dst : this.src;
     }
 
-    update() {
-        console.log(`Trade links update for ${this.src.controller.name} to ${this.dst.controller.name}`);
+    thisAmount(t: Tile, p: ProduceInfo) {
+        return t === this.src ? this.srcAmounts.get(p) : this.dstAmounts.get(p);
+    }
 
+    otherAmount(t: Tile, p: ProduceInfo) {
+        return t === this.src ? this.dstAmounts.get(p) : this.srcAmounts.get(p);
+    }
+
+    get isNonZero() {
+        return this.srcAmounts.entries().some(([p, v]) => v > 0) || this.dstAmounts.entries().some(([p, v]) => v > 0);
+    }
+
+    get tradedProducts() {
+        return ProduceInfo.all.filter(p => this.srcAmounts.get(p) > 0 || this.dstAmounts.get(p) > 0);
+    }
+
+    update() {
         // Search for unit-for-unit trades that increase capacity on both sides.
         const sc = this.src.capacity;
         const dc = this.dst.capacity;
@@ -58,22 +73,24 @@ export class TradeLink {
         for (const sg of ProduceInfo.all) { // Source good traded away
             for (const dg of ProduceInfo.all) {
                 if (sg === dg) continue;
+                if (this.src.production.Total.get(sg) < 1) continue;
 
                 const sgr = 1.0 - this.cost.get(sg);
                 const dgr = 1.0 - this.cost.get(dg);
 
                 const su = smc.get(dg) * dgr - smc.get(sg) * sgr;
                 const du = dmc.get(sg) * sgr - dmc.get(dg) * dgr;
-                let label = 'no benefit';
+                
+                this.message = '';
                 switch (true) {
                     case su > 0 && du > 0:
-                        label = '+++ mutual benefit';
+                        this.srcAmounts.incr(sg, 1);
+                        this.dstAmounts.incr(dg, 1);
                         break;
                     case su > 0 || du > 0:
-                        label = '~~~ one-sided benefit, variable prices could enable';
+                        this.message = `more trades available with variable prices, such as ${sg.name} for ${dg.name}`;
                         break;
                 }
-                console.log(`Trade ${sg.name} for ${dg.name}: ${su.toFixed(3)}/${du.toFixed(3)} -> ${label}`);
             }
         }
     }
