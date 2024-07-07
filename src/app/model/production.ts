@@ -85,8 +85,8 @@ export const Alluvium = new Terrain('Alluvium', PerProduce.of([
     ['Dairy', 6000],
 ]));
 export const DryLightSoil = new Terrain('DryLightSoil', PerProduce.of([
-    ['Barley', 10000],
-    ['Lentils', 20000],
+    ['Barley', 5000],
+    ['Lentils', 10000],
     ['Dairy', 4000],
 ]));
 export const Desert = new Terrain('Desert', PerProduce.of([
