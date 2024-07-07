@@ -6,7 +6,6 @@ import {Settlement, SettlementTier} from "./model/settlements";
 
 // Top TODOs
 // - allocations
-//   - understand why relatively equal allocations are usually still about optimal
 //   - experiment with land allocation and both allocation
 //   - retune production functions based on above analysis
 //   - apply to actual production
@@ -14,6 +13,26 @@ import {Settlement, SettlementTier} from "./model/settlements";
 // - trade for obsidian for labor productivity and health bonuses
 // - trade for lapis lazuli for culture bonuses
 // - craft specialists: tools, cloth, pottery, jewelry
+
+// Plan for trade
+// - Start with existing food goods, since we already have them
+//   - Don't expect huge gains from this type of trade, but it
+//     would be nice to see some gains
+//   - For the first step, consider only trade between adjacent tiles.
+//   - Search for trades that increase utility on both sides. 
+//   - At first, could even consider only unit-for-unit trades
+//     since the products are for now nominally equally valued.
+//   - Use some resonable transaction cost; lower for dairy
+//   - Then visualize these trades and the gains from them
+// - Very rough later steps:
+//   - Consider markets, floating prices, diagonal trades
+//   - Add plausible goods from the four sides of the map, e.g.,
+//     obsidian/flint from the west, dairy from the north, lapis
+//     lazuli from the east, and fish from the south.
+//   - Allow longer-range trade and variable transaction costs
+//   - Add effects on other aspects of society from each trade good.
+//   - Add industries that create trade goods such as pottery and cloth.
+//   - Model trade-driven urbanization and its ramifications.
 
 @Injectable({providedIn: 'root'})
 export class World {
