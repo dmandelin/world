@@ -84,7 +84,7 @@ export class MapInfoPanelComponent {
   }
 
   updateTradeLinks() {
-    this.tile?.updateTradeLinks();
+    this.tile?.updateMarket();
     this.refresh();
   }
 

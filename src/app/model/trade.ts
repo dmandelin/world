@@ -31,6 +31,31 @@ import {PerProduce, ProduceInfo} from './production';
 // - cost 0.02 per tile for dairy
 //   - situation is different per terrain in complicated ways so ignore for now
 
+export class Market {
+    readonly tradeLinks: TradeLink[] = [];
+
+    constructor(readonly tile: Tile) {}
+
+    initialize() {
+        for (const [dx, dy] of [[1, 0], [0, 1]]) {
+            const [ni, nj] = [this.tile.i + dx, this.tile.j + dy];
+            if (ni >= 0 && ni < this.tile.world.map.height && nj >= 0 && nj < this.tile.world.map.width) {
+                const neighbor = this.tile.world.map.tiles[ni][nj];
+                const tradeLink = new TradeLink(this.tile, neighbor, this.tile.isRiver && neighbor.isRiver);
+                this.tradeLinks.push(tradeLink);
+                neighbor.market.tradeLinks.push(tradeLink);
+            }
+        }
+    }
+
+    update() {
+        for (const l of this.tradeLinks) {
+            l.update();
+        }
+    
+    }
+}
+
 export class TradeLink {
     readonly cost: PerProduce = this.alongRiver
         ? PerProduce.of([['Barley', 0.02], ['Lentils', 0.02], ['Dairy', 0.02]])

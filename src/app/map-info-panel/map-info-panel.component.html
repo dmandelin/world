@@ -25,7 +25,7 @@
                 <button (click)="updateTradeLinks()">Update</button>
             </div>
             <table>
-                <ng-container *ngFor="let l of tile.tradeLinks">
+                <ng-container *ngFor="let l of tile.market.tradeLinks">
                     <ng-container *ngIf="l.isNonZero">
                         <tr>
                             <td>{{l.other(tile).controller.name}}{{l.alongRiver ? ' (along river)' : ''}}</td>

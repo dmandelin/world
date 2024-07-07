@@ -52,7 +52,7 @@ export class World {
     constructor() {
         // Initialize trade links.
         for (const t of this.map.tiles.flat()) {
-            t.initializeTradeLinks();
+            t.market.initialize();
         }
 
         this.updateLastPopulation();
