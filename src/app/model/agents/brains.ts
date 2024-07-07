@@ -1,4 +1,5 @@
-import {World, Polity} from "./world";
+import {World} from "../world";
+import {Polity} from "../polity";
 
 const VERBOSE = true;
 

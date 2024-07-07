@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
-import { World, Polity, AllTerrainTypes, Allocation, PerProduce, Produce, ProduceInfo, Terrain, Tile } from '../world';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
+
+import { Allocation, AllTerrainTypes, Produce, ProduceInfo, PerProduce, Terrain } from '../model/production';
+import { World } from '../model/world';
+import { Tile } from '../model/tile';
 
 @Component({
   selector: 'app-map-info-panel',

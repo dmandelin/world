@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
-import { Polity, World, Tile } from '../world';
 import { NgClass, NgFor, NgStyle } from '@angular/common';
+
+import { World } from '../model/world';
+import { Polity } from '../model/polity';
+import { Tile } from '../model/tile';
 
 @Component({
   selector: 'app-map',

@@ -1,6 +1,11 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
-import { Polity, World, Produce, ProduceInfo, Tile, argmax, sorted } from '../world';
 import { NgFor } from '@angular/common';
+
+import { Polity } from '../model/polity';
+import { Tile } from '../model/tile';
+import { ProduceInfo } from '../model/production';
+import { World } from '../model/world';
+import { argmax, sorted } from '../model/lib';
 
 @Component({
   selector: 'app-map-canvas',

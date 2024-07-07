@@ -5,7 +5,7 @@ import { MapComponent } from './map/map.component';
 import { MapInfoPanelComponent } from './map-info-panel/map-info-panel.component';
 import { WorldInfoPanelComponent } from './world-info-panel/world-info-panel.component';
 import { WorldLogPanelComponent } from "./world-log-panel/world-log-panel.component";
-import {Tile} from './world';
+import {Tile} from './model/tile';
 
 @Component({
     selector: 'app-root',
