@@ -1,5 +1,5 @@
 import {Tile} from './tile';
-import {PerProduce, ProduceInfo} from './production';
+import {PerProduce, ProduceInfo, marginalCapacity} from './production';
 
 // Transaction cost estimates from previous analysis:
 //
@@ -33,6 +33,7 @@ import {PerProduce, ProduceInfo} from './production';
 
 export class Market {
     readonly tradeLinks: TradeLink[] = [];
+    message: string = '';
 
     constructor(readonly tile: Tile) {}
 
@@ -49,10 +50,61 @@ export class Market {
     }
 
     update() {
-        for (const l of this.tradeLinks) {
-            l.update();
+        // Seek beneficial trades, but spread out the trade across different
+        // links, because people will want to spread out risks.
+
+        // At first, trade will be consumption-driven: the people of a tile
+        // will seek to trade for goods with the highest marginal utility.
+        // Trade partners themselves will also want to get what has the highest
+        // marginal utility to them among what's available.
+
+        // Reset and recalculate from scratch each time.
+        this.message = '';
+        this.tradeLinks.forEach(l => l.clear());
+
+        // Get the current production so we don't have to recalculate too much.
+        const p = this.tile.production.Total;
+        const nnp = new Map(this.tradeLinks.map(l => [l, l.other(this.tile).production.Total]));
+        let mu = marginalCapacity(p);
+        let nnmu = new Map([...nnp.entries()].map(([l, p]) => [l, marginalCapacity(p)]));
+
+        // Do a maximum number of iterations.
+        for (let i = 0; i < 1000; ++i) {
+            // Try to increment trade along each link in turn.
+            const dg = mu.max()[0];
+            for (const l of this.tradeLinks) {
+                const nmu = nnmu.get(l);
+                if (!nmu) continue;
+                const sg = nmu.max()[0];
+
+                // If the trade is beneficial to both sides, increment trade amounts
+                // and decrement production amounts so we don't trade goods that don't exist.
+                const sgr = 1.0 - l.cost.get(sg);
+                const dgr = 1.0 - l.cost.get(dg);
+
+                const su = mu.get(dg) * dgr - mu.get(sg) * sgr;
+                const du = nmu.get(sg) * sgr - nmu.get(dg) * dgr;
+
+                switch (true) {
+                    case su > 0 && du > 0:
+                        // Update the trade link.
+                        l.srcAmounts.incr(sg, 1);
+                        l.dstAmounts.incr(dg, 1);
+                        // Mark goods as traded away.
+                        p.incr(sg, -1);
+                        p.incr(dg, 1);
+                        nnp.get(l)?.incr(dg, -1);
+                        nnp.get(l)?.incr(sg, 1);
+                        // Update marginal utilities.
+                        mu = marginalCapacity(p);
+                        nnmu.set(l, marginalCapacity(nnp.get(l)!));
+                        break;
+                    case su > 0 || du > 0:
+                        l.message = `more trades available with variable prices, such as ${sg.name} for ${dg.name}`;
+                        break;
+                }
+            }
         }
-    
     }
 }
 
@@ -85,6 +137,12 @@ export class TradeLink {
 
     get tradedProducts() {
         return ProduceInfo.all.filter(p => this.srcAmounts.get(p) > 0 || this.dstAmounts.get(p) > 0);
+    }
+
+    clear() {
+        this.srcAmounts = PerProduce.of();
+        this.dstAmounts = PerProduce.of();
+        this.message = '';
     }
 
     update() {

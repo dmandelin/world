@@ -49,6 +49,10 @@ export class PerProduce {
         return this.m.get(p) || 0;
     }
 
+    max(): [ProduceInfo, number] {
+        return [...this.m.entries()].reduce((a, b) => a[1] > b[1] ? a : b);
+    }
+
     incr(p: ProduceInfo, incr: number): void {
         this.m.set(p, this.get(p) + incr);
     }
