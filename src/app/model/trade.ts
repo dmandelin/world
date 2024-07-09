@@ -73,6 +73,10 @@ export class Market {
             // Try to increment trade along each link in turn.
             const dg = mu.max()[0];
             for (const l of this.tradeLinks) {
+                // TODO: Fix a bug where we are conflating the market's tile with the
+                // trade link's source, but they're not always the same. It's probably
+                // time to introduce a DirectedTradeLink concept that lets each market
+                // have its own view of the trade links.
                 const nmu = nnmu.get(l);
                 if (!nmu) continue;
                 const sg = nmu.max()[0];
