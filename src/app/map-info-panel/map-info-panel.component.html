@@ -77,19 +77,15 @@
         </div>
 
         <div id="rightPanel">
-            <h2 class="mtz">Production</h2>
+            <h2 class="mtz">Consumption</h2>
             <table>
                 <tr>
-                    <th>Terrain</th>
-                    <th *ngFor="let p of products">{{p.name}}</th>
+                    <th>Product</th>
+                    <th>Amount</th>
                 </tr>
-                <tr *ngFor="let t of terrainTypes">
-                    <td>{{t.name}}</td>
-                    <td *ngFor="let p of products" class="ra">{{floor(production(p, t))}}</td>
-                </tr>
-                <tr>
-                    <th>Total</th>
-                    <td *ngFor="let p of products" class="ra">{{floor(production(p))}}</td>
+                <tr *ngFor="let e of tile.consumption.entries()">
+                    <td>{{e[0].name}}</td>
+                    <td class="ra">{{floor(e[1])}}</td>
                 </tr>
             </table>
 

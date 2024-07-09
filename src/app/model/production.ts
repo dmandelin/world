@@ -175,13 +175,19 @@ export function marginalCapacity(p: PerProduce): PerProduce {
 }
 
 function pastoralDietValue(p: PerProduce) {
-    let plants = p.get(Barley) + p.get(Lentils);
+    // Make lentils a little less valuble so that marginal utilities
+    // aren't always identical. In practice they will usually be most
+    // lacking in barley, so it should be more valuable.
+    let plants = p.get(Barley) + 0.8 * p.get(Lentils);
     let animals = p.get(Dairy);
     if (plants < 0.2 * (plants + animals)) {
         const convert = 0.2 * (plants + animals) - plants;
         plants += convert / 2;
         animals -= convert;
     }
+    // 90% diet value even with optimal mix, because if this comes
+    // out higher than agrarianDietValue, it's because the diet is
+    // entirely missing a food type.
     return 1.8 * Math.pow(plants, 0.5) * Math.pow(animals, 0.5);
 }
 

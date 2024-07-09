@@ -148,12 +148,25 @@ export class Tile {
         return production(this.allocs_);
     }
 
+    get consumption(): PerProduce {
+        let c = this.production.Total;
+        for (const l of this.market.tradeLinks) {
+            for (const [p, a] of l.srcAmounts.entries()) {
+                c.incr(p, -a);
+            }
+            for (const [p, a] of l.dstAmounts.entries()) {
+                c.incr(p, a);
+            }
+        }
+        return c;
+    }
+
     get capacity() {
-        return capacity(this.production.Total);
+        return capacity(this.consumption);
     }
 
     get marginalCapacity(): PerProduce {
-        return marginalCapacity(this.production.Total);
+        return marginalCapacity(this.consumption);
     }
 
     get controller() { return this.controller_; }
