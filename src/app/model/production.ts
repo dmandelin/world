@@ -187,5 +187,5 @@ function pastoralDietValue(p: PerProduce) {
 
 function agrarianDietValue(p: PerProduce) {
     let [c, l, a] = [p.get(Barley), p.get(Lentils), p.get(Dairy)];
-    return 3 * Math.pow(c, 0.25) * Math.pow(l, 0.25), Math.pow(a, 0.5);
+    return 3 * Math.pow(c, 0.25) * Math.pow(l, 0.25) * Math.pow(a, 0.5);
 }
