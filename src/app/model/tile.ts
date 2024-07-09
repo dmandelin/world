@@ -151,11 +151,12 @@ export class Tile {
     get consumption(): PerProduce {
         let c = this.production.Total;
         for (const l of this.market.tradeLinks) {
+            const sign = l.src === this ? 1 : -1;
             for (const [p, a] of l.srcAmounts.entries()) {
-                c.incr(p, -a);
+                c.incr(p, -a * sign);
             }
             for (const [p, a] of l.dstAmounts.entries()) {
-                c.incr(p, a);
+                c.incr(p, a * sign);
             }
         }
         return c;

@@ -157,6 +157,7 @@ export class TradeLink {
             for (const dg of Products) {
                 if (sg === dg) continue;
                 if (this.src.production.Total.get(sg) < 1) continue;
+                if (this.dst.production.Total.get(dg) < 1) continue;
 
                 const sgr = 1.0 - this.cost.get(sg);
                 const dgr = 1.0 - this.cost.get(dg);
