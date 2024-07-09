@@ -1,8 +1,9 @@
 import {World} from './world';
 import {Polity} from './polity';
-import {Allocation, ProduceInfo} from './production';
+import {Allocation, Product} from './production';
 import {PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated} from './production';
 import {Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert} from './production';
+import {Barley, Lentils, Dairy} from './production';
 import {Market, TradeLink} from './trade';
 import {Settlement, SettlementTier} from './settlements';
 import {randint} from './lib';
@@ -91,18 +92,18 @@ export class Tile {
 
     ratioizeLabor() {
         this.allocs_ = [
-            new Allocation(this, ProduceInfo.Barley, Alluvium, 1, this.wetFraction),
-            new Allocation(this, ProduceInfo.Lentils, DryLightSoil, 1, this.dryLightSoilFraction),
-            new Allocation(this, ProduceInfo.Dairy, Desert, 1, this.desertFraction),
+            new Allocation(this, Barley, Alluvium, 1, this.wetFraction),
+            new Allocation(this, Lentils, DryLightSoil, 1, this.dryLightSoilFraction),
+            new Allocation(this, Dairy, Desert, 1, this.desertFraction),
         ];
         this.world.notifyWatchers();
     }
 
     equalizeLabor() {
         this.allocs_ = [
-            new Allocation(this, ProduceInfo.Barley, Alluvium, 1, 0.34),
-            new Allocation(this, ProduceInfo.Lentils, DryLightSoil, 1, 0.33),
-            new Allocation(this, ProduceInfo.Dairy, Desert, 1, 0.33),
+            new Allocation(this, Barley, Alluvium, 1, 0.34),
+            new Allocation(this, Lentils, DryLightSoil, 1, 0.33),
+            new Allocation(this, Dairy, Desert, 1, 0.33),
         ];
         this.world.notifyWatchers();
     }

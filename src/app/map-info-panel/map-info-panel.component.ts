@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
 
-import { Allocation, AllTerrainTypes, Produce, ProduceInfo, PerProduce, Terrain } from '../model/production';
+import { Allocation, AllTerrainTypes, Product, Products, PerProduce, Terrain } from '../model/production';
 import { World } from '../model/world';
 import { Tile } from '../model/tile';
 
@@ -15,7 +15,7 @@ import { Tile } from '../model/tile';
 export class MapInfoPanelComponent {
   private deleteWatcher: Function|undefined;
 
-  readonly products = ProduceInfo.all;
+  readonly products = Products;
   readonly terrainTypes = AllTerrainTypes;
 
   tile: Tile|undefined;
@@ -57,7 +57,7 @@ export class MapInfoPanelComponent {
     this.population = this.tile.population;
   }
 
-  production(p: ProduceInfo, t?: Terrain): number {
+  production(p: Product, t?: Terrain): number {
     if (!this.tile) return 0;
     if (!t) return this.tile.production.Total.get(p);
     return this.tile.production[t.name].get(p);
@@ -86,10 +86,6 @@ export class MapInfoPanelComponent {
   updateTradeLinks() {
     this.tile?.updateMarket();
     this.refresh();
-  }
-
-  productName(p: Produce): string {
-    return ProduceInfo.getName(p);
   }
 
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }

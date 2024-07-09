@@ -1,5 +1,5 @@
 import {Tile} from './tile';
-import {PerProduce, ProduceInfo, marginalCapacity} from './production';
+import {PerProduce, Product, Products, marginalCapacity} from './production';
 
 // Transaction cost estimates from previous analysis:
 //
@@ -123,11 +123,11 @@ export class TradeLink {
         return t === this.src ? this.dst : this.src;
     }
 
-    thisAmount(t: Tile, p: ProduceInfo) {
+    thisAmount(t: Tile, p: Product) {
         return t === this.src ? this.srcAmounts.get(p) : this.dstAmounts.get(p);
     }
 
-    otherAmount(t: Tile, p: ProduceInfo) {
+    otherAmount(t: Tile, p: Product) {
         return t === this.src ? this.dstAmounts.get(p) : this.srcAmounts.get(p);
     }
 
@@ -136,7 +136,7 @@ export class TradeLink {
     }
 
     get tradedProducts() {
-        return ProduceInfo.all.filter(p => this.srcAmounts.get(p) > 0 || this.dstAmounts.get(p) > 0);
+        return Products.filter(p => this.srcAmounts.get(p) > 0 || this.dstAmounts.get(p) > 0);
     }
 
     clear() {
@@ -153,8 +153,8 @@ export class TradeLink {
         const smc = this.src.marginalCapacity;
         const dmc = this.dst.marginalCapacity;
 
-        for (const sg of ProduceInfo.all) { // Source good traded away
-            for (const dg of ProduceInfo.all) {
+        for (const sg of Products) { // Source good traded away
+            for (const dg of Products) {
                 if (sg === dg) continue;
                 if (this.src.production.Total.get(sg) < 1) continue;
 

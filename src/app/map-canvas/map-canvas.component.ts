@@ -3,7 +3,7 @@ import { NgFor } from '@angular/common';
 
 import { Polity } from '../model/polity';
 import { Tile } from '../model/tile';
-import { ProduceInfo } from '../model/production';
+import { Barley, Lentils, Dairy } from '../model/production';
 import { World } from '../model/world';
 import { argmax, sorted } from '../model/lib';
 
@@ -104,7 +104,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         const p = tile.production.Total;
         ctx.font = '10px sans-serif';
         this.drawTextCentered(ctx,
-          `${Math.floor(p.get(ProduceInfo.Barley))} | ${Math.floor(p.get(ProduceInfo.Lentils))} | ${Math.floor(p.get(ProduceInfo.Dairy))}`, 
+          `${Math.floor(p.get(Barley))} | ${Math.floor(p.get(Lentils))} | ${Math.floor(p.get(Dairy))}`, 
           x, y + 12, this.side);
 
           // Draw controller name

@@ -1,75 +1,57 @@
 import { Tile } from './tile';
 
-export enum Produce {
-    Barley,
-    Lentils,
-    Dairy,
-}
+export class Product {
+    constructor(
+        readonly name: 'Barley'|'Lentils'|'Dairy',
+    ) {}
 
-export class ProduceInfo {
-    constructor(readonly produce: Produce, readonly name: string) {}
-
-    static Barley = new ProduceInfo(Produce.Barley, 'Barley');
-    static Lentils = new ProduceInfo(Produce.Lentils, 'Lentils');
-    static Dairy = new ProduceInfo(Produce.Dairy, 'Dairy');
-
-    static all = [ProduceInfo.Barley, ProduceInfo.Lentils, ProduceInfo.Dairy];
-
-    static get(p: Produce) {
-        switch (p) {
-            case Produce.Barley: return ProduceInfo.Barley;
-            case Produce.Lentils: return ProduceInfo.Lentils;
-            case Produce.Dairy: return ProduceInfo.Dairy;
-            default: throw new Error('Invalid produce');
+    static fromName(name: string): Product {
+        switch (name) {
+            case 'Barley': return Barley;
+            case 'Lentils': return Lentils;
+            case 'Dairy': return Dairy;
+            default: throw `Unknown product ${name}`;
         }
     }
-
-    static of(produceName: string) {
-        switch (produceName) {
-            case 'Barley': return ProduceInfo.Barley;
-            case 'Lentils': return ProduceInfo.Lentils;
-            case 'Dairy': return ProduceInfo.Dairy;
-            default: throw new Error('Invalid produce');
-        }
-    }
-
-    static getName(p: Produce) {
-        return ProduceInfo.get(p).name;
-    }
 }
+
+export const Barley = new Product('Barley');
+export const Lentils = new Product('Lentils');
+export const Dairy = new Product('Dairy');
+export const Products = [Barley, Lentils, Dairy];
 
 export class PerProduce {
-    private m: Map<ProduceInfo, number>;
+    private m: Map<Product, number>;
 
-    constructor(m: Map<ProduceInfo, number> = new Map()) {
+    constructor(m: Map<Product, number> = new Map()) {
         this.m = m;
     }
 
-    get(p: ProduceInfo): number {
+    get(p: Product): number {
         return this.m.get(p) || 0;
     }
 
-    max(): [ProduceInfo, number] {
+    max(): [Product, number] {
         return [...this.m.entries()].reduce((a, b) => a[1] > b[1] ? a : b);
     }
 
-    incr(p: ProduceInfo, incr: number): void {
+    incr(p: Product, incr: number): void {
         this.m.set(p, this.get(p) + incr);
     }
 
-    map(f: (p: ProduceInfo, v: number) => number): PerProduce {
+    map(f: (p: Product, v: number) => number): PerProduce {
         return new PerProduce(new Map([...this.m].map(([p, v]) => [p, f(p, v)])));
     }
 
-    entries(): [ProduceInfo, number][] {
+    entries(): [Product, number][] {
         return [...this.m.entries()];
     }
     
     static of(o: [string, number][] = []) {
-        return new PerProduce(new Map(o.map(([k, v]) => [ProduceInfo.of(k), v])));
+        return new PerProduce(new Map(o.map(([k, v]) => [Product.fromName(k), v])));
     }
 
-    withIncr(p: ProduceInfo, incr: number): PerProduce {
+    withIncr(p: Product, incr: number): PerProduce {
         const m = new Map(this.m);
         m.set(p, this.get(p) + incr);
         return new PerProduce(m);
@@ -104,7 +86,7 @@ export const AllTerrainTypes = [Alluvium, DryLightSoil, Desert];
 export class Allocation {
     constructor(
         readonly tile: Tile,
-        readonly product: ProduceInfo,
+        readonly product: Product,
         readonly terrain: Terrain,
         readonly landFraction: number,
         readonly laborFraction: number) {}
@@ -193,17 +175,17 @@ export function marginalCapacity(p: PerProduce): PerProduce {
 }
 
 function pastoralDietValue(p: PerProduce) {
-    let plants = p.get(ProduceInfo.Barley) + p.get(ProduceInfo.Lentils);
-    let animals = p.get(ProduceInfo.Dairy);
+    let plants = p.get(Barley) + p.get(Lentils);
+    let animals = p.get(Dairy);
     if (plants < 0.2 * (plants + animals)) {
         const convert = 0.2 * (plants + animals) - plants;
         plants += convert / 2;
         animals -= convert;
     }
-    return 2 * Math.pow(plants, 0.5) * Math.pow(animals, 0.5);
+    return 1.8 * Math.pow(plants, 0.5) * Math.pow(animals, 0.5);
 }
 
 function agrarianDietValue(p: PerProduce) {
-    let [c, l, a] = [p.get(ProduceInfo.Barley), p.get(ProduceInfo.Lentils), p.get(ProduceInfo.Dairy)];
+    let [c, l, a] = [p.get(Barley), p.get(Lentils), p.get(Dairy)];
     return 3 * Math.pow(c, 0.25) * Math.pow(l, 0.25), Math.pow(a, 0.5);
 }
