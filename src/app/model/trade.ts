@@ -31,8 +31,37 @@ import {PerProduce, Product, Products, marginalCapacity} from './production';
 // - cost 0.02 per tile for dairy
 //   - situation is different per terrain in complicated ways so ignore for now
 
+// A transfer of any amount of one product from one tile to another.
+export class Transfer {
+    constructor(
+        readonly link: TradeLink, readonly src: Tile, readonly dst: Tile, 
+        readonly product: Product, public amount: number) {}
+
+    get costFactor() { return 1.0 - this.link.cost.get(this.product); }
+    get gross() { return this.amount; }
+    get net() { return this.amount * this.costFactor; }
+}
+
+// An exchange of products between two tiles.
+export class Exchange {
+    constructor(readonly link: TradeLink, readonly t1: Transfer, readonly t2: Transfer) {}
+
+    sentBy(src: Tile): [Product, number] { 
+        const t = this.link.a1 === src ? this.t1 : this.t2;
+        return [t.product, t.gross];
+    }
+    recvBy(dst: Tile): [Product, number] {
+        const t = this.link.a1 === dst ? this.t1 : this.t2;
+        return [t.product, t.net];
+    }
+
+    sentByDelta(src: Tile) { return this.sentBy(src); }
+    recvByDelta(dst: Tile): [Product, number] { const r = this.recvBy(dst); return [r[0], -r[1]]; }
+}
+
+// The trade economy of a tile. This isn't necessarily a market pe se.
 export class Market {
-    readonly tradeLinks: TradeLink[] = [];
+    readonly links: TradeLinkDirection[] = [];
     message: string = '';
 
     constructor(readonly tile: Tile) {}
@@ -43,8 +72,8 @@ export class Market {
             if (ni >= 0 && ni < this.tile.world.map.height && nj >= 0 && nj < this.tile.world.map.width) {
                 const neighbor = this.tile.world.map.tiles[ni][nj];
                 const tradeLink = new TradeLink(this.tile, neighbor, this.tile.isRiver && neighbor.isRiver);
-                this.tradeLinks.push(tradeLink);
-                neighbor.market.tradeLinks.push(tradeLink);
+                this.links.push(new TradeLinkDirection(this.tile, neighbor, tradeLink));
+                neighbor.market.links.push(new TradeLinkDirection(neighbor, this.tile, tradeLink));
             }
         }
     }
@@ -60,11 +89,11 @@ export class Market {
 
         // Reset and recalculate from scratch each time.
         this.message = '';
-        this.tradeLinks.forEach(l => l.clear());
+        this.links.forEach(l => l.clear());
 
         // Get the current production so we don't have to recalculate too much.
         const p = this.tile.production.Total;
-        const nnp = new Map(this.tradeLinks.map(l => [l, l.other(this.tile).production.Total]));
+        const nnp = new Map(this.links.map(l => [l, l.dst.production.Total]));
         let mu = marginalCapacity(p);
         let nnmu = new Map([...nnp.entries()].map(([l, p]) => [l, marginalCapacity(p)]));
 
@@ -72,7 +101,7 @@ export class Market {
         for (let i = 0; i < 1000; ++i) {
             // Try to increment trade along each link in turn.
             const dg = mu.max()[0];
-            for (const l of this.tradeLinks) {
+            for (const l of this.links) {
                 // TODO: Fix a bug where we are conflating the market's tile with the
                 // trade link's source, but they're not always the same. It's probably
                 // time to introduce a DirectedTradeLink concept that lets each market
@@ -92,13 +121,12 @@ export class Market {
                 switch (true) {
                     case su > 0 && du > 0:
                         // Update the trade link.
-                        l.srcAmounts.incr(sg, 1);
-                        l.dstAmounts.incr(dg, 1);
+                        l.incrExchange(sg, dg, 1);
                         // Mark goods as traded away.
-                        p.incr(sg, -1);
-                        p.incr(dg, 1);
-                        nnp.get(l)?.incr(dg, -1);
-                        nnp.get(l)?.incr(sg, 1);
+                        p.incr([sg, -1]);
+                        p.incr([dg, 1]);
+                        nnp.get(l)?.incr([dg, -1]);
+                        nnp.get(l)?.incr([sg, 1]);
                         // Update marginal utilities.
                         mu = marginalCapacity(p);
                         nnmu.set(l, marginalCapacity(nnp.get(l)!));
@@ -117,69 +145,64 @@ export class TradeLink {
         ? PerProduce.of([['Barley', 0.02], ['Lentils', 0.02], ['Dairy', 0.02]])
         : PerProduce.of([['Barley', 0.2], ['Lentils', 0.2], ['Dairy', 0.02]]);
 
-    srcAmounts: PerProduce = PerProduce.of();
-    dstAmounts: PerProduce = PerProduce.of();
-    message: string = '';
+    exchanges: Exchange[] = [];
 
-    constructor(readonly src: Tile, readonly dst: Tile, readonly alongRiver: boolean) {}
+    constructor(readonly a1: Tile, readonly a2: Tile, readonly alongRiver: boolean) {}
 
-    other(t: Tile) {
-        return t === this.src ? this.dst : this.src;
+    get isActive() {
+        return this.exchanges.length > 0;
     }
 
-    thisAmount(t: Tile, p: Product) {
-        return t === this.src ? this.srcAmounts.get(p) : this.dstAmounts.get(p);
+    findExchange(src: Tile, srcProduct: Product, dst: Tile, dstProduct: Product): Exchange | undefined {
+        return this.exchanges.find(e => 
+            e.t1.src === src && e.t1.product === srcProduct && 
+            e.t2.src === dst && e.t2.product === dstProduct ||
+            e.t1.src === dst && e.t1.product === dstProduct && 
+            e.t2.src === src && e.t2.product === srcProduct
+        );
     }
 
-    otherAmount(t: Tile, p: Product) {
-        return t === this.src ? this.dstAmounts.get(p) : this.srcAmounts.get(p);
+    findOrCreateExchange(src: Tile, srcProduct: Product, dst: Tile, dstProduct: Product): Exchange {
+        let exchange = this.findExchange(src, srcProduct, dst, dstProduct);
+        if (!exchange) {
+            const [a1, a2] = src === this.a1 ? [src, dst] : [dst, src];
+            exchange = new Exchange(
+                this,
+                new Transfer(this, a1, a2, srcProduct, 0),
+                new Transfer(this, a2, a1, dstProduct, 0));
+            this.exchanges.push(exchange);
+        }
+        return exchange;
     }
 
-    get isNonZero() {
-        return this.srcAmounts.entries().some(([p, v]) => v > 0) || this.dstAmounts.entries().some(([p, v]) => v > 0);
-    }
-
-    get tradedProducts() {
-        return Products.filter(p => this.srcAmounts.get(p) > 0 || this.dstAmounts.get(p) > 0);
+    incrExchange(src: Tile, srcProduct: Product, dst: Tile, dstProduct: Product, amount: number) {
+        const exchange = this.findOrCreateExchange(src, srcProduct, dst, dstProduct);
+        exchange.t1.amount += amount;
+        exchange.t2.amount += amount;
     }
 
     clear() {
-        this.srcAmounts = PerProduce.of();
-        this.dstAmounts = PerProduce.of();
-        this.message = '';
+        this.exchanges = [];
+    }
+}
+
+export class TradeLinkDirection {
+    message = '';
+
+    constructor(readonly src: Tile, readonly dst: Tile, readonly link: TradeLink) {}
+
+    get alongRiver() { return this.link.alongRiver; }
+    get cost() { return this.link.cost; }
+
+    get isActive() { return this.link.isActive; }
+    get exchanges() { return this.link.exchanges; }
+    get transfers() { return this.link.exchanges.flatMap(e => [e.t1, e.t2]); }
+
+    incrExchange(srcProduct: Product, dstProduct: Product, amount: number) {
+        this.link.incrExchange(this.src, srcProduct, this.dst, dstProduct, amount);
     }
 
-    update() {
-        // Search for unit-for-unit trades that increase capacity on both sides.
-        const sc = this.src.capacity;
-        const dc = this.dst.capacity;
-
-        const smc = this.src.marginalCapacity;
-        const dmc = this.dst.marginalCapacity;
-
-        for (const sg of Products) { // Source good traded away
-            for (const dg of Products) {
-                if (sg === dg) continue;
-                if (this.src.production.Total.get(sg) < 1) continue;
-                if (this.dst.production.Total.get(dg) < 1) continue;
-
-                const sgr = 1.0 - this.cost.get(sg);
-                const dgr = 1.0 - this.cost.get(dg);
-
-                const su = smc.get(dg) * dgr - smc.get(sg) * sgr;
-                const du = dmc.get(sg) * sgr - dmc.get(dg) * dgr;
-                
-                this.message = '';
-                switch (true) {
-                    case su > 0 && du > 0:
-                        this.srcAmounts.incr(sg, 1);
-                        this.dstAmounts.incr(dg, 1);
-                        break;
-                    case su > 0 || du > 0:
-                        this.message = `more trades available with variable prices, such as ${sg.name} for ${dg.name}`;
-                        break;
-                }
-            }
-        }
-    }
+    clear() { 
+        this.link.clear(); 
+        this.message = '';}
 }

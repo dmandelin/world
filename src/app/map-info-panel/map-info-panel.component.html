@@ -24,22 +24,23 @@
                 <h2 class="mtz">Trade Links</h2>
                 <button (click)="updateTradeLinks()">Update</button>
             </div>
-            <table>
-                <ng-container *ngFor="let l of tile.market.tradeLinks">
-                    <ng-container *ngIf="l.isNonZero">
+            <ng-container *ngFor="let l of tile.market.links">
+                <ng-container *ngIf="l.isActive">
+                    <h3>{{l.dst.controller.name}}</h3>
+                    <table class="exchanges">
                         <tr>
-                            <td>{{l.other(tile).controller.name}}{{l.alongRiver ? ' (along river)' : ''}}</td>
-                            <td>Send</td>
-                            <td>Recv</td>
+                            <td colspan="2">Send</td>
+                            <td colspan="2">Recv</td>
                         </tr>
-                        <tr *ngFor="let p of l.tradedProducts">
-                            <td class="i2">{{p.name}}</td>
-                            <td>{{l.thisAmount(tile, p)}}</td>
-                            <td>{{l.otherAmount(tile, p)}}</td>
-                        </tr>
-                    </ng-container>
+                        <tr *ngFor="let e of l.exchanges">
+                            <td>{{e.sentBy(tile)[1]}}</td>
+                            <td>{{e.sentBy(tile)[0].name}}
+                            <td>{{e.recvBy(tile)[1].toFixed(0)}}</td>
+                            <td>{{e.recvBy(tile)[0].name}}
+                            </tr>
+                    </table>
                 </ng-container>
-            </table>
+            </ng-container>
             
 
             <h2 class="mtz">Terrain</h2>

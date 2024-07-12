@@ -35,8 +35,8 @@ export class PerProduce {
         return [...this.m.entries()].reduce((a, b) => a[1] > b[1] ? a : b);
     }
 
-    incr(p: Product, incr: number): void {
-        this.m.set(p, this.get(p) + incr);
+    incr(pa: [Product, number]): void {
+        this.m.set(pa[0], this.get(pa[0]) + pa[1]);
     }
 
     map(f: (p: Product, v: number) => number): PerProduce {
@@ -153,8 +153,8 @@ export function production(allocs: readonly Allocation[]): PerTerrainPerProduce 
 
     for (const alloc of allocs) {
         const p = alloc.production();
-        totals[alloc.terrain.name].incr(alloc.product, p);
-        totals.Total.incr(alloc.product, p);
+        totals[alloc.terrain.name].incr([alloc.product, p]);
+        totals.Total.incr([alloc.product, p]);
     }
 
     return totals;
