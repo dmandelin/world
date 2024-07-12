@@ -151,9 +151,9 @@ export class Tile {
     get consumption(): PerProduce {
         let c = this.production.Total;
         for (const l of this.market.links) {
-            for (const e of l.exchanges) {
-                c.incr(e.sentByDelta(this));
-                c.incr(e.recvByDelta(this));
+            for (const [send, recv] of l.exchanges) {
+                c.incr([send.product, -send.gross]);
+                c.incr([recv.product, recv.net]);
             }
         }
         return c;

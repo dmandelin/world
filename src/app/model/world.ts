@@ -40,7 +40,9 @@ export class World {
     private year_ = 0;
     private polities_ = NAMED_DEFAULT_POLITIES.map((pd, i) => 
         new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
+    
     readonly map = new WorldMap(this, 5, 5, this.polities);
+
     readonly log = new WorldLog();
 
     lastPopulation = new Map<Tile, number>();
@@ -53,6 +55,9 @@ export class World {
         // Initialize trade links.
         for (const t of this.map.tiles.flat()) {
             t.market.initialize();
+        }
+        for (const t of this.map.tiles.flat()) {
+            t.market.update();
         }
 
         this.updateLastPopulation();

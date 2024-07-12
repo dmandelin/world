@@ -33,30 +33,17 @@ import {PerProduce, Product, Products, marginalCapacity} from './production';
 
 // A transfer of any amount of one product from one tile to another.
 export class Transfer {
-    constructor(
-        readonly link: TradeLink, readonly src: Tile, readonly dst: Tile, 
-        readonly product: Product, public amount: number) {}
+    // Barters are represented by bidirectionally linking paired transfers.
+    inExchangeFor: Transfer | undefined;
+
+    constructor(readonly link: TradeLinkDirection, readonly product: Product, public amount: number) {}
+
+    get src() { return this.link.src; }
+    get dst() { return this.link.dst; }
 
     get costFactor() { return 1.0 - this.link.cost.get(this.product); }
     get gross() { return this.amount; }
     get net() { return this.amount * this.costFactor; }
-}
-
-// An exchange of products between two tiles.
-export class Exchange {
-    constructor(readonly link: TradeLink, readonly t1: Transfer, readonly t2: Transfer) {}
-
-    sentBy(src: Tile): [Product, number] { 
-        const t = this.link.a1 === src ? this.t1 : this.t2;
-        return [t.product, t.gross];
-    }
-    recvBy(dst: Tile): [Product, number] {
-        const t = this.link.a1 === dst ? this.t1 : this.t2;
-        return [t.product, t.net];
-    }
-
-    sentByDelta(src: Tile) { return this.sentBy(src); }
-    recvByDelta(dst: Tile): [Product, number] { const r = this.recvBy(dst); return [r[0], -r[1]]; }
 }
 
 // The trade economy of a tile. This isn't necessarily a market pe se.
@@ -71,9 +58,13 @@ export class Market {
             const [ni, nj] = [this.tile.i + dx, this.tile.j + dy];
             if (ni >= 0 && ni < this.tile.world.map.height && nj >= 0 && nj < this.tile.world.map.width) {
                 const neighbor = this.tile.world.map.tiles[ni][nj];
-                const tradeLink = new TradeLink(this.tile, neighbor, this.tile.isRiver && neighbor.isRiver);
-                this.links.push(new TradeLinkDirection(this.tile, neighbor, tradeLink));
-                neighbor.market.links.push(new TradeLinkDirection(neighbor, this.tile, tradeLink));
+                const tradeLink = new TradeLink(this.tile.isRiver && neighbor.isRiver);
+                const sendLink = new TradeLinkDirection(this.tile, neighbor, tradeLink);
+                const recvLink = new TradeLinkDirection(neighbor, this.tile, tradeLink);
+                sendLink.reverse = recvLink;
+                recvLink.reverse = sendLink;
+                this.links.push(sendLink);
+                neighbor.market.links.push(recvLink);
             }
         }
     }
@@ -102,10 +93,6 @@ export class Market {
             // Try to increment trade along each link in turn.
             const dg = mu.max()[0];
             for (const l of this.links) {
-                // TODO: Fix a bug where we are conflating the market's tile with the
-                // trade link's source, but they're not always the same. It's probably
-                // time to introduce a DirectedTradeLink concept that lets each market
-                // have its own view of the trade links.
                 const nmu = nnmu.get(l);
                 if (!nmu) continue;
                 const sg = nmu.max()[0];
@@ -141,68 +128,64 @@ export class Market {
 }
 
 export class TradeLink {
+    message = '';
+
     readonly cost: PerProduce = this.alongRiver
         ? PerProduce.of([['Barley', 0.02], ['Lentils', 0.02], ['Dairy', 0.02]])
         : PerProduce.of([['Barley', 0.2], ['Lentils', 0.2], ['Dairy', 0.02]]);
 
-    exchanges: Exchange[] = [];
-
-    constructor(readonly a1: Tile, readonly a2: Tile, readonly alongRiver: boolean) {}
-
-    get isActive() {
-        return this.exchanges.length > 0;
-    }
-
-    findExchange(src: Tile, srcProduct: Product, dst: Tile, dstProduct: Product): Exchange | undefined {
-        return this.exchanges.find(e => 
-            e.t1.src === src && e.t1.product === srcProduct && 
-            e.t2.src === dst && e.t2.product === dstProduct ||
-            e.t1.src === dst && e.t1.product === dstProduct && 
-            e.t2.src === src && e.t2.product === srcProduct
-        );
-    }
-
-    findOrCreateExchange(src: Tile, srcProduct: Product, dst: Tile, dstProduct: Product): Exchange {
-        let exchange = this.findExchange(src, srcProduct, dst, dstProduct);
-        if (!exchange) {
-            const [a1, a2] = src === this.a1 ? [src, dst] : [dst, src];
-            exchange = new Exchange(
-                this,
-                new Transfer(this, a1, a2, srcProduct, 0),
-                new Transfer(this, a2, a1, dstProduct, 0));
-            this.exchanges.push(exchange);
-        }
-        return exchange;
-    }
-
-    incrExchange(src: Tile, srcProduct: Product, dst: Tile, dstProduct: Product, amount: number) {
-        const exchange = this.findOrCreateExchange(src, srcProduct, dst, dstProduct);
-        exchange.t1.amount += amount;
-        exchange.t2.amount += amount;
-    }
-
-    clear() {
-        this.exchanges = [];
-    }
+    constructor(readonly alongRiver: boolean) {}
 }
 
 export class TradeLinkDirection {
-    message = '';
+    reverse!: TradeLinkDirection;
+    transfers: Transfer[] = [];
 
     constructor(readonly src: Tile, readonly dst: Tile, readonly link: TradeLink) {}
 
     get alongRiver() { return this.link.alongRiver; }
+
     get cost() { return this.link.cost; }
 
-    get isActive() { return this.link.isActive; }
-    get exchanges() { return this.link.exchanges; }
-    get transfers() { return this.link.exchanges.flatMap(e => [e.t1, e.t2]); }
+    get isActive() { return this.transfers.length > 0; }
 
-    incrExchange(srcProduct: Product, dstProduct: Product, amount: number) {
-        this.link.incrExchange(this.src, srcProduct, this.dst, dstProduct, amount);
+    get exchanges(): [Transfer, Transfer][]{
+        return this.transfers.map(t => [t, t.inExchangeFor!]);
     }
 
-    clear() { 
-        this.link.clear(); 
+    get message() { return this.link.message; }
+    set message(m: string) { this.link.message = m; }
+
+    findExchange(src: Tile, srcProduct: Product, dst: Tile, dstProduct: Product): Transfer | undefined {
+        return this.transfers.find(t =>
+            t.dst == dst && t.product === srcProduct &&
+            t.inExchangeFor?.dst === src && t.inExchangeFor?.product === dstProduct);
+    }
+
+    findOrCreateExchange(src: Tile, srcProduct: Product, dst: Tile, dstProduct: Product): Transfer {
+        let transfer = this.findExchange(src, srcProduct, dst, dstProduct);
+        if (!transfer) {
+            const send = new Transfer(this, srcProduct, 0);
+            const recv = new Transfer(this.reverse, dstProduct, 0);
+            send.inExchangeFor = recv;
+            recv.inExchangeFor = send;
+
+            this.transfers.push(send);
+            this.reverse.transfers.push(recv);
+
+            transfer = send;
+        }
+        return transfer;
+    }
+
+    incrExchange(srcProduct: Product, dstProduct: Product, amount: number) {
+        const send = this.findOrCreateExchange(this.src, srcProduct, this.dst, dstProduct);
+        send.amount += amount;
+        send.inExchangeFor!.amount += amount;
+    }
+
+    clear() {
+        this.transfers = [];
+        this.reverse.transfers = this.reverse.transfers.filter(t => t.dst !== this.src); 
         this.message = '';}
 }

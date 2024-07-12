@@ -21,22 +21,20 @@
             </table>
 
             <div class="flex">
-                <h2 class="mtz">Trade Links</h2>
+                <h2 class="mtz trade-links">Trade Links</h2>
                 <button (click)="updateTradeLinks()">Update</button>
             </div>
             <ng-container *ngFor="let l of tile.market.links">
                 <ng-container *ngIf="l.isActive">
                     <h3>{{l.dst.controller.name}}</h3>
                     <table class="exchanges">
-                        <tr>
-                            <td colspan="2">Send</td>
-                            <td colspan="2">Recv</td>
-                        </tr>
                         <tr *ngFor="let e of l.exchanges">
-                            <td>{{e.sentBy(tile)[1]}}</td>
-                            <td>{{e.sentBy(tile)[0].name}}
-                            <td>{{e.recvBy(tile)[1].toFixed(0)}}</td>
-                            <td>{{e.recvBy(tile)[0].name}}
+                            <td><span class="fponly">Send</span></td>
+                            <td class="ra">{{e[0].gross}}</td>
+                            <td>{{e[0].product.name}}
+                            <td><span class="fponly">Receive</span></td>
+                            <td class="ra">{{e[1].net.toFixed(0)}}</td>
+                            <td>{{e[1].product.name}}
                             </tr>
                     </table>
                 </ng-container>
