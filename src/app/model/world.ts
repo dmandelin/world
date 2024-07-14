@@ -5,7 +5,25 @@ import {Tile} from "./tile";
 import {Combatant, War} from "./legacy_war";
 import {randelem, randint} from "./lib";
 
-// Top TODOs
+// Next steps:
+// - Add tabbed panel so that we have a place to show the
+//   different IEMP facets.
+//   - Start with fixed text for ones other than economics.
+// - Made economics a dynamical model: mostly need to update
+//   allocations and trade each turn.
+// - Ideology
+//   - Temples: donations, specialists, construction, morale
+//     bonuses, political/cultural development.
+// - Economy
+// - Military
+//   - Simple raiding model
+// - Politics
+//   - Start with collective rank society for farmers, individual
+//     rank society for pastoralists.
+//   - Define some sort of coordination bonuses that impact
+//     each other power source
+
+// Top economic TODOs:
 // - allocations
 //   - experiment with land allocation and both allocation
 //   - retune production functions based on above analysis
@@ -15,17 +33,7 @@ import {randelem, randint} from "./lib";
 // - trade for lapis lazuli for culture bonuses
 // - craft specialists: tools, cloth, pottery, jewelry
 
-// Plan for trade
-// - Start with existing food goods, since we already have them
-//   - Don't expect huge gains from this type of trade, but it
-//     would be nice to see some gains
-//   - For the first step, consider only trade between adjacent tiles.
-//   - Search for trades that increase utility on both sides. 
-//   - At first, could even consider only unit-for-unit trades
-//     since the products are for now nominally equally valued.
-//   - Use some resonable transaction cost; lower for dairy
-//   - Then visualize these trades and the gains from them
-// - Very rough later steps:
+// - Future steps for trade:
 //   - Consider markets, floating prices, diagonal trades
 //   - Add plausible goods from the four sides of the map, e.g.,
 //     obsidian/flint from the west, dairy from the north, lapis
