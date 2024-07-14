@@ -6,9 +6,8 @@ import {Combatant, War} from "./legacy_war";
 import {randelem, randint} from "./lib";
 
 // Next steps:
-// - Made economics a dynamical model: mostly need to update
-//   allocations and trade each turn.
-// - Ideology
+// - Ideology/Culture
+//   - Agrarians vs pastoralists
 //   - Temples: donations, specialists, construction, morale
 //     bonuses, political/cultural development.
 // - Economy

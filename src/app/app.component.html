@@ -1,6 +1,9 @@
 <div id="app">
   <div id="topPanel">
-    <app-map-canvas (clickTile)="clickTile($event)"></app-map-canvas>
+    <div>
+      <app-map-canvas (clickTile)="clickTile($event)"></app-map-canvas>
+      <app-world-turn-panel></app-world-turn-panel>
+    </div>
     <app-tile-info-panel></app-tile-info-panel>
     <app-world-log-panel></app-world-log-panel>
   </div>

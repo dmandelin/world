@@ -1,0 +1,23 @@
+.advance-panel {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.step-forward-btn {
+    font-size: 36px;
+    width: 80px;
+    height: 80px;
+    border: 3px solid #ddd;
+    background-color: #eee;
+    color: black;
+    border-radius: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-forward-btn:hover {
+    background-color: #cce;
+}
