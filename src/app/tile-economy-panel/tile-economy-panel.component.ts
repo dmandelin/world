@@ -1,24 +1,19 @@
 import { Component } from '@angular/core';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
-
 import { Allocation, AllTerrainTypes, Product, Products, PerProduce, Terrain } from '../model/production';
-import { World } from '../model/world';
-import { Tile } from '../model/tile';
+import { TilePanelBase } from '../util/tile-panel-base';
 
 @Component({
-  selector: 'app-map-info-panel',
+  selector: 'app-tile-economy-panel',
   standalone: true,
   imports: [NgIf, NgFor, NgStyle],
-  templateUrl: './map-info-panel.component.html',
-  styleUrl: './map-info-panel.component.scss'
+  templateUrl: './tile-economy-panel.component.html',
+  styleUrl: './tile-economy-panel.component.scss'
 })
-export class MapInfoPanelComponent {
-  private deleteWatcher: Function|undefined;
+export class TileEconomyPanelComponent extends TilePanelBase {
 
   readonly products = Products;
   readonly terrainTypes = AllTerrainTypes;
-
-  tile: Tile|undefined;
 
   allocs: readonly Allocation[] = [];
   totalProduction: number|undefined;
@@ -27,25 +22,7 @@ export class MapInfoPanelComponent {
   marginalCapacity: PerProduce = new PerProduce();
   population: number|undefined;
 
-  constructor(readonly world: World) {
-  }
-
-  ngAfterViewInit(): void {
-    this.deleteWatcher = this.world.addWatcher(this.refresh.bind(this));
-  }
-
-  ngOnDestroy(): void {
-    this.world.removeWatcher(this.deleteWatcher);
-  }
-
-  showTile(tile: Tile) {
-    this.tile = tile;
-    this.refresh();
-
-    this.tile?.settlements();
-  }
-
-  refresh() {
+  override refresh() {
     if (!this.tile) return;
 
     this.allocs = this.tile.allocs;

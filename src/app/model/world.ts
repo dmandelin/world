@@ -6,9 +6,6 @@ import {Combatant, War} from "./legacy_war";
 import {randelem, randint} from "./lib";
 
 // Next steps:
-// - Add tabbed panel so that we have a place to show the
-//   different IEMP facets.
-//   - Start with fixed text for ones other than economics.
 // - Made economics a dynamical model: mostly need to update
 //   allocations and trade each turn.
 // - Ideology
@@ -42,6 +39,22 @@ import {randelem, randint} from "./lib";
 //   - Add effects on other aspects of society from each trade good.
 //   - Add industries that create trade goods such as pottery and cloth.
 //   - Model trade-driven urbanization and its ramifications.
+
+@Injectable({providedIn: 'root'})
+export class WorldViewModel {
+    constructor(readonly world: World) {}
+
+    selectedTile_: Tile|undefined;
+
+    get selectedTile() { 
+        return this.selectedTile_; 
+    }
+
+    set selectedTile(value: Tile|undefined) { 
+        this.selectedTile_ = value; 
+        this.world.notifyWatchers();
+    }
+}
 
 @Injectable({providedIn: 'root'})
 export class World {

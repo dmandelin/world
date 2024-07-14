@@ -1,25 +1,6 @@
 <div *ngIf="tile">
-    <h1>{{tile.controller.name}}</h1>
-    <h2>Population: {{tile.population}}</h2>
-
     <div id="main">
         <div id="leftPanel">
-            <h2 class="mtz">Settlements</h2>
-            <table>
-                <tr>
-                    <th>Tier</th>
-                    <th>#</th>
-                    <th>Avg Pop</th>
-                    <th>Total Pop</th>
-                </tr>
-                <tr *ngFor="let s of tile.settlementTiers()">
-                    <td>{{s.name}}</td>
-                    <td class="ra">{{s.settlements.length}}</td>
-                    <td class="ra">{{s.averagePopulation}}</td>
-                    <td class="ra">{{s.totalPopulation}}</td>
-                </tr>
-            </table>
-
             <div class="flex">
                 <h2 class="mtz trade-links">Trade Links</h2>
                 <button (click)="updateTradeLinks()">Update</button>

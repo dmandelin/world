@@ -1,0 +1,19 @@
+<h3>{{tile?.name}}</h3>
+<p>Population {{tile?.population}}</p>
+
+<h2 class="mtz">Settlements</h2>
+<table>
+    <tr>
+        <th class="la">Tier</th>
+        <th class="ra">#</th>
+        <th class="ra">Avg Pop</th>
+        <th class="ra">Total Pop</th>
+    </tr>
+    <tr *ngFor="let s of tile?.settlementTiers()">
+        <td>{{s.name}}</td>
+        <td class="ra">{{s.settlements.length}}</td>
+        <td class="ra">{{s.averagePopulation}}</td>
+        <td class="ra">{{s.totalPopulation}}</td>
+    </tr>
+</table>
+

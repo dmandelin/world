@@ -44,6 +44,8 @@ export class Tile {
         this.optimizeLabor();
     }
 
+    get name() { return this.controller.name; }
+
     updateMarket(): void {
         this.market.update()
     }

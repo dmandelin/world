@@ -2,10 +2,11 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MapCanvasComponent } from './map-canvas/map-canvas.component';
 import { MapComponent } from './map/map.component';
-import { MapInfoPanelComponent } from './map-info-panel/map-info-panel.component';
 import { WorldInfoPanelComponent } from './world-info-panel/world-info-panel.component';
 import { WorldLogPanelComponent } from "./world-log-panel/world-log-panel.component";
-import {Tile} from './model/tile';
+import { TileInfoPanelComponent } from './tile-info-panel/tile-info-panel.component';
+import { Tile } from './model/tile';
+import { WorldViewModel } from './model/world';
 
 @Component({
     selector: 'app-root',
@@ -16,17 +17,19 @@ import {Tile} from './model/tile';
       RouterOutlet, 
       MapCanvasComponent, 
       MapComponent, 
-      MapInfoPanelComponent, 
+      TileInfoPanelComponent,
       WorldInfoPanelComponent, 
       WorldLogPanelComponent,
     ],
 })
 export class AppComponent {
-  @ViewChild('mapInfoPanel') mapInfoPanel!: MapInfoPanelComponent;
+  @ViewChild(TileInfoPanelComponent) tileInfoPanel!: TileInfoPanelComponent;
 
   title = 'world';
 
+  constructor(readonly wvm: WorldViewModel) {}
+
   public clickTile(tile: Tile) {
-    this.mapInfoPanel.showTile(tile);
+    this.wvm.selectedTile = tile;
   }  
 }

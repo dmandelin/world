@@ -1,0 +1,12 @@
+<div class="tabs">
+    <div *ngFor="let tab of tabs; let i = index"
+            (click)="activateTab(i)"
+            [class.active]="i === activeTabIndex"
+            class="tab-header">
+        <img *ngIf="tab.headerIcon" [src]="tab.headerIcon" alt="" class="tab-icon">
+        {{ tab.header }}
+    </div>
+</div>
+<div class="tab-content">
+    <ng-content></ng-content>
+</div>
