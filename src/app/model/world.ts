@@ -210,6 +210,9 @@ export class World {
 
     advanceTurnStart() {
         this.updateLastPopulation();
+        for (const t of this.map.tiles.flat()) {
+            t.market.update();
+        }
         /*
         this.lastAttacks.clear();
         this.log.turnlogClear();

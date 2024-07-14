@@ -44,34 +44,6 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     this.clickTile.emit(target);
   }
 
-  move(event: MouseEvent) {
-    /*
-    const [x, y] = [event.clientX, event.clientY];
-    const [i, j] = [Math.floor(y / this.side), Math.floor(x / this.side)];
-    if (i < 0 || i >= this.world.map.height || j < 0 || j >= this.world.map.height) {
-      this.messages = [];
-      return;
-    }
-    const tile = this.world.map.tiles[i][j]
-    const target = tile.controller;
-    const realTarget = target.suzerain || target;
-    const actor = this.world.actor;
-    this.messages = [`${target.name}, con = ${tile.constructionDisplay}, culture = ${tile.culture}`];
-    this.messages.push(`Influences: ${this.culturalInfluencesDisplay(tile)}`);
-    if (this.world.isLocallyControlled(actor) && actor.canAttack(target)[0]) {
-      const pwar = this.world.setUpAttack(actor, target);
-      this.messages.push(`* Can attack: ${Math.round(pwar.ap)} vs ${Math.round(pwar.dp)}: ${Math.floor(pwar.winp*100)}%`);
-      this.messages.push(`* Attacking coalition: ${pwar.attackingCoalition.polities.map(p => p.name)}`);
-      this.messages.push(`* Defending coalition: ${pwar.defendingCoalition.polities.map(p => p.name)}`);
-      this.messages.push(`* Cultural inflence penalty: ${Math.round(pwar.influenceAttackPenalty*100)}%`);
-    }
-    */
-  }
-
-  leave(event: MouseEvent) {
-    this.messages = [];
-  }
-
   culturalInfluencesDisplay(tile: Tile): string {
     return sorted([...tile.culturalInfluences.entries()], (tc: [Tile, number]) => -tc[1])
       .filter(tc => tc[1] >= 0.05)
@@ -119,21 +91,6 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         this.drawTextCentered(ctx,
           `${tile.population} (${Math.floor(100*tile.population/(tile.capacity || 1))}%)`, 
           x, y + 54, this.side);
-
-        //ctx.font = '10px sans-serif';
-        //ctx.fillText(`${this.cultureTier(tile.culture, maxCulture)}`, 
-        //  x + 4, y + 13);
-        //const topInf = argmax([...tile.culturalInfluences], item => item[1])[0]; 
-        //if (topInf && topInf[0] !== tile) { 
-        //  ctx.fillText(`${topInf[0].controller.name}`, 
-        //    x + 4, y + 24);
-        //}
-
-        //    ctx.font = '10px sans-serif';
-        //ctx.fillText(`${Math.floor(tile.construction / 100)}`, 
-        //    x + 68, y + 13);
-        //ctx.fillText(`${Math.floor(tile.construction / tile.population * 5)}`, 
-        //    x + 68, y + 24);
 
         ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.wetFraction*100)}|${Math.floor(tile.dryLightSoilFraction*100)}`, 
@@ -241,7 +198,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   tileColor(tile: Tile): string {
-    const t = Math.min(tile.population, 5000) / 5000;
+    const t = Math.max(0, Math.min(tile.population, 5000) / 5000);
     const r = Math.floor(140 * (1 - t) + 10 * t);
     const g = Math.floor(100 * (1 - t) + 180 * t);
     const b = Math.floor(30 * (1-t) + 10 * t);

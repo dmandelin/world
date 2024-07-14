@@ -162,7 +162,11 @@ export class Tile {
     }
 
     get capacity() {
-        return capacity(this.consumption);
+        const c = capacity(this.consumption);
+        if (isNaN(c)) {
+            throw new Error(`Invalid capacity ${c}`);
+        }
+        return c;
     }
 
     get marginalCapacity(): PerProduce {
@@ -199,9 +203,14 @@ export class Tile {
 
     updatePopulation() {
         const [p, c] = [this.population, this.capacity];
+        if (p == 0) return;
         const r = p / c;
         const dp = Math.floor(0.4 * r * (1 - r) * p);
         this.population = Math.max(p + dp, Math.floor(0.65 * c));
+        console.log(this.controller.name, this.population);
+        if (isNaN(this.population)) {
+            throw new Error(`Invalid population ${this.population}`);
+        }
     }
 
     get tradePartners(): ReadonlySet<Tile> {

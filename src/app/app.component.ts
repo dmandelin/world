@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MapCanvasComponent } from './map-canvas/map-canvas.component';
-import { MapComponent } from './map/map.component';
 import { WorldInfoPanelComponent } from './world-info-panel/world-info-panel.component';
 import { WorldLogPanelComponent } from "./world-log-panel/world-log-panel.component";
 import { TileInfoPanelComponent } from './tile-info-panel/tile-info-panel.component';
@@ -16,7 +15,6 @@ import { WorldViewModel } from './model/world';
     imports: [
       RouterOutlet, 
       MapCanvasComponent, 
-      MapComponent, 
       TileInfoPanelComponent,
       WorldInfoPanelComponent, 
       WorldLogPanelComponent,

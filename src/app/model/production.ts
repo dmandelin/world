@@ -25,6 +25,18 @@ export class PerProduce {
 
     constructor(m: Map<Product, number> = new Map()) {
         this.m = m;
+        this.check();
+    }
+
+    check() {
+        return;
+        for (const [k, v] of this.m.entries()) {
+            if (v < 0) throw `PerProduce ${k} is ${v}`;
+        }
+    }
+
+    fixNegatives(): PerProduce {
+        return this.map((_, v) => Math.max(0, v));
     }
 
     get(p: Product): number {
@@ -37,6 +49,7 @@ export class PerProduce {
 
     incr(pa: [Product, number]): void {
         this.m.set(pa[0], this.get(pa[0]) + pa[1]);
+        this.check();
     }
 
     map(f: (p: Product, v: number) => number): PerProduce {
@@ -163,9 +176,12 @@ export function production(allocs: readonly Allocation[]): PerTerrainPerProduce 
 // For now, this is a Cobb-Douglas utility function with equal weights.
 // - p is production
 export function capacity(p: PerProduce) {
+    p = p.fixNegatives();
     const pdv = pastoralDietValue(p);
     const adv = agrarianDietValue(p);
-    return Math.max(pdv, adv);
+    const c = Math.max(pdv, adv);
+    if (isNaN(c)) throw `capacity is NaN: ${pdv} ${adv}`;
+    return c;
 }
 
 export function marginalCapacity(p: PerProduce): PerProduce {
