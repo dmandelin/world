@@ -8,14 +8,23 @@ import {randelem, randint} from "./lib";
 // Next steps:
 // - Ideology/Culture
 //   - Agrarians vs pastoralists
-//   - Temples: donations, specialists, construction, morale
-//     bonuses, political/cultural development.
+//   * Invent technologies proportional to intensitivity of activity
+//     * Technologies spread to nearby tiles
+//     * Improves output in various ways
+//   * Temple
+//     * Build using labor allocation
+//     * Temple provides bonuses of some kind to a population limit based on temple size
+//     - Specialist labor and trade required to take full advantage of temple
 // - Economy
 // - Military
-//   - Simple raiding model
+//   * Simple raiding model
+//     * Initial success more based on skill than numbers
+//     * Capture population, produce, and/or trade goods
+//     - Defensive works and patrols
+//       - Specialist labor required to take full advantage
 // - Politics
 //   - Start with collective rank society for farmers, individual
-//     rank society for pastoralists.
+//     rank society for pastoralists, or maybe "big man" societies
 //   - Define some sort of coordination bonuses that impact
 //     each other power source
 
