@@ -1,34 +1,6 @@
 <div *ngIf="tile">
     <div id="main">
-        <div id="leftPanel">
-            <div class="flex">
-                <h2 class="mtz trade-links">Trade Links</h2>
-                <button (click)="updateTradeLinks()">Update</button>
-            </div>
-            <ng-container *ngFor="let l of tile.market.links">
-                <ng-container *ngIf="l.isActive">
-                    <h3>{{l.dst.controller.name}}</h3>
-                    <table class="exchanges">
-                        <tr *ngFor="let e of l.exchanges">
-                            <td><span class="fponly">Send</span></td>
-                            <td class="ra">{{e[0].gross}}</td>
-                            <td>{{e[0].product.name}}
-                            <td><span class="fponly">Receive</span></td>
-                            <td class="ra">{{e[1].net.toFixed(0)}}</td>
-                            <td>{{e[1].product.name}}
-                            </tr>
-                    </table>
-                </ng-container>
-            </ng-container>
-            
-
-            <h2 class="mtz">Terrain</h2>
-            <table>
-                <tr><td>Alluvium:</td><td class="ra">{{percent(tile.wetFraction)}}</td></tr>
-                <tr><td>Dry light soil:</td><td class="ra">{{percent(tile.dryLightSoilFraction)}}</td></tr>
-                <tr><td>Desert:</td><td class="ra">{{percent(tile.desertFraction)}}</td></tr>
-            </table>
-
+        <div>
             <div class="flex">
                 <h2 class="mtz">Allocations</h2>
                 <button (click)="optimize()">Opt</button>
@@ -59,46 +31,73 @@
                 </tr>
             </table>
         </div>
+    
+        <div id="submain">
+            <div id="leftPanel">
+                <div class="flex">
+                    <h2 class="mtz trade-links">Trade Links</h2>
+                    <button (click)="updateTradeLinks()">Update</button>
+                </div>
+                <ng-container *ngFor="let l of tile.market.links">
+                    <ng-container *ngIf="l.isActive">
+                        <h3>{{l.dst.controller.name}}</h3>
+                        <table class="exchanges">
+                            <tr *ngFor="let e of l.exchanges">
+                                <td><span class="fponly">Send</span></td>
+                                <td class="ra">{{e[0].gross}}</td>
+                                <td>{{e[0].product.name}}
+                                <td><span class="fponly">Receive</span></td>
+                                <td class="ra">{{e[1].net.toFixed(0)}}</td>
+                                <td>{{e[1].product.name}}
+                                </tr>
+                        </table>
+                    </ng-container>
+                </ng-container>
+            </div>
 
-        <div id="rightPanel">
-            <h2 class="mtz">Consumption</h2>
-            <table>
-                <tr>
-                    <th>Product</th>
-                    <th>Amount</th>
-                </tr>
-                <tr *ngFor="let e of tile.consumption.entries()">
-                    <td>{{e[0].name}}</td>
-                    <td class="ra">{{floor(e[1])}}</td>
-                </tr>
-            </table>
 
-            <h2>Utility</h2>
-            <table>
-                <tr>
-                    <td>Total Produce</td>
-                    <td class="ra">{{floor(totalProduction)}}</td>
-                </tr>
-                <tr>
-                    <td>Nutritional Quality</td>
-                    <td class="ra">x {{round(nutritionalQuality, 2)}}</td>
-                </tr>
-                <tr>
-                    <td>Population Capacity</td>
-                    <td class="ra">= {{floor(capacity)}}</td>
-                </tr>
-                <tr>
-                    <td>Nutrition</td>
-                    <td class="ra">{{round((capacity || 0) / (population || 1), 2)}}</td>
-                </tr>
-            </table>
-            <h3>Marginal Capacity</h3>
-            <table>
-                <tr *ngFor="let e of marginalCapacity.entries()">
-                    <td>{{e[0].name}}</td>
-                    <td class="ra">{{round(e[1], 2)}}</td>
-                </tr>
-            </table>
+            <div id="midPanel">
+                <h2 class="mtz">Consumption</h2>
+                <table>
+                    <tr>
+                        <th>Product</th>
+                        <th>Amount</th>
+                    </tr>
+                    <tr *ngFor="let e of tile.consumption.entries()">
+                        <td>{{e[0].name}}</td>
+                        <td class="ra">{{floor(e[1])}}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="rightPanel">
+                <h2>Utility</h2>
+                <table>
+                    <tr>
+                        <td>Total Produce</td>
+                        <td class="ra">{{floor(totalProduction)}}</td>
+                    </tr>
+                    <tr>
+                        <td>Nutritional Quality</td>
+                        <td class="ra">x {{round(nutritionalQuality, 2)}}</td>
+                    </tr>
+                    <tr>
+                        <td>Population Capacity</td>
+                        <td class="ra">= {{floor(capacity)}}</td>
+                    </tr>
+                    <tr>
+                        <td>Nutrition</td>
+                        <td class="ra">{{round((capacity || 0) / (population || 1), 2)}}</td>
+                    </tr>
+                </table>
+                <h3>Marginal Capacity</h3>
+                <table>
+                    <tr *ngFor="let e of marginalCapacity.entries()">
+                        <td>{{e[0].name}}</td>
+                        <td class="ra">{{round(e[1], 2)}}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
 </div>
