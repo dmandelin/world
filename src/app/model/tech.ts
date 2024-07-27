@@ -79,9 +79,21 @@ export class TechKit {
         return a;
     }
 
+    adopt(tech: ProductionTech) {
+        this.map.set(tech.product, tech);
+    }
+
     get(product: Product): ProductionTech {
         const t = this.map.get(product);
         if (!t) throw `No tech for ${product.name}`;
         return t;
+    }
+
+    get techs(): ProductionTech[] {
+        return [...this.map.values()];
+    }
+
+    get asMap(): Map<Product, ProductionTech> {
+        return new Map(this.map);
     }
 }

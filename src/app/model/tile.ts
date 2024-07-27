@@ -6,7 +6,7 @@ import {Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert} from './produc
 import {Barley, Lentils, Dairy} from './production';
 import {Market, TradeLink} from './trade';
 import {Settlement, SettlementTier} from './settlements';
-import {TechKit} from './tech';
+import {ProductionTech, TechKit} from './tech';
 import {randint} from './lib';
 
 export class Tile {
@@ -52,6 +52,18 @@ export class Tile {
         this.market.update()
     }
 
+    adoptNeighborTechs(snapshot: Map<Tile, Map<Product, ProductionTech>>): void {
+        for (const n of this.neighbors) {
+            for (const st of this.techKit.techs) {
+                const nt = snapshot.get(n)!.get(st.product)!;
+                if (st.next.has(nt) && this.production.Total.get(st.product) > 0) {
+                    this.techKit.adopt(nt);
+                    this.world.log.turnlog(`${this.controller.name} adopts ${nt.name} from ${n.controller.name}`);
+                }
+            }
+        }
+    }
+
     advanceTechKit(): void {
         const newTechs = this.techKit.advance(this.population, this.allocs);
         if (newTechs.length) {
@@ -62,6 +74,18 @@ export class Tile {
 
     updateTechs(): void {
         this.allocs_ = this.allocs.map(a => a.updateTech(this.techKit.get(a.product)));
+    }
+
+    get neighbors(): Tile[] {
+        const ns = [];
+        for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const [ni, nj] = [this.i+di, this.j+dj];
+            if (ni < 0 || nj < 0 || ni >= this.world.map.height || nj >= this.world.map.width) {
+                continue;
+            }
+            ns.push(this.world.map.tiles[ni][nj]);
+        }
+        return ns;
     }
 
     settlements(): Settlement[] {

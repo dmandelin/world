@@ -274,9 +274,9 @@ export class World {
     }
 
     advanceTurnFinish() {
-        for (const tile of this.map.tiles.flat()) {
-            tile.advanceTechKit();
-        }
+        const snapshot = new Map(this.map.tiles.flat().map(t => [t, t.techKit.asMap]));
+        this.forTiles(t => t.adoptNeighborTechs(snapshot));
+        this.forTiles(t => t.advanceTechKit());
         this.map.updatePopulations();
 
         this.year_ += 20;
@@ -456,6 +456,12 @@ export class World {
             if (b.name < a.name) return 1;
             return 0;
         })
+    }
+
+    forTiles(f: (t: Tile) => any) {
+        for (const t of this.map.tiles.flat()) {
+            f(t);
+        }
     }
 }
 
