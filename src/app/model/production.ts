@@ -1,4 +1,5 @@
 import { Tile } from './tile';
+import { ProductionTech } from './tech';
 
 export class Product {
     constructor(
@@ -100,6 +101,7 @@ export class Allocation {
     constructor(
         readonly tile: Tile,
         readonly product: Product,
+        readonly tech: ProductionTech,
         readonly terrain: Terrain,
         readonly landFraction: number,
         readonly laborFraction: number) {}
@@ -112,7 +114,7 @@ export class Allocation {
     }
 
     laborFractionIncr(incr: number): Allocation {
-        return new Allocation(this.tile, this.product, this.terrain, this.landFraction, this.laborFraction + incr);
+        return new Allocation(this.tile, this.product, this.tech, this.terrain, this.landFraction, this.laborFraction + incr);
     }
 
     // CES production function.

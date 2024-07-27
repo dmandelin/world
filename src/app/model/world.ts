@@ -275,6 +275,10 @@ export class World {
 
     advanceTurnFinish() {
         //this.updateTradeLinks();
+        for (const tile of this.map.tiles.flat()) {
+            console.log(tile);
+            tile.advanceTechKit();
+        }
         this.map.updatePopulations();
 
         this.year_ += 20;

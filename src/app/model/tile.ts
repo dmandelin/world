@@ -6,6 +6,7 @@ import {Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert} from './produc
 import {Barley, Lentils, Dairy} from './production';
 import {Market, TradeLink} from './trade';
 import {Settlement, SettlementTier} from './settlements';
+import {TechKit} from './tech';
 import {randint} from './lib';
 
 export class Tile {
@@ -14,6 +15,7 @@ export class Tile {
 
     private population_: number;
     private construction_: number;
+    readonly techKit: TechKit = new TechKit();
 
     private allocs_: Allocation[] = [];
     readonly market: Market = new Market(this);
@@ -48,6 +50,11 @@ export class Tile {
 
     updateMarket(): void {
         this.market.update()
+    }
+
+    advanceTechKit(): void {
+        console.log('atk');
+        this.techKit.advance(this.population, this.allocs);
     }
 
     settlements(): Settlement[] {
@@ -94,18 +101,18 @@ export class Tile {
 
     ratioizeLabor() {
         this.allocs_ = [
-            new Allocation(this, Barley, Alluvium, 1, this.wetFraction),
-            new Allocation(this, Lentils, DryLightSoil, 1, this.dryLightSoilFraction),
-            new Allocation(this, Dairy, Desert, 1, this.desertFraction),
+            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, this.wetFraction),
+            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, this.dryLightSoilFraction),
+            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, this.desertFraction),
         ];
         this.world.notifyWatchers();
     }
 
     equalizeLabor() {
         this.allocs_ = [
-            new Allocation(this, Barley, Alluvium, 1, 0.34),
-            new Allocation(this, Lentils, DryLightSoil, 1, 0.33),
-            new Allocation(this, Dairy, Desert, 1, 0.33),
+            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.34),
+            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.33),
+            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.33),
         ];
         this.world.notifyWatchers();
     }
@@ -207,7 +214,6 @@ export class Tile {
         const r = p / c;
         const dp = Math.floor(0.4 * r * (1 - r) * p);
         this.population = Math.max(p + dp, Math.floor(0.65 * c));
-        console.log(this.controller.name, this.population);
         if (isNaN(this.population)) {
             throw new Error(`Invalid population ${this.population}`);
         }
