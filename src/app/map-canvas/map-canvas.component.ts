@@ -73,10 +73,10 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
 
         ctx.fillStyle = '#eee';
 
-        const p = tile.production.Total;
+        const tk = tile.techKit;
         ctx.font = '10px sans-serif';
         this.drawTextCentered(ctx,
-          `${Math.floor(p.get(Barley))} | ${Math.floor(p.get(Lentils))} | ${Math.floor(p.get(Dairy))}`, 
+          `${tk.get(Barley).s} • ${tk.get(Lentils).s} • ${tk.get(Dairy).s}`, 
           x, y + 12, this.side);
 
           // Draw controller name

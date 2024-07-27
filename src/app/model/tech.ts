@@ -25,6 +25,10 @@ export class ProductionTech extends Tech {
     get hasNext(): boolean {
         return this.next.size > 0;
     }
+
+    get s(): string {
+        return this.name.endsWith('II') ? '2' : '1';
+    }
 }
 
 class TechsSingleton {
