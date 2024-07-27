@@ -44,6 +44,10 @@ export class PerProduce {
         return this.m.get(p) || 0;
     }
 
+    get total(): number {
+        return [...this.m.values()].reduce((a, b) => a + b, 0);
+    }
+
     max(): [Product, number] {
         return [...this.m.entries()].reduce((a, b) => a[1] > b[1] ? a : b);
     }
