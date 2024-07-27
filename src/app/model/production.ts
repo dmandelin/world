@@ -117,6 +117,14 @@ export class Allocation {
         return new Allocation(this.tile, this.product, this.tech, this.terrain, this.landFraction, this.laborFraction + incr);
     }
 
+    updateTech(tech: ProductionTech): Allocation {
+        return tech === this.tech 
+            ? this 
+            : new Allocation(
+                this.tile, this.product, tech, 
+                this.terrain, this.landFraction, this.laborFraction);
+    }
+
     // CES production function.
     // - land is fractions of a tile.
     // - labor is total population of farming families working the best portions of that land.

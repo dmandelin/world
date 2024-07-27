@@ -217,13 +217,13 @@ export class World {
     }
 
     advanceTurnStart() {
+        this.log.turnlogClear();
         this.updateLastPopulation();
         for (const t of this.map.tiles.flat()) {
             t.market.update();
         }
         /*
         this.lastAttacks.clear();
-        this.log.turnlogClear();
 
         if (this.year == 200) {
             this.log.turnlog('Large-scale irrigation works begun!');
@@ -274,15 +274,16 @@ export class World {
     }
 
     advanceTurnFinish() {
-        //this.updateTradeLinks();
         for (const tile of this.map.tiles.flat()) {
-            console.log(tile);
             tile.advanceTechKit();
         }
         this.map.updatePopulations();
 
         this.year_ += 20;
         this.recordRanks();
+
+        this.log.turnlog(`The year is now ${this.year}`);
+        this.notifyWatchers();
     }
 
     notifyWatchers() {

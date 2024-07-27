@@ -53,8 +53,15 @@ export class Tile {
     }
 
     advanceTechKit(): void {
-        console.log('atk');
-        this.techKit.advance(this.population, this.allocs);
+        const newTechs = this.techKit.advance(this.population, this.allocs);
+        if (newTechs.length) {
+            this.updateTechs();
+            this.world.log.turnlog(`${this.controller.name} advances techs: ${newTechs.map(t => t.name).join(', ')}`);
+        }
+    }
+
+    updateTechs(): void {
+        this.allocs_ = this.allocs.map(a => a.updateTech(this.techKit.get(a.product)));
     }
 
     settlements(): Settlement[] {
