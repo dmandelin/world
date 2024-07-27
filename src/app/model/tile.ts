@@ -8,6 +8,7 @@ import {Market, TradeLink} from './trade';
 import {Settlement, SettlementTier} from './settlements';
 import {ProductionTech, TechKit} from './tech';
 import {randint} from './lib';
+import { TimeSeries } from '../data/timeseries';
 
 export class Tile {
     private controller_: Polity;
@@ -19,6 +20,8 @@ export class Tile {
 
     private allocs_: Allocation[] = [];
     readonly market: Market = new Market(this);
+
+    readonly productionSeries = new TimeSeries<PerProduce>();
 
     // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
     // population of 50K+. That means each tile is apparently 50 square miles.
@@ -47,6 +50,10 @@ export class Tile {
     }
 
     get name() { return this.controller.name; }
+
+    updateTimeSeries() {
+        this.productionSeries.add(this.world.year, this.production.Total);
+    }
 
     updateMarket(): void {
         this.market.update()

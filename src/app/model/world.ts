@@ -274,10 +274,16 @@ export class World {
     }
 
     advanceTurnFinish() {
+        // Technology invention and adoption.
         const snapshot = new Map(this.map.tiles.flat().map(t => [t, t.techKit.asMap]));
         this.forTiles(t => t.adoptNeighborTechs(snapshot));
         this.forTiles(t => t.advanceTechKit());
+
+        // Population.
         this.map.updatePopulations();
+
+        // Time series recording.
+        this.forTiles(t => t.updateTimeSeries());
 
         this.year_ += 20;
         this.recordRanks();
