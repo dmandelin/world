@@ -79,26 +79,27 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
           `${tk.get(Barley).s} • ${tk.get(Lentils).s} • ${tk.get(Dairy).s}`, 
           x, y + 12, this.side);
 
-          // Draw controller name
+        // Draw controller name
         ctx.font = tile.controller.vassals.size ? '20px sans-serif' : '10px sans-serif';
-        this.drawTextCentered(ctx, `${tile.controller.name}`, x, y + 28, this.side);
+        this.drawTextCentered(ctx, `${tile.controller.name}`, x, y + 23, this.side);
 
-        const ch = tile.controller.vassals.size ? '⍟' : '•';
-        ctx.font = '14px sans-serif';
-        this.drawTextCentered(ctx, ch, x, y + 40, this.side);
+        this.drawCapital(ctx, tile.population, x + this.side / 2, y + this.side / 2);
 
-        ctx.font = '10px sans-serif';
-        this.drawTextCentered(ctx,
-          `${tile.population} (${Math.floor(100*tile.population/(tile.capacity || 1))}%)`, 
-          x, y + 54, this.side);
-
+        // Terrain
         ctx.font = '10px sans-serif';
         ctx.fillText(`${Math.floor(tile.wetFraction*100)}|${Math.floor(tile.dryLightSoilFraction*100)}`, 
           x + 3, y + 74);
 
+        // Population change
         ctx.font = '10px sans-serif';
         this.drawTextRightAligned(ctx, `${Math.floor(this.world.populationChange(tile) * 100)}`, 
-          x, y + 74, this.side - 3);
+          x, y + 62, this.side - 4);
+
+        // Population
+        ctx.font = '10px sans-serif';
+        this.drawTextRightAligned(ctx,
+          `${tile.population}`, 
+          x, y + 74, this.side - 4);
 
         x += this.side;
       }
@@ -214,6 +215,14 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     const l = Math.ceil(Math.log2(maxCulture) - Math.log2(culture));
     const tiers = ['*', 'S', 'A', 'B', 'C', 'D', 'E', 'F'];
     return l < tiers.length ? tiers[l] : tiers[tiers.length-1];
+  }
+
+  private drawCapital(ctx: CanvasRenderingContext2D, population: number, x: number, y: number) {
+    const s = Math.sqrt(population / 10000) * this.side * 0.08;
+    ctx.fillStyle = '#eee';
+    ctx.fillRect(x - s / 2, y - s / 2, s, s);
+    ctx.strokeStyle = '#ccc';
+    ctx.strokeRect(x - s / 2, y - s / 2, s, s);
   }
 
   private drawTextCentered(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number) {
