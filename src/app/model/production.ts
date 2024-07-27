@@ -108,8 +108,9 @@ export class Allocation {
 
     production(): number {
         const landUnits = this.landFraction * this.tile.areaFraction(this.terrain) * 
-            (this.terrain.landUnitsPerTile.get(this.product) || 0);
-        const laborUnits = this.laborFraction * this.tile.population;
+            (this.terrain.landUnitsPerTile.get(this.product) || 0) *
+            this.tech.inputBoost;
+        const laborUnits = this.laborFraction * this.tile.population * this.tech.inputBoost;
         return this.ces_production(landUnits, laborUnits);
     }
 

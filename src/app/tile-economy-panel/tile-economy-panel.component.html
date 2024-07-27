@@ -39,6 +39,7 @@
             <table>
                 <tr>
                     <th class="la">Tech</th>
+                    <th>Boost</th>
                     <th class="la">Terrain</th>
                     <th>A</th>
                     <th>Ppl</th>
@@ -48,6 +49,7 @@
                 </tr>
                 <tr *ngFor="let a of allocs">
                     <td>{{a.tech.name}}</td>
+                    <td class="ra">{{a.tech.inputBoost}}</td>
                     <td>{{a.terrain.name}}</td>
                     <td class="ra">{{floor(a.landFraction * tile.areaFraction(a.terrain) * 100)}}%</td>
                     <td class="ra">{{floor(a.laborFraction * a.tile.population)}}</td>
