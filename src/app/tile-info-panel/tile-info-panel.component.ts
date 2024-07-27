@@ -5,12 +5,14 @@ import { TileEconomyPanelComponent } from '../tile-economy-panel/tile-economy-pa
 import { NgIf } from '@angular/common';
 import { WorldViewModel } from '../model/world';
 import { TileSummaryPanelComponent } from '../tile-summary-panel/tile-summary-panel.component';
+import { EconomyGraphsComponent } from '../economy-graphs/economy-graphs.component';
 
 @Component({
   selector: 'app-tile-info-panel',
   standalone: true,
   imports: [
     NgIf,
+    EconomyGraphsComponent,
     TabPanelComponent,
     TabPanelItemComponent,
     TileEconomyPanelComponent,
