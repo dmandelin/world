@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { BaseChartDirective } from 'ng2-charts';
 import { WorldViewModel } from '../model/world';
+import { Barley, Lentils, Dairy, PerProduce } from '../model/production';
 
 @Component({
   selector: 'app-economy-graphs',
@@ -17,19 +18,26 @@ export class EconomyGraphsComponent {
     return {
       labels: this.wvm.selectedTile?.productionSeries.years ?? [],
       datasets: [
-        {
-          data: this.wvm.selectedTile?.productionSeries.values.map(pp => pp.total) ?? [],
-          label: 'Total Production',
-          fill: true,
-          tension: 0.5,
-          borderColor: 'black',
-          backgroundColor: 'rgba(255,0,0,0.3)'
-        }
+        this.productionDataset('Barley', 'brown', pp => pp.get(Barley)),
+        this.productionDataset('Lentils', 'olive', pp => pp.get(Lentils)),
+        this.productionDataset('Dairy', 'blue', pp => pp.get(Dairy)),
+        this.productionDataset('Total', 'black', pp => pp.total),
       ]
     };
   }
+
+  private productionDataset(label: string, color: string, fun: (pp: PerProduce) => number) {
+    return {
+      data: this.wvm.selectedTile?.productionSeries.values.map(fun) ?? [],
+      label: label,
+      tension: 0.5,
+      borderColor: color,
+    };
+  }
+
   public lineChartOptions: ChartOptions<'line'> = {
     responsive: false
   };
+
   public lineChartLegend = true;
 }
