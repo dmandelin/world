@@ -22,6 +22,8 @@ export class Tile {
     readonly market: Market = new Market(this);
 
     readonly productionSeries = new TimeSeries<PerProduce>();
+    readonly capacitySeries = new TimeSeries<number>();
+    readonly populationSeries = new TimeSeries<number>();
 
     // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
     // population of 50K+. That means each tile is apparently 50 square miles.
@@ -53,6 +55,8 @@ export class Tile {
 
     updateTimeSeries() {
         this.productionSeries.add(this.world.year, this.production.Total);
+        this.capacitySeries.add(this.world.year, this.capacity);
+        this.populationSeries.add(this.world.year, this.population);
     }
 
     updateMarket(): void {
