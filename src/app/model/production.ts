@@ -3,7 +3,7 @@ import { ProductionTech } from './tech';
 
 export class Product {
     constructor(
-        readonly name: 'Barley'|'Lentils'|'Dairy',
+        readonly name: 'Barley'|'Lentils'|'Dairy'|'Temple',
     ) {}
 
     static fromName(name: string): Product {
@@ -11,6 +11,7 @@ export class Product {
             case 'Barley': return Barley;
             case 'Lentils': return Lentils;
             case 'Dairy': return Dairy;
+            case 'Temple': return TempleConstruction;
             default: throw `Unknown product ${name}`;
         }
     }
@@ -19,7 +20,8 @@ export class Product {
 export const Barley = new Product('Barley');
 export const Lentils = new Product('Lentils');
 export const Dairy = new Product('Dairy');
-export const Products = [Barley, Lentils, Dairy];
+export const TempleConstruction = new Product('Temple');
+export const Products = [Barley, Lentils, Dairy, TempleConstruction];
 
 export class PerProduce {
     private m: Map<Product, number>;
@@ -78,7 +80,7 @@ export class PerProduce {
 
 export class Terrain {
     constructor(
-        readonly name: 'Alluvium'|'DryLightSoil'|'Desert',
+        readonly name: 'Alluvium'|'DryLightSoil'|'Desert'|'Building',
         readonly landUnitsPerTile: PerProduce,
     ) {}
 }
@@ -98,6 +100,9 @@ export const Desert = new Terrain('Desert', PerProduce.of([
     ['Lentils', 0],
     ['Dairy', 2500],
 ]));
+export const BuildingPlot = new Terrain('Building', PerProduce.of([
+    ['Temple', 1],
+]));
 
 export const AllTerrainTypes = [Alluvium, DryLightSoil, Desert];
 
@@ -115,7 +120,10 @@ export class Allocation {
             (this.terrain.landUnitsPerTile.get(this.product) || 0) *
             this.tech.inputBoost;
         const laborUnits = this.laborFraction * this.tile.population * this.tech.inputBoost;
-        return this.ces_production(landUnits, laborUnits);
+
+        return this.terrain === BuildingPlot
+            ? this.laborOnlyProduction(laborUnits)
+            : this.ces_production(landUnits, laborUnits);
     }
 
     laborFractionIncr(incr: number): Allocation {
@@ -140,6 +148,12 @@ export class Allocation {
         const landUnits = land / unitLand;
         const laborUnits = labor / unitLabor;
         return 1 / (0.6 / laborUnits + 0.4 / landUnits);
+    }
+
+    private laborOnlyProduction(labor: number, unitLabor: number = 1) {
+        // TODO - Have diminishing returns according to the size of the output.
+        const laborUnits = labor / unitLabor;
+        return laborUnits;
     }
 }
 
@@ -168,6 +182,7 @@ export type PerTerrainPerProduce = {
     Alluvium: PerProduce;
     DryLightSoil: PerProduce;
     Desert: PerProduce;
+    Building: PerProduce;
     Total: PerProduce;
 }
 
@@ -176,6 +191,7 @@ export function production(allocs: readonly Allocation[]): PerTerrainPerProduce 
         Alluvium: new PerProduce(),
         DryLightSoil: new PerProduce(),
         Desert: new PerProduce(),
+        Building: new PerProduce(),
         Total: new PerProduce(),
     };
 

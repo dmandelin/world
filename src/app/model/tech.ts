@@ -1,4 +1,4 @@
-import { Allocation, Barley, Dairy, Lentils, Product } from './production';
+import { Allocation, Barley, Dairy, Lentils, Product, TempleConstruction } from './production';
 
 export class Tech {
     constructor(readonly name: string) {}
@@ -35,11 +35,13 @@ class TechsSingleton {
     readonly basicBarleyFarming = new ProductionTech('Barley I', Barley, 1.0);
     readonly basicLentilFarming = new ProductionTech('Lentils I', Lentils, 1.0);
     readonly basicPastoralism = new ProductionTech('Pastoralism I', Dairy, 1.0);
+    readonly basicTempleConstruction = new ProductionTech('Building I', TempleConstruction, 1.0);
 
     readonly initialTechs: [Product, ProductionTech][] = [
         [Barley, this.basicBarleyFarming],
         [Lentils, this.basicLentilFarming],
         [Dairy, this.basicPastoralism],
+        [TempleConstruction, this.basicTempleConstruction],
     ];
 
     private readonly techs: ProductionTech[] = [];

@@ -1,6 +1,6 @@
 import {World} from './world';
 import {Polity} from './polity';
-import {Allocation, Product} from './production';
+import {Allocation, BuildingPlot, Product, TempleConstruction} from './production';
 import {PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated} from './production';
 import {Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert} from './production';
 import {Barley, Lentils, Dairy} from './production';
@@ -113,6 +113,7 @@ export class Tile {
             case Alluvium: return this.wetFraction;
             case DryLightSoil: return this.dryLightSoilFraction;
             case Desert: return this.desertFraction;
+            case BuildingPlot: return 0;
             default: throw new Error(`Invalid terrain ${terrain}`);
         }
     }
@@ -144,18 +145,20 @@ export class Tile {
 
     ratioizeLabor() {
         this.allocs_ = [
-            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, this.wetFraction),
-            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, this.dryLightSoilFraction),
-            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, this.desertFraction),
+            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.99 * this.wetFraction),
+            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.99 * this.dryLightSoilFraction),
+            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.99 * this.desertFraction),
+            new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
         ];
         this.world.notifyWatchers();
     }
 
     equalizeLabor() {
         this.allocs_ = [
-            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.34),
+            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.33),
             new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.33),
             new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.33),
+            new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
         ];
         this.world.notifyWatchers();
     }
@@ -166,6 +169,7 @@ export class Tile {
         for (const terrainFrom of AllTerrainTypes) {
             for (const terrainTo of AllTerrainTypes) {
                 if (terrainFrom === terrainTo) continue;
+                if (terrainFrom === BuildingPlot || terrainTo === BuildingPlot) continue;
                 const allocs = reallocated(this.allocs_, terrainFrom, terrainTo, 0.01);
                 if (allocs === undefined) continue;
                 const p = production(allocs);
