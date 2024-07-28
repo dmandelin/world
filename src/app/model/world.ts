@@ -219,9 +219,9 @@ export class World {
     advanceTurnStart() {
         this.log.turnlogClear();
         this.updateLastPopulation();
-        for (const t of this.map.tiles.flat()) {
-            t.market.update();
-        }
+
+        this.forTiles(t => t.optimizeLabor());
+        this.forTiles(t => t.market.update());
         /*
         this.lastAttacks.clear();
 
