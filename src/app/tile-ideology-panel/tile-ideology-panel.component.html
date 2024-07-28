@@ -1,0 +1,9 @@
+<h3>Traditional society: ways of the ancestors</h3>
+
+<p>Ritual site: {{tile?.temple?.name}}</p>
+<p>Accomodates {{tile?.temple?.capacity}} people</p>
+
+<ng-container *ngIf="tile?.temple?.construction">
+    <h4>Under Construction</h4>
+    <p>{{tile?.temple?.nextLevel?.name}}: {{tile?.temple?.construction?.toFixed(0)}}/{{tile?.temple?.nextLevel?.cost}}</p>
+</ng-container>

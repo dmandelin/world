@@ -6,6 +6,7 @@ import { NgIf } from '@angular/common';
 import { WorldViewModel } from '../model/world';
 import { TileSummaryPanelComponent } from '../tile-summary-panel/tile-summary-panel.component';
 import { EconomyGraphsComponent } from '../economy-graphs/economy-graphs.component';
+import { TileIdeologyPanelComponent } from '../tile-ideology-panel/tile-ideology-panel.component';
 
 @Component({
   selector: 'app-tile-info-panel',
@@ -16,7 +17,8 @@ import { EconomyGraphsComponent } from '../economy-graphs/economy-graphs.compone
     TabPanelComponent,
     TabPanelItemComponent,
     TileEconomyPanelComponent,
-    TileSummaryPanelComponent
+    TileIdeologyPanelComponent,
+    TileSummaryPanelComponent,
   ],
   templateUrl: './tile-info-panel.component.html',
   styleUrl: './tile-info-panel.component.scss'

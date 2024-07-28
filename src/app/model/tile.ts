@@ -9,6 +9,7 @@ import {Settlement, SettlementTier} from './settlements';
 import {ProductionTech, TechKit} from './tech';
 import {randint} from './lib';
 import { TimeSeries } from '../data/timeseries';
+import { Temple } from './temple';
 
 export class Tile {
     private controller_: Polity;
@@ -16,6 +17,9 @@ export class Tile {
 
     private population_: number;
     private construction_: number;
+
+    readonly temple: Temple = new Temple();
+
     readonly techKit: TechKit = new TechKit();
 
     private allocs_: Allocation[] = [];
@@ -57,6 +61,15 @@ export class Tile {
         this.productionSeries.add(this.world.year, this.production.Total);
         this.capacitySeries.add(this.world.year, this.capacity);
         this.populationSeries.add(this.world.year, this.population);
+    }
+
+    applyConstruction(): void {
+        const construction = this.production.Building.get(TempleConstruction);
+        if (construction > 0) {
+            if (this.temple.applyConstruction(construction)) {
+                this.world.log.turnlog(`${this.controller.name} builds ${this.temple.name}`);
+            }
+        }
     }
 
     updateMarket(): void {

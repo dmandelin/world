@@ -274,6 +274,9 @@ export class World {
     }
 
     advanceTurnFinish() {
+        // Construction.
+        this.forTiles(t => t.applyConstruction());
+
         // Technology invention and adoption.
         const snapshot = new Map(this.map.tiles.flat().map(t => [t, t.techKit.asMap]));
         this.forTiles(t => t.adoptNeighborTechs(snapshot));
@@ -471,7 +474,7 @@ export class World {
     }
 }
 
-class WorldLog {
+export class WorldLog {
     readonly turnlogs: string[] = [];
 
     turnlog(s: string) {
