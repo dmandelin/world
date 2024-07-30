@@ -1,23 +1,23 @@
-import {World} from './world';
-import {Polity} from './polity';
-import {Allocation, BuildingPlot, Product, TempleConstruction} from './production';
-import {PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated} from './production';
-import {Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert} from './production';
-import {Barley, Lentils, Dairy} from './production';
-import {Market, TradeLink} from './trade';
-import {Settlement, SettlementTier} from './settlements';
-import {ProductionTech, TechKit} from './tech';
-import {randelem, randint} from './lib';
+import { World } from './world';
+import { Polity } from './polity';
+import { Allocation, BuildingPlot, Product, TempleConstruction } from './production';
+import { PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated } from './production';
+import { Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert } from './production';
+import { Barley, Lentils, Dairy } from './production';
+import { Market, TradeLink } from './trade';
+import { Settlement, SettlementTier } from './settlements';
+import { ProductionTech, TechKit } from './tech';
+import { randelem, randint } from './lib';
 import { TimeSeries } from '../data/timeseries';
-import { ReligiousTraits, Temple } from './religion';
+import { HolySite, ReligiousSite, ReligiousTraits, Temple } from './religion';
 
 export class Tile {
     private controller_: Polity;
-    private tradePartners_= new Set<Tile>();
+    private tradePartners_ = new Set<Tile>();
 
     private population_: number;
 
-    readonly temple: Temple;
+    readonly religiousSite: ReligiousSite;
 
     readonly techKit: TechKit = new TechKit();
 
@@ -33,14 +33,14 @@ export class Tile {
 
     constructor(
         public readonly world: World,
-        public readonly i: number, 
-        public readonly j: number, 
+        public readonly i: number,
+        public readonly j: number,
         controller: Polity,
         public readonly isRiver: boolean,
         public readonly wetFraction: number,
         public readonly dryLightSoilFraction: number,
         capacityRatio: number,
-        ) {
+    ) {
         this.controller_ = controller;
         //this.population_ = this.isRiver ? randint(1000, 3000) : randint(80, 250);
         // Put a wide range of populations on the map so we can see how that
@@ -49,12 +49,16 @@ export class Tile {
         const basePopulation = this.isRiver ? randint(1000, 3000) : randint(80, 250);
         this.population_ = Math.floor(basePopulation * popFactor);
 
-        const possibleReligiousTraits = [
+        const religiousTrait = randelem([
             ReligiousTraits.Fertility,
             ReligiousTraits.Trading,
             isRiver ? ReligiousTraits.Agrarian : ReligiousTraits.Pastoral,
-        ]
-        this.temple = new Temple([randelem(possibleReligiousTraits)]);
+        ]);
+        if (isRiver) {
+            this.religiousSite = new Temple([religiousTrait]);
+        } else {
+            this.religiousSite = new HolySite([religiousTrait]);
+        }
 
         this.ratioizeLabor();
         this.optimizeLabor();
@@ -70,9 +74,9 @@ export class Tile {
 
     applyConstruction(): void {
         const construction = this.production.Building.get(TempleConstruction);
-        if (construction > 0) {
-            if (this.temple.applyConstruction(construction)) {
-                this.world.log.turnlog(`${this.controller.name} builds ${this.temple.name}`);
+        if (construction > 0 && this.religiousSite instanceof Temple) {
+            if (this.religiousSite.applyConstruction(construction)) {
+                this.world.log.turnlog(`${this.controller.name} builds ${this.religiousSite.name}`);
             }
         }
     }
@@ -109,7 +113,7 @@ export class Tile {
     get neighbors(): Tile[] {
         const ns = [];
         for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-            const [ni, nj] = [this.i+di, this.j+dj];
+            const [ni, nj] = [this.i + di, this.j + dj];
             if (ni < 0 || nj < 0 || ni >= this.world.map.height || nj >= this.world.map.width) {
                 continue;
             }
@@ -162,22 +166,38 @@ export class Tile {
     }
 
     ratioizeLabor() {
-        this.allocs_ = [
-            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.99 * this.wetFraction),
-            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.99 * this.dryLightSoilFraction),
-            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.99 * this.desertFraction),
-            new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
-        ];
+        if (this.religiousSite instanceof Temple) {
+            this.allocs_ = [
+                new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.99 * this.wetFraction),
+                new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.99 * this.dryLightSoilFraction),
+                new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.99 * this.desertFraction),
+                new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
+            ];
+        } else {
+            this.allocs_ = [
+                new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, this.wetFraction),
+                new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, this.dryLightSoilFraction),
+                new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, this.desertFraction),
+            ];
+        }
         this.world.notifyWatchers();
     }
 
     equalizeLabor() {
-        this.allocs_ = [
-            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.33),
-            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.33),
-            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.33),
-            new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
-        ];
+        if (this.religiousSite instanceof Temple) {
+            this.allocs_ = [
+                new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.33),
+                new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.33),
+                new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.33),
+                new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
+            ];
+        } else {
+            this.allocs_ = [
+                new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.34),
+                new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.33),
+                new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.33),
+            ];
+        }
         this.world.notifyWatchers();
     }
 
@@ -216,7 +236,7 @@ export class Tile {
         }
         this.world.notifyWatchers();
     }
-    
+
 
     get production(): PerTerrainPerProduce {
         return production(this.allocs_);

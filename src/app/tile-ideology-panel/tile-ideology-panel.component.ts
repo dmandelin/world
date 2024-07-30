@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { TilePanelBase } from '../util/tile-panel-base';
 import { NgIf } from '@angular/common';
+import { Temple } from '../model/religion';
 
 @Component({
   selector: 'app-tile-ideology-panel',
@@ -10,10 +11,14 @@ import { NgIf } from '@angular/common';
   styleUrl: './tile-ideology-panel.component.scss'
 })
 export class TileIdeologyPanelComponent extends TilePanelBase {
-  get temple() { 
-    return this.tile?.temple; 
+  get site() { 
+    return this.tile?.religiousSite; 
+  }
+
+  get temple(): Temple|undefined {
+    return this.site instanceof Temple ? this.site : undefined;
   }
 
   get traits() { 
-    return this.temple?.traits?.map(t => t.name).join(', '); }
+    return this.site?.traits?.map(t => t.name).join(', '); }
 }

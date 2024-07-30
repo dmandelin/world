@@ -32,16 +32,26 @@ export const TempleLevels = [
     new TempleLevel('Temple IV', 4, 3000, 10000),
 ]
 
-export class Temple {
-    private level_ = 0;
-    private construction_ = 0;
-
+export class ReligiousSite {
     constructor(readonly traits: ReligiousTrait[]) {
     }
 
+    get name(): string { throw new Error('abstract method'); }
+    get capacity(): number { throw new Error('abstract method'); }
+}
+
+export class HolySite extends ReligiousSite {
+    override get name() { return 'Holy Mountain'; }
+    override get capacity() { return 500; }
+}
+
+export class Temple extends ReligiousSite {
+    private level_ = 0;
+    private construction_ = 0;
+
     private get l() { return TempleLevels[this.level_]; }
-    get name() { return this.l.name; }
-    get capacity() { return this.l.capacity; }
+    override get name() { return this.l.name; }
+    override get capacity() { return this.l.capacity; }
 
     get construction() { return this.construction_; }
     get nextLevel() { return TempleLevels[this.level_ + 1]; }
