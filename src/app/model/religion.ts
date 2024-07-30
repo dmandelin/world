@@ -1,5 +1,20 @@
 import { WorldLog } from "./world";
 
+class ReligiousTrait {
+    constructor(
+        readonly name: string) {
+    }
+}
+
+class ReligiousTraitsSingleton {
+    readonly Fertility = new ReligiousTrait('Fertility');
+    readonly Agrarian = new ReligiousTrait('Agrarian');
+    readonly Pastoral = new ReligiousTrait('Pastoral');
+    readonly Trading = new ReligiousTrait('Trading');
+}
+
+export const ReligiousTraits = new ReligiousTraitsSingleton();
+
 class TempleLevel {
     constructor(
         readonly name: string,
@@ -20,6 +35,9 @@ export const TempleLevels = [
 export class Temple {
     private level_ = 0;
     private construction_ = 0;
+
+    constructor(readonly traits: ReligiousTrait[]) {
+    }
 
     private get l() { return TempleLevels[this.level_]; }
     get name() { return this.l.name; }

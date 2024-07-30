@@ -11,11 +11,10 @@ export class War {
     ) {}
 
     readonly baseAP = this.attackingCoalition.attackPower;
-    readonly influenceAttackPenalty = this.attacker.home.culturalInfluences.get(this.target.home) || 0;
-    readonly ap = (1 - this.influenceAttackPenalty) * (
+    readonly ap =
         this.target === this.attacker.suzerain
         ? this.attackingCoalition.defensePower
-        : this.attackingCoalition.attackPower);
+        : this.attackingCoalition.attackPower;
     readonly dp = this.target === this.attacker.suzerain
         ? this.defendingCoalition.attackPower
         : this.defendingCoalition.defensePower;

@@ -62,7 +62,6 @@ export class BasicBrain {
 
     move(world: World, self: Polity): void {
         if (this.tryAttack(world, self)) return;
-        world.resolveConstruct(self);
     }
 
     tryAttack(world: World, self: Polity): boolean {

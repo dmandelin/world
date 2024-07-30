@@ -186,7 +186,6 @@ export class World {
                 this.notifyWatchers();
                 break;
             case 'skipAction':
-                //this.resolveConstruct(this.actor);
                 this.skipAction();
                 if (this.advanceTurnAct()) {
                     this.advanceState = 'skipAction';
@@ -307,15 +306,6 @@ export class World {
         p.defended.clear();
     }
 
-    resolveConstruct(p: Polity) {
-        if (p.suzerain) return;
-        for (const t of this.map.tiles.flat()) {
-            if (t.controller === p || t.controller.suzerain === p) {
-                t.constructTurn();
-            }
-        }
-    }
-
     performAttack(attacker: Polity, target: Polity) {
         this.resolveWar(this.setUpAttack(attacker, target));
     }
@@ -336,9 +326,6 @@ export class World {
         this.log.turnlog('-');
         this.log.turnlog(`${war.attacker.name} attacks ${war.target.name}`)
         this.log.turnlog(`- AP = ${Math.floor(war.ap)} (${war.attackingCoalition.polities.map(p => p.name)})`);
-        if (war.influenceAttackPenalty > 0.05) {
-            this.log.turnlog(`- - attack impeded by ${Math.floor(war.influenceAttackPenalty*100)}% due to cultural sympathy!`);
-        }
         this.log.turnlog(`- DP = ${Math.floor(war.dp)} (${war.defendingCoalition.polities.map(p => p.name)})`);
 
         war.attacker.attacked.add(war.target);

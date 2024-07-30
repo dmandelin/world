@@ -10,4 +10,10 @@ import { NgIf } from '@angular/common';
   styleUrl: './tile-ideology-panel.component.scss'
 })
 export class TileIdeologyPanelComponent extends TilePanelBase {
+  get temple() { 
+    return this.tile?.temple; 
+  }
+
+  get traits() { 
+    return this.temple?.traits?.map(t => t.name).join(', '); }
 }
