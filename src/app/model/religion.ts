@@ -1,16 +1,26 @@
 import { WorldLog } from "./world";
 
+type Bonuses = {
+    populationGrowthFactor?: number,
+    agrarianOutputFactor?: number,
+    pastoralOutputFactor?: number,
+    transationCostFactor?: number,
+}
+
+export type BonusKey = keyof Bonuses;
+
 class ReligiousTrait {
     constructor(
-        readonly name: string) {
+        readonly name: string,
+        readonly bonuses: Bonuses) {
     }
 }
 
 class ReligiousTraitsSingleton {
-    readonly Fertility = new ReligiousTrait('Fertility');
-    readonly Agrarian = new ReligiousTrait('Agrarian');
-    readonly Pastoral = new ReligiousTrait('Pastoral');
-    readonly Trading = new ReligiousTrait('Trading');
+    readonly Fertility = new ReligiousTrait('Fertility', {populationGrowthFactor: 1.2});
+    readonly Agrarian = new ReligiousTrait('Agrarian', {agrarianOutputFactor: 1.1});
+    readonly Pastoral = new ReligiousTrait('Pastoral', {pastoralOutputFactor: 1.1});
+    readonly Trading = new ReligiousTrait('Trading', {transationCostFactor: 0.7});
 }
 
 export const ReligiousTraits = new ReligiousTraitsSingleton();
@@ -38,6 +48,13 @@ export class ReligiousSite {
 
     get name(): string { throw new Error('abstract method'); }
     get capacity(): number { throw new Error('abstract method'); }
+    
+    bonus(b: BonusKey, population: number) {
+        if (this.traits.length > 1) throw new Error('not implemented: multiple trait bonuses');
+        const baseBonus = this.traits[0].bonuses[b] || 1;
+        const capacityFactor = Math.min(1, this.capacity / population);
+        return baseBonus * capacityFactor;
+    }
 }
 
 export class HolySite extends ReligiousSite {

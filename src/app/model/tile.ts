@@ -9,7 +9,7 @@ import { Settlement, SettlementTier } from './settlements';
 import { ProductionTech, TechKit } from './tech';
 import { randelem, randint } from './lib';
 import { TimeSeries } from '../data/timeseries';
-import { HolySite, ReligiousSite, ReligiousTraits, Temple } from './religion';
+import { BonusKey, HolySite, ReligiousSite, ReligiousTraits, Temple } from './religion';
 
 export class Tile {
     private controller_: Polity;
@@ -65,6 +65,10 @@ export class Tile {
     }
 
     get name() { return this.controller.name; }
+
+    bonus(b: BonusKey): number {
+        return this.religiousSite.bonus(b, this.population);
+    }
 
     updateTimeSeries() {
         this.productionSeries.add(this.world.year, this.production.Total);
