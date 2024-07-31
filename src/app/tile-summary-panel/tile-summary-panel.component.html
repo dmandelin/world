@@ -1,5 +1,44 @@
 <h3>{{tile?.name}}</h3>
-<p>Population {{tile?.population}}</p>
+<h2 class="mtz">Population</h2>
+<table id="population">
+    <ng-container *ngIf="tile?.populationSeries?.empty == false">
+        <tr>
+            <td>Population in {{formatYear(tile?.populationSeries?.lastYear)}}</td>
+            <td class="ra">{{tile?.populationSeries?.lastValue}}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Capacity</td>
+            <td class="ra">{{tile?.capacity?.toFixed(0)}}</td>
+            <td class="ra">{{percent(consumptionRatio)}}</td>
+        </tr>
+        <tr>
+            <td>Base growth rate</td>
+            <td class="ra">{{spercent(tile?.baseGrowthRate)}}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Capacity factor</td>
+            <td class="ra">{{percent(tile?.lastCapacityGrowthFactor)}}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Growth rate</td>
+            <td class="ra">{{percent(tile?.lastGrowthRate)}}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Population change</td>
+            <td class="ra">{{populationChange}}</td>
+            <td></td>
+        </tr>
+    </ng-container>
+        <tr>
+            <td>Population in {{wvm.world.yearForDisplay}}</td>
+            <td class="ra">{{tile?.population}}</td>
+            <td></td>
+        </tr>
+</table>
 
 <h2 class="mtz">Settlements</h2>
 <table>

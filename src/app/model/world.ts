@@ -66,6 +66,7 @@ export class WorldViewModel {
 
 @Injectable({providedIn: 'root'})
 export class World {
+    private yearOrigin_ = -5000;
     private year_ = 0;
     private polities_ = NAMED_DEFAULT_POLITIES.map((pd, i) => 
         new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
@@ -145,6 +146,11 @@ export class World {
     }
 
     get year() { return this.year_; }
+    get yearForDisplay() { return this.yearDisplay(this.year); }
+    yearDisplay(yearFromOrigin: number) {
+        const year = yearFromOrigin + this.yearOrigin_;
+        return year < 0 ? `${-year} BC` : `${year + 1} AD`;
+    }
 
     get polities() { return this.polities_; }
     private set polities(value: Polity[]) { this.polities_ = value; }
@@ -273,6 +279,9 @@ export class World {
     }
 
     advanceTurnFinish() {
+        // Time series recording.
+        this.forTiles(t => t.updateTimeSeries());
+
         // Construction.
         this.forTiles(t => t.applyConstruction());
 
@@ -283,9 +292,6 @@ export class World {
 
         // Population.
         this.map.updatePopulations();
-
-        // Time series recording.
-        this.forTiles(t => t.updateTimeSeries());
 
         this.year_ += 20;
         this.recordRanks();

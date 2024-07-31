@@ -12,6 +12,8 @@ export class WorldTurnPanelComponent {
   constructor(readonly world: World) {
   }
 
+  get year(): string { return this.world.yearForDisplay; }
+
   floor(n: number): number { return Math.floor(n); }
 
   advance() {
