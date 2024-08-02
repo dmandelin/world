@@ -24,6 +24,11 @@
             <td class="ra">{{percent(tile?.prevCapacityGrowthFactor)}}</td>
             <td></td>
         </tr>
+        <tr *ngIf="religiousPopulationGrowthFactor != 0">
+            <td>Religious Factor</td>
+            <td class="ra">{{spercent(religiousPopulationGrowthFactor)}}</td>
+            <td></td>
+        </tr>
         <tr>
             <td>Growth rate</td>
             <td class="ra">{{percent(tile?.prevGrowthRate)}}</td>

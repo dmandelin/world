@@ -67,7 +67,7 @@ export class Tile {
     get name() { return this.controller.name; }
 
     bonus(b: BonusKey): number {
-        return this.religiousSite.bonus(b, this.population);
+        return this.religiousSite.bonus(b, this.population) ?? 1;
     }
 
     updateTimeSeries() {
@@ -294,7 +294,11 @@ export class Tile {
     }
 
     get prevGrowthRate() {
-        return this.baseGrowthRate * this.prevCapacityGrowthFactor;
+        return this.baseGrowthRate 
+            * this.prevCapacityGrowthFactor 
+            // TODO - Should actually be the factor as it was last turn, but we
+            // don't want to save the entire history of every intermediate value.
+            * this.bonus('populationGrowthFactor');
     }
 
     get lastPopulationChange() {
@@ -307,7 +311,12 @@ export class Tile {
         const [p, c] = [this.population, this.capacity];
         if (p == 0) return;
         const r = p / c;
-        const dp = Math.floor(this.baseGrowthRate * (1 - r) * p);
+        const dp = Math.floor(this.baseGrowthRate 
+            * (1 - r) 
+            // TODO - Positive bonuses perhaps shouldn't increase negative growth.
+            * this.bonus('populationGrowthFactor') 
+            * p);
+       
         this.population = Math.max(p + dp, Math.floor(0.65 * c));
         if (isNaN(this.population)) {
             throw new Error(`Invalid population ${this.population}`);

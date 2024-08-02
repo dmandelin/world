@@ -51,9 +51,9 @@ export class ReligiousSite {
     
     bonus(b: BonusKey, population: number) {
         if (this.traits.length > 1) throw new Error('not implemented: multiple trait bonuses');
-        const baseBonus = this.traits[0].bonuses[b] || 1;
+        const baseBonusMinusOne = (this.traits[0].bonuses[b] || 1) - 1;
         const capacityFactor = Math.min(1, this.capacity / population);
-        return baseBonus * capacityFactor;
+        return 1 + baseBonusMinusOne * capacityFactor;
     }
 }
 

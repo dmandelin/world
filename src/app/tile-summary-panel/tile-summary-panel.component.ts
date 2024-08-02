@@ -16,6 +16,10 @@ export class TileSummaryPanelComponent extends TilePanelBase {
     return (this.tile?.capacity ?? 0) / (this.tile?.population ?? 1); 
   }
 
+  get religiousPopulationGrowthFactor() {
+    return (this.tile?.bonus('populationGrowthFactor') ?? 1) - 1;
+  }
+
   get populationChange(): string {
     const v = (this.tile?.population ?? 0) - (this.tile?.populationSeries?.prevValue ?? 0);
     return (v < 0 ? '' : '+') + v.toFixed(0);
