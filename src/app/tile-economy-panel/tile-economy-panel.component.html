@@ -17,6 +17,8 @@
                     <th>Ppl</th>
                     <th>%Ppl</th>
                     <th>Product</th>
+                    <th>Base Output</th>
+                    <th>Religious Boost</th>
                     <th>Output</th>
                 </tr>
                 <tr *ngFor="let a of allocs">
@@ -27,6 +29,8 @@
                     <td class="ra">{{floor(a.laborFraction * a.tile.population)}}</td>
                     <td class="ra">{{floor(a.laborFraction * 100)}}%</td>
                     <td class="ra">{{a.product.name}}</td>
+                    <td class="ra">{{floor(a.production() / tile.outputBoost(a.product))}}</td>
+                    <td class="ra">{{tile.outputBoost(a.product).toFixed(2)}}</td>
                     <td class="ra">{{floor(a.production())}}</td>
                 </tr>
             </table>

@@ -70,6 +70,18 @@ export class Tile {
         return this.religiousSite.bonus(b, this.population) ?? 1;
     }
 
+    outputBoost(p: Product): number {
+        switch (true) {
+            case p === Barley:
+            case p === Lentils:
+                return this.bonus('agrarianOutputFactor');
+            case p === Dairy:
+                return this.bonus('pastoralOutputFactor');
+            default:
+                return 1;
+        }
+    }
+
     updateTimeSeries() {
         this.productionSeries.add(this.world.year, this.production.Total);
         this.capacitySeries.add(this.world.year, this.capacity);

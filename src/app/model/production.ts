@@ -121,9 +121,11 @@ export class Allocation {
             this.tech.inputBoost;
         const laborUnits = this.laborFraction * this.tile.population * this.tech.inputBoost;
 
-        return this.terrain === BuildingPlot
+        const base = this.terrain === BuildingPlot
             ? this.laborOnlyProduction(laborUnits)
             : this.ces_production(landUnits, laborUnits);
+
+        return base * this.tile.outputBoost(this.product);
     }
 
     laborFractionIncr(incr: number): Allocation {
