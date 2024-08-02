@@ -7,26 +7,59 @@ import {randelem, randint} from "./lib";
 
 // Next steps:
 // - Ideology/Culture
-//   - Agrarians vs pastoralists
-//   * Invent technologies proportional to intensitivity of activity
-//     * Technologies spread to nearby tiles
-//     * Improves output in various ways
-//   * Temple
-//     * Build using labor allocation
-//     * Temple provides bonuses of some kind to a population limit based on temple size
+//     * Transaction cost bonus -- everything else works
 //     - Specialist labor and trade required to take full advantage of temple
 // - Economy
+//     * Visualize trade and transaction costs -- need this in order
+//       for transaction cost bonus to be visible
 // - Military
 //   * Simple raiding model
+//     * Raiding happens both internally and externally automatically
 //     * Initial success more based on skill than numbers
+//       * Pastoralists have more skill on both offense and defense
 //     * Capture population, produce, and/or trade goods
 //     - Defensive works and patrols
 //       - Specialist labor required to take full advantage
+//     - Need some background concepts of scale and motivation
+//       - In some early societies, 15% of people died by violence
+//         => ~5% of population lost to raiding per turn
+//       - On our map, this could be 1% from internal raiding and 1%
+//         from each neighbor, although those values dno't have to be equal.
+//       - With a base growth rate of 40% per turn, this suppresses
+//         population about 1/8 below the value it would otherwise have.
+//       - We don't really need an incentive model because it's automatic,
+//         but it will be good to have some idea why this was going on.
+//         - For one, it was apparently "profitable" in terms of both
+//           stealing food and abducting wives or youths.
+//         - The other is probably retaliating for previous raids or trying
+//           to forestall them by giving the "enemy" bigger problems like
+//           burned-down houses. Either way it's basically a deterrent to
+//           raiding.
+//         - There must also be some internal motivations, such as trying
+//           to rise in status, individual poverty, or taking captives for
+//           sacrifice or other religious reasons.
+//         - So, later, political actors will be able to hammer out a peace
+//           and persuade people not to raid as much, especially for security
+//           reasons (especially if there is also religious sanction), reducing
+//           the amount of raiding, presumably to great joy.
+//         - Now, given the security motivation, how profitable was it, really?
+//           Was that just a minor side benefit? There are some criminals
+//           today, so crime apparently pays somewhat, but not that much,
+//           in most cases. We could have some specific situations, like
+//           poorly protected rich regions, where raiding is more profitable.
+//         - Also by analogy to modern crime, homicides have several motivations,
+//           with arguments being the most common, gang activity also significant,
+//           and some from robbery.
+//         - So we can make raiding a little profitable but not a lot. However,
+//           it should generally be profitable at this point for pastoralists
+//           to raid agriculturalists, especially if they don't want to trade.
 // - Politics
-//   - Start with collective rank society for farmers, individual
-//     rank society for pastoralists, or maybe "big man" societies
+//   - Start with achievement-based societies
+//     - Collective for agrarians, individualistic for pastoralists
 //   - Define some sort of coordination bonuses that impact
 //     each other power source
+// - Environment
+//   - Climate conditions that change over time and affect productivity.
 
 // Top economic TODOs:
 // - allocations

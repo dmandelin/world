@@ -31,6 +31,12 @@ import {PerProduce, Product, Products, marginalCapacity} from './production';
 // - cost 0.02 per tile for dairy
 //   - situation is different per terrain in complicated ways so ignore for now
 
+// Trade-oriented religions should decrease transaction costs, but
+// they won't affect transportation costs, so we'll need some notion
+// of which costs they affect. We'll put in a "cost of doing business"
+// that starts at something like 10%, accounting for various kinds of
+// crime and friction that can be reduced by religious activity.
+
 // A transfer of any amount of one product from one tile to another.
 export class Transfer {
     // Barters are represented by bidirectionally linking paired transfers.
