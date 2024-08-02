@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { TilePanelBase } from '../util/tile-panel-base';
 import { Tile } from '../model/tile';
 import { NgFor, NgIf } from '@angular/common';
+import { TilePopGraphsComponent } from '../tile-pop-graphs/tile-pop-graphs.component';
 
 @Component({
   selector: 'app-tile-summary-panel',
   standalone: true,
-  imports: [NgIf, NgFor],
+  imports: [NgIf, NgFor, TilePopGraphsComponent],
   templateUrl: './tile-summary-panel.component.html',
   styleUrl: './tile-summary-panel.component.scss'
 })
@@ -16,7 +17,7 @@ export class TileSummaryPanelComponent extends TilePanelBase {
   }
 
   get populationChange(): string {
-    const v = (this.tile?.population ?? 0) - (this.tile?.populationSeries?.lastValue ?? 0);
+    const v = (this.tile?.population ?? 0) - (this.tile?.populationSeries?.prevValue ?? 0);
     return (v < 0 ? '' : '+') + v.toFixed(0);
   }
 

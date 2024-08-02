@@ -22,7 +22,7 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   marginalCapacity: PerProduce = new PerProduce();
   population: number|undefined;
 
-  override refresh() {
+  override update() {
     if (!this.tile) return;
 
     this.allocs = this.tile.allocs;
@@ -42,27 +42,27 @@ export class TileEconomyPanelComponent extends TilePanelBase {
 
   ratioize() {
     this.tile?.ratioizeLabor();
-    this.refresh();
+    this.update();
   }
 
   equalize() {
     this.tile?.equalizeLabor();
-    this.refresh();
+    this.update();
   }
 
   optimize() {
     this.tile?.optimizeLabor();
-    this.refresh();
+    this.update();
   }
 
   optimizeLaborOneStep() {
     this.tile?.optimizeLaborOneStep();
-    this.refresh();
+    this.update();
   }
 
   updateTradeLinks() {
     this.tile?.updateMarket();
-    this.refresh();
+    this.update();
   }
 
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }

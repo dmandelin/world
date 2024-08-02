@@ -75,7 +75,6 @@ export class World {
 
     readonly log = new WorldLog();
 
-    lastPopulation = new Map<Tile, number>();
     lastAttacks = new Set<[Polity, Polity]>();
 
     private watchers_: Set<Function> = new Set<Function>();
@@ -90,8 +89,9 @@ export class World {
             t.market.update();
         }
 
-        this.updateLastPopulation();
         this.recordRanks();
+
+        this.forTiles(t => t.updateTimeSeries());
     }
 
     isLocallyControlled(p: Polity) {
@@ -100,18 +100,6 @@ export class World {
 
     clearLocalControl() {
         this.locallyControlledPolities.clear();
-    }
-
-    updateLastPopulation() {
-        for (const tile of this.map.tiles.flat()) {
-            this.lastPopulation.set(tile, tile.population);
-        }
-    }
-
-    populationChange(tile: Tile): number {
-        const last = this.lastPopulation.get(tile);
-        if (last === undefined) return 0;
-        return (tile.population - last) / (last || 1);
     }
 
     recordRanks() {
@@ -223,7 +211,6 @@ export class World {
 
     advanceTurnStart() {
         this.log.turnlogClear();
-        this.updateLastPopulation();
 
         this.forTiles(t => t.optimizeLabor());
         this.forTiles(t => t.market.update());
@@ -279,9 +266,6 @@ export class World {
     }
 
     advanceTurnFinish() {
-        // Time series recording.
-        this.forTiles(t => t.updateTimeSeries());
-
         // Construction.
         this.forTiles(t => t.applyConstruction());
 
@@ -295,6 +279,9 @@ export class World {
 
         this.year_ += 20;
         this.recordRanks();
+
+        // Time series recording.
+        this.forTiles(t => t.updateTimeSeries());
 
         this.log.turnlog(`The year is now ${this.year}`);
         this.notifyWatchers();

@@ -4,11 +4,9 @@ import { WorldViewModel } from "../model/world";
 
 @Injectable()
 export class TilePanelBase {
-    tile: Tile|undefined;
+    constructor(readonly wvm: WorldViewModel) {}
 
-    constructor(readonly wvm: WorldViewModel) {
-        this.tile = wvm.selectedTile;
-    }
+    get tile() { return this.wvm.selectedTile; }
 
     private deleteWatcher: Function|undefined;
 
@@ -21,9 +19,5 @@ export class TilePanelBase {
     }
 
     update() {
-        this.tile = this.wvm.selectedTile;
-        this.refresh();
     }
-
-    refresh() {}
 }

@@ -18,11 +18,23 @@ export class TimeSeries<V> {
         return this.a.length === 0;
     }
 
+    get length(): number {
+        return this.a.length;
+    }
+
     get lastYear(): number {
         return this.a[this.a.length - 1][0];
     }
 
     get lastValue(): V {
         return this.a[this.a.length - 1][1];
+    }
+
+    get prevYear(): number {
+        return this.a[this.a.length - 2][0];
+    }
+    
+    get prevValue(): V {
+        return this.a[this.a.length - 2][1];
     }
 }

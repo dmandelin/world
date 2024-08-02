@@ -1,10 +1,12 @@
 <h3>{{tile?.name}}</h3>
+<div id="main">
+<div id="leftPanel">
 <h2 class="mtz">Population</h2>
 <table id="population">
-    <ng-container *ngIf="tile?.populationSeries?.empty == false">
+    <ng-container *ngIf="(tile?.populationSeries?.length ?? 0) > 1">
         <tr>
-            <td>Population in {{formatYear(tile?.populationSeries?.lastYear)}}</td>
-            <td class="ra">{{tile?.populationSeries?.lastValue}}</td>
+            <td>Population in {{formatYear(tile?.populationSeries?.prevYear)}}</td>
+            <td class="ra">{{tile?.populationSeries?.prevValue}}</td>
             <td></td>
         </tr>
         <tr>
@@ -19,12 +21,12 @@
         </tr>
         <tr>
             <td>Capacity factor</td>
-            <td class="ra">{{percent(tile?.lastCapacityGrowthFactor)}}</td>
+            <td class="ra">{{percent(tile?.prevCapacityGrowthFactor)}}</td>
             <td></td>
         </tr>
         <tr>
             <td>Growth rate</td>
-            <td class="ra">{{percent(tile?.lastGrowthRate)}}</td>
+            <td class="ra">{{percent(tile?.prevGrowthRate)}}</td>
             <td></td>
         </tr>
         <tr>
@@ -55,4 +57,8 @@
         <td class="ra">{{s.totalPopulation}}</td>
     </tr>
 </table>
-
+</div>
+<div id="rightPanel">
+    <app-tile-pop-graphs></app-tile-pop-graphs>
+</div>
+</div>

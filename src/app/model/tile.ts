@@ -287,15 +287,20 @@ export class Tile {
         return 0.4;
     }
 
-    get lastCapacityGrowthFactor() {
-        if (this.populationSeries.empty) return 0;
-        const r = this.populationSeries.lastValue / this.capacitySeries.lastValue;
+    get prevCapacityGrowthFactor() {
+        if (this.populationSeries.length < 1) return 0;
+        const r = this.populationSeries.prevValue / this.capacitySeries.prevValue;
         return (1 - r);
     }
 
-    get lastGrowthRate() {
-        if (this.populationSeries.empty) return 0;
-        return this.baseGrowthRate * this.lastCapacityGrowthFactor;
+    get prevGrowthRate() {
+        return this.baseGrowthRate * this.prevCapacityGrowthFactor;
+    }
+
+    get lastPopulationChange() {
+        if (this.populationSeries.length < 2) return 0;
+        return (this.populationSeries.lastValue - this.populationSeries.prevValue) / 
+            this.populationSeries.prevValue;
     }
 
     updatePopulation() {
