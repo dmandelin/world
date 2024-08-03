@@ -7,11 +7,8 @@ import {randelem, randint} from "./lib";
 
 // Next steps:
 // - Ideology/Culture
-//     * Transaction cost bonus -- everything else works
 //     - Specialist labor and trade required to take full advantage of temple
 // - Economy
-//     * Visualize trade and transaction costs -- need this in order
-//       for transaction cost bonus to be visible
 // - Military
 //   * Simple raiding model
 //     * Raiding happens both internally and externally automatically

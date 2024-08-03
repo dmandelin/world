@@ -46,14 +46,22 @@
                     <ng-container *ngIf="l.isActive">
                         <h3>{{l.dst.controller.name}}</h3>
                         <table class="exchanges">
+                            <tr>
+                                <th colspan="2">Send</th>
+                                <th colspan="2">Receive</th>
+                                <th>Transport Cost</th>
+                                <th>Coord Cost</th>
+                                <th>Total Cost</th>
+                            </tr>
                             <tr *ngFor="let e of l.exchanges">
-                                <td><span class="fponly">Send</span></td>
-                                <td class="ra">{{e[0].gross}}</td>
-                                <td>{{e[0].product.name}}
-                                <td><span class="fponly">Receive</span></td>
+                                <td>{{e[0].gross}}</td>
+                                <td>{{e[0].product.name}}</td>
                                 <td class="ra">{{e[1].net.toFixed(0)}}</td>
-                                <td>{{e[1].product.name}}
-                                </tr>
+                                <td>{{e[1].product.name}}</td>
+                                <td>{{percent(l.transportCost(e[1].product))}}</td>
+                                <td>{{percent(l.coordinationCost)}}</td>
+                                <td>{{percent(l.cost(e[1].product))}}</td>
+                             </tr>
                         </table>
                     </ng-container>
                 </ng-container>

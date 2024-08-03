@@ -4,7 +4,7 @@ type Bonuses = {
     populationGrowthFactor?: number,
     agrarianOutputFactor?: number,
     pastoralOutputFactor?: number,
-    transationCostFactor?: number,
+    transactionCostFactor?: number,
 }
 
 export type BonusKey = keyof Bonuses;
@@ -20,7 +20,7 @@ class ReligiousTraitsSingleton {
     readonly Fertility = new ReligiousTrait('Fertility', {populationGrowthFactor: 1.2});
     readonly Agrarian = new ReligiousTrait('Agrarian', {agrarianOutputFactor: 1.1});
     readonly Pastoral = new ReligiousTrait('Pastoral', {pastoralOutputFactor: 1.1});
-    readonly Trading = new ReligiousTrait('Trading', {transationCostFactor: 0.7});
+    readonly Trading = new ReligiousTrait('Trading', {transactionCostFactor: 0.7});
 }
 
 export const ReligiousTraits = new ReligiousTraitsSingleton();

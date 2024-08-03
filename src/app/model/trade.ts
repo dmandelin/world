@@ -47,7 +47,7 @@ export class Transfer {
     get src() { return this.link.src; }
     get dst() { return this.link.dst; }
 
-    get costFactor() { return 1.0 - this.link.cost.get(this.product); }
+    get costFactor() { return 1.0 - this.link.cost(this.product); }
     get gross() { return this.amount; }
     get net() { return this.amount * this.costFactor; }
 }
@@ -64,7 +64,7 @@ export class Market {
             const [ni, nj] = [this.tile.i + dx, this.tile.j + dy];
             if (ni >= 0 && ni < this.tile.world.map.height && nj >= 0 && nj < this.tile.world.map.width) {
                 const neighbor = this.tile.world.map.tiles[ni][nj];
-                const tradeLink = new TradeLink(this.tile.isRiver && neighbor.isRiver);
+                const tradeLink = new TradeLink([this.tile, neighbor]);
                 const sendLink = new TradeLinkDirection(this.tile, neighbor, tradeLink);
                 const recvLink = new TradeLinkDirection(neighbor, this.tile, tradeLink);
                 sendLink.reverse = recvLink;
@@ -105,8 +105,8 @@ export class Market {
 
                 // If the trade is beneficial to both sides, increment trade amounts
                 // and decrement production amounts so we don't trade goods that don't exist.
-                const sgr = 1.0 - l.cost.get(sg);
-                const dgr = 1.0 - l.cost.get(dg);
+                const sgr = 1.0 - l.cost(sg);
+                const dgr = 1.0 - l.cost(dg);
 
                 const su = mu.get(dg) * dgr - mu.get(sg) * sgr;
                 const du = nmu.get(sg) * sgr - nmu.get(dg) * dgr;
@@ -136,11 +136,27 @@ export class Market {
 export class TradeLink {
     message = '';
 
-    readonly cost: PerProduce = this.alongRiver
+    readonly transportCost: PerProduce = this.alongRiver
         ? PerProduce.of([['Barley', 0.02], ['Lentils', 0.02], ['Dairy', 0.02]])
         : PerProduce.of([['Barley', 0.2], ['Lentils', 0.2], ['Dairy', 0.02]]);
 
-    constructor(readonly alongRiver: boolean) {}
+    constructor(readonly endpoints: [Tile, Tile]) {}
+
+    get alongRiver() { return this.endpoints[0].isRiver && this.endpoints[1].isRiver; }
+
+    get baseCoordinationCost() {
+        return 0.1;
+    }
+    
+    get coordinationCost() {
+        // TODO - make coordination cost improvements more effective if both points have them.
+        return 0.05 * this.endpoints[0].bonus('transactionCostFactor')
+             + 0.05 * this.endpoints[1].bonus('transactionCostFactor');
+    }
+
+    cost(product: Product) {
+        return this.transportCost.get(product) + this.coordinationCost;
+    }
 }
 
 export class TradeLinkDirection {
@@ -151,7 +167,9 @@ export class TradeLinkDirection {
 
     get alongRiver() { return this.link.alongRiver; }
 
-    get cost() { return this.link.cost; }
+    transportCost(product: Product) { return this.link.transportCost.get(product); }
+    get coordinationCost() { return this.link.coordinationCost; }
+    cost(product: Product) { return this.link.cost(product); }
 
     get isActive() { return this.transfers.length > 0; }
 
