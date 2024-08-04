@@ -17,8 +17,9 @@ export class TilePopGraphsComponent extends TileGraphBase {
       return {
         labels: this.wvm.selectedTile?.populationSeries.years ?? [],
         datasets: [
-          this.dataset('Capacity', 'red', t => t.capacitySeries.values),
+          this.dataset('Capacity', 'green', t => t.capacitySeries.values),
           this.dataset('Population', 'black', t => t.populationSeries.values),
+          this.dataset('Losses', 'red', t => t.raidEffectSeries.values.map(e => -e.deltaPopulation)),
         ]
       };
     }

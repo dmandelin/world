@@ -275,7 +275,7 @@ export class World {
         this.forTiles(t => t.advanceTechKit());
 
         // Population.
-        this.map.updatePopulations();
+        this.forTiles(t => t.updatePopulation());
 
         this.year_ += 20;
         this.recordRanks();
@@ -426,12 +426,6 @@ class WorldMap {
                 const capacityRatio = Math.random() * 0.3 + 0.5;
                 this.tiles[i][j] = new Tile(world, i, j, polity, isRiver, wetFraction, dryLightSoilFraction, capacityRatio);
             }
-        }
-    }
-
-    updatePopulations() {
-        for (const t of this.tiles.flat()) {
-            t.updatePopulation();
         }
     }
 }

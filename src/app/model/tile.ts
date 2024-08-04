@@ -30,6 +30,7 @@ export class Tile {
     readonly productionSeries = new TimeSeries<PerProduce>();
     readonly capacitySeries = new TimeSeries<number>();
     readonly populationSeries = new TimeSeries<number>();
+    readonly raidEffectSeries = new TimeSeries<RaidEffects>();
 
     // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
     // population of 50K+. That means each tile is apparently 50 square miles.
@@ -89,6 +90,7 @@ export class Tile {
         this.productionSeries.add(this.world.year, this.production.Total);
         this.capacitySeries.add(this.world.year, this.capacity);
         this.populationSeries.add(this.world.year, this.population);
+        this.raidEffectSeries.add(this.world.year, this.raidEffects);
     }
 
     applyConstruction(): void {
@@ -325,6 +327,7 @@ export class Tile {
             * p);
        
         this.population = Math.max(p + dp, Math.floor(0.65 * c));
+        this.population += this.raidEffects.deltaPopulation;
         if (isNaN(this.population)) {
             throw new Error(`Invalid population ${this.population}`);
         }

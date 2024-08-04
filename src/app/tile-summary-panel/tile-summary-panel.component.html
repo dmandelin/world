@@ -35,6 +35,11 @@
             <td></td>
         </tr>
         <tr>
+            <td>Raiding losses</td>
+            <td class="ra">{{tile?.raidEffects?.deltaPopulation}}</td>
+            <td class="ra">{{spercent((tile?.raidEffects?.deltaPopulation ?? 0) / (tile?.populationSeries?.prevValue ?? 1))}}</td>
+        </tr>
+        <tr>
             <td>Population change</td>
             <td class="ra">{{populationChange}}</td>
             <td></td>
