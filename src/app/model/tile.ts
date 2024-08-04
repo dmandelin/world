@@ -66,7 +66,8 @@ export class Tile {
     get name() { return this.controller.name; }
 
     bonus(b: BonusKey): number {
-        return this.religiousSite.bonus(b, this.population) ?? 1;
+        return (this.religiousSite.bonus(b, this.population) ?? 1) *
+            (this.culture.group.bonuses[b] ?? 1);
     }
 
     outputBoost(p: Product): number {

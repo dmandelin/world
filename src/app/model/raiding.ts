@@ -46,10 +46,18 @@ export function resolveRaids(world: World) {
 function resolveTileRaids(t: Tile) {
     const raiders = Math.floor(t.population / 5);
     for (const v of [t, ...t.neighbors]) {
-        const popEffect = Math.floor(ces(raiders, v.population) 
-            * (0.75 + 0.5 * Math.random()));
-        v.raidEffects.deltaPopulation -= popEffect;
-        t.raidEffects.deltaPopulation += Math.floor(0.1 * popEffect);
+        const baseVictimPopEffect = Math.floor(ces(raiders, v.population)
+            * (0.75 + 0.5 * Math.random()))
+            * t.bonus('raidIntensity')
+        const baseRaiderPopLoss = Math.floor(baseVictimPopEffect * 0.1);
+
+        const victimPopEffect = baseVictimPopEffect
+            * raidEffectFactor(t, v);
+        const raiderPopGain = Math.floor(victimPopEffect * 0.2 * t.bonus('raidCapture'));
+        const raiderPopLoss = baseRaiderPopLoss;
+
+        v.raidEffects.deltaPopulation -= victimPopEffect;
+        t.raidEffects.deltaPopulation += raiderPopGain - raiderPopLoss;
         // TODO - production/goods effects;
     }
 }
@@ -57,4 +65,16 @@ function resolveTileRaids(t: Tile) {
 function ces(raiders: number, targets: number): number {
     if (raiders === 0 || targets === 0) return 0;
     return 1 / (5 / raiders + 25 / targets);
+}
+
+function raidEffectFactor(t: Tile, v: Tile) {
+    const [tm, vm] = [t.bonus('raidMobility'), v.bonus('raidMobility')];
+    switch (true) {
+        case tm > vm:
+            return 1.5;
+        case tm < vm:
+            return 0.25;
+        default:
+            return 1;
+    }
 }

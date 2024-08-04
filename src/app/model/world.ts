@@ -11,9 +11,7 @@ import { resolveRaids } from "./raiding";
 // - Economy
 // - Military
 //   * Simple raiding model
-//     * Initial success more based on skill than numbers
-//       * Pastoralists have more skill on both offense and defense
-//     * Also effects from culture
+//     * Also effects from temple rituals
 //     * Capture produce, and/or trade goods
 //     - Defensive works and patrols
 //       - Specialist labor required to take full advantage
