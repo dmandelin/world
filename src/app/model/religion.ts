@@ -24,6 +24,18 @@ class ReligiousTraitsSingleton {
     readonly Agrarian = new ReligiousTrait('Agrarian', {agrarianOutputFactor: 1.1});
     readonly Pastoral = new ReligiousTrait('Pastoral', {pastoralOutputFactor: 1.1});
     readonly Trading = new ReligiousTrait('Trading', {transactionCostFactor: 0.7});
+    readonly Peace = new ReligiousTrait('Peace', {
+        agrarianOutputFactor: 1.1,
+        pastoralOutputFactor: 1.05,
+        transactionCostFactor: 0.9,
+    });
+    readonly War = new ReligiousTrait('War', {
+        raidIntensity: 1.5,
+        raidCapture: 1.2,
+        agrarianOutputFactor: 0.9,
+        pastoralOutputFactor: 0.95,
+        transactionCostFactor: 1.1,
+    });
 }
 
 export const ReligiousTraits = new ReligiousTraitsSingleton();

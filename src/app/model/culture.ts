@@ -30,6 +30,8 @@ export const CultureGroups = {
             ReligiousTraits.Fertility,
             ReligiousTraits.Trading,
             ReligiousTraits.Agrarian,
+            ReligiousTraits.Peace,
+            ReligiousTraits.War,
         ],
     ),
     Akkadian: new CultureGroup(
@@ -45,6 +47,7 @@ export const CultureGroups = {
             ReligiousTraits.Fertility,
             ReligiousTraits.Trading,
             ReligiousTraits.Pastoral,
+            ReligiousTraits.War,
         ],
     ),
 }

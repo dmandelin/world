@@ -11,7 +11,6 @@ import { resolveRaids } from "./raiding";
 // - Economy
 // - Military
 //   * Simple raiding model
-//     * Also effects from temple rituals
 //     * Capture produce, and/or trade goods
 //     - Defensive works and patrols
 //       - Specialist labor required to take full advantage

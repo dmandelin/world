@@ -30,6 +30,7 @@
 //         - Could have significantly more effect
 
 import { PerProduce } from "./production";
+import { ReligiousTraits } from "./religion";
 import { Tile } from "./tile";
 import { World } from "./world";
 
@@ -46,25 +47,26 @@ export function resolveRaids(world: World) {
 function resolveTileRaids(t: Tile) {
     const raiders = Math.floor(t.population / 5);
     for (const v of [t, ...t.neighbors]) {
-        const baseVictimPopEffect = Math.floor(ces(raiders, v.population)
-            * (0.75 + 0.5 * Math.random()))
+        const baseVictimPopEffect = ces(raiders, v.population)
+            * (0.75 + 0.5 * Math.random())
             * t.bonus('raidIntensity')
-        const baseRaiderPopLoss = Math.floor(baseVictimPopEffect * 0.1);
+            * raidIntensityFactorFromPeace(t, v);
+        const baseRaiderPopLoss = baseVictimPopEffect * 0.1;
 
         const victimPopEffect = baseVictimPopEffect
             * raidEffectFactor(t, v);
-        const raiderPopGain = Math.floor(victimPopEffect * 0.2 * t.bonus('raidCapture'));
+        const raiderPopGain = victimPopEffect * 0.2 * t.bonus('raidCapture');
         const raiderPopLoss = baseRaiderPopLoss;
 
-        v.raidEffects.deltaPopulation -= victimPopEffect;
-        t.raidEffects.deltaPopulation += raiderPopGain - raiderPopLoss;
+        v.raidEffects.deltaPopulation -= Math.floor(victimPopEffect);
+        t.raidEffects.deltaPopulation += Math.floor(raiderPopGain - raiderPopLoss);
         // TODO - production/goods effects;
     }
 }
 
 function ces(raiders: number, targets: number): number {
     if (raiders === 0 || targets === 0) return 0;
-    return 1 / (5 / raiders + 25 / targets);
+    return 1 / (10 / raiders + 50 / targets);
 }
 
 function raidEffectFactor(t: Tile, v: Tile) {
@@ -77,4 +79,23 @@ function raidEffectFactor(t: Tile, v: Tile) {
         default:
             return 1;
     }
+}
+
+function raidIntensityFactorFromPeace(t: Tile, v: Tile) {
+    if (t.religiousSite.traits.includes(ReligiousTraits.Peace) &&
+        v.religiousSite.traits.includes(ReligiousTraits.Peace)) {
+        return 0.25;
+    }
+
+    if (t.religiousSite.traits.includes(ReligiousTraits.Peace) &&
+        !v.religiousSite.traits.includes(ReligiousTraits.War)) {
+        return 0.5;
+    }
+
+    if (v.religiousSite.traits.includes(ReligiousTraits.Peace) &&
+        !t.religiousSite.traits.includes(ReligiousTraits.War)) {
+        return 0.75;
+    }
+
+    return 1;
 }
