@@ -2,8 +2,8 @@ import {Injectable} from "@angular/core";
 import {Brain, BasicBrain, DefensiveBrain, SubjectBrain} from "./agents/brains";
 import {NAMED_DEFAULT_POLITIES, Polity} from "./polity";
 import {Tile} from "./tile";
-import {Combatant, War} from "./legacy_war";
 import {randelem, randint} from "./lib";
+import { resolveRaids } from "./raiding";
 
 // Next steps:
 // - Ideology/Culture
@@ -11,45 +11,12 @@ import {randelem, randint} from "./lib";
 // - Economy
 // - Military
 //   * Simple raiding model
-//     * Raiding happens both internally and externally automatically
 //     * Initial success more based on skill than numbers
 //       * Pastoralists have more skill on both offense and defense
-//     * Capture population, produce, and/or trade goods
+//     * Also effects from culture
+//     * Capture produce, and/or trade goods
 //     - Defensive works and patrols
 //       - Specialist labor required to take full advantage
-//     - Need some background concepts of scale and motivation
-//       - In some early societies, 15% of people died by violence
-//         => ~5% of population lost to raiding per turn
-//       - On our map, this could be 1% from internal raiding and 1%
-//         from each neighbor, although those values dno't have to be equal.
-//       - With a base growth rate of 40% per turn, this suppresses
-//         population about 1/8 below the value it would otherwise have.
-//       - We don't really need an incentive model because it's automatic,
-//         but it will be good to have some idea why this was going on.
-//         - For one, it was apparently "profitable" in terms of both
-//           stealing food and abducting wives or youths.
-//         - The other is probably retaliating for previous raids or trying
-//           to forestall them by giving the "enemy" bigger problems like
-//           burned-down houses. Either way it's basically a deterrent to
-//           raiding.
-//         - There must also be some internal motivations, such as trying
-//           to rise in status, individual poverty, or taking captives for
-//           sacrifice or other religious reasons.
-//         - So, later, political actors will be able to hammer out a peace
-//           and persuade people not to raid as much, especially for security
-//           reasons (especially if there is also religious sanction), reducing
-//           the amount of raiding, presumably to great joy.
-//         - Now, given the security motivation, how profitable was it, really?
-//           Was that just a minor side benefit? There are some criminals
-//           today, so crime apparently pays somewhat, but not that much,
-//           in most cases. We could have some specific situations, like
-//           poorly protected rich regions, where raiding is more profitable.
-//         - Also by analogy to modern crime, homicides have several motivations,
-//           with arguments being the most common, gang activity also significant,
-//           and some from robbery.
-//         - So we can make raiding a little profitable but not a lot. However,
-//           it should generally be profitable at this point for pastoralists
-//           to raid agriculturalists, especially if they don't want to trade.
 // - Politics
 //   - Start with achievement-based societies
 //     - Collective for agrarians, individualistic for pastoralists
@@ -285,7 +252,7 @@ export class World {
         if (!actor.canAttack(target)[0]) {
             return;
         }
-        this.performAttack(actor, target);
+        //this.performAttack(actor, target);
         
         this.advanceState = 'continue';
         this.notifyWatchers();
@@ -296,6 +263,9 @@ export class World {
     }
 
     advanceTurnFinish() {
+        // Raiding.
+        resolveRaids(this);
+
         // Construction.
         this.forTiles(t => t.applyConstruction());
 
@@ -327,73 +297,6 @@ export class World {
     startTurnFor(p: Polity) {
         p.attacked.clear();
         p.defended.clear();
-    }
-
-    performAttack(attacker: Polity, target: Polity) {
-        this.resolveWar(this.setUpAttack(attacker, target));
-    }
-
-    setUpAttack(attacker: Polity, target: Polity): War {
-        const ac = new Combatant(attacker, [attacker, ...attacker.vassals]);
-        const defenders = attacker.counterAlliance.includes(target)
-            ? attacker.counterAlliance : [target];
-        const sovereignDefenders = [...new Set<Polity>(defenders.map(d => d.suzerain || d))];
-        const dc = new Combatant(target.suzerain || target, sovereignDefenders.flatMap(d =>
-            [d, ...[...d.vassals].filter(v => v !== attacker)]));
-        return new War(this, attacker, ac, target, dc);
-    }
-
-    resolveWar(war: War) {
-        this.lastAttacks.add([war.attacker, war.target]);
-
-        this.log.turnlog('-');
-        this.log.turnlog(`${war.attacker.name} attacks ${war.target.name}`)
-        this.log.turnlog(`- AP = ${Math.floor(war.ap)} (${war.attackingCoalition.polities.map(p => p.name)})`);
-        this.log.turnlog(`- DP = ${Math.floor(war.dp)} (${war.defendingCoalition.polities.map(p => p.name)})`);
-
-        war.attacker.attacked.add(war.target);
-        war.target.defended.add(war.attacker);
-
-        if (Math.random() < war.winp) {
-            for (const p of war.attackingCoalition.polities) {
-                this.losses(p, 0.01);
-            }
-            for (const p of war.defendingCoalition.polities) {
-                this.losses(p, 0.05);
-            }
-            if (war.attacker.suzerain === war.target) {
-                this.log.turnlog(`  Successful attack: ${war.attacker.name} throws off ${war.target.name}`);
-                this.devassalize(war.target, war.attacker);            
-            } else {
-                this.log.turnlog(`  Successful attack: ${war.attacker.name} takes over ${war.target.name}`);
-                this.vassalize(war.attacker, war.target);            
-            }
-        } else {
-            this.log.turnlog(`  Failed attack`);
-            for (const p of war.attackingCoalition.polities) {
-                this.losses(p, 0.05);
-            }
-            for (const p of war.defendingCoalition.polities) {
-                this.losses(p, 0.01);
-            }
-        }
-    }
-
-    losses(target: Polity, ratio: number) {
-        for (const tile of this.map.tiles.flat()) {
-            if (tile.controller == target) {
-                tile.population -= Math.floor(ratio * tile.population);
-            }
-        }
-    }
-
-    takeover(attacker: Polity, defender: Polity) {
-        for (const tile of this.map.tiles.flat()) {
-            if (tile.controller == defender) {
-                tile.controller = attacker;
-            }
-        }
-        this.polities = this.polities.filter(p => p != defender);
     }
 
     vassalize(attacker: Polity, defender: Polity) {

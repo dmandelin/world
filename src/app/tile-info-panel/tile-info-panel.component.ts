@@ -7,6 +7,7 @@ import { WorldViewModel } from '../model/world';
 import { TileSummaryPanelComponent } from '../tile-summary-panel/tile-summary-panel.component';
 import { EconomyGraphsComponent } from '../economy-graphs/economy-graphs.component';
 import { TileIdeologyPanelComponent } from '../tile-ideology-panel/tile-ideology-panel.component';
+import { TileMilitaryPanelComponent } from '../tile-military-panel/tile-military-panel.component';
 
 @Component({
   selector: 'app-tile-info-panel',
@@ -18,6 +19,7 @@ import { TileIdeologyPanelComponent } from '../tile-ideology-panel/tile-ideology
     TabPanelItemComponent,
     TileEconomyPanelComponent,
     TileIdeologyPanelComponent,
+    TileMilitaryPanelComponent,
     TileSummaryPanelComponent,
   ],
   templateUrl: './tile-info-panel.component.html',

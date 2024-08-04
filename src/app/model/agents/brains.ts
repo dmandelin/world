@@ -65,6 +65,7 @@ export class BasicBrain {
     }
 
     tryAttack(world: World, self: Polity): boolean {
+        /*
         const roll = Math.random();
         if (roll >=  this.attackProbability) return false;
 
@@ -78,6 +79,7 @@ export class BasicBrain {
 
         const target = randelem(possibleTargets);
         world.performAttack(self, target);
+        */
         return true;
     }
 }
@@ -104,7 +106,7 @@ export class SubjectBrain extends BasicBrain {
         if (possibleTargets.length === 0) return false;
 
         const target = randelem(possibleTargets);
-        world.performAttack(self, target);
+        //world.performAttack(self, target);
         return true;
     }    
 }

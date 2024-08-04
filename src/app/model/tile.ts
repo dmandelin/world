@@ -10,6 +10,7 @@ import { ProductionTech, TechKit } from './tech';
 import { randelem, randint } from './lib';
 import { TimeSeries } from '../data/timeseries';
 import { BonusKey, HolySite, ReligiousSite, ReligiousTraits, Temple } from './religion';
+import { RaidEffects } from './raiding';
 
 export class Tile {
     private controller_: Polity;
@@ -23,6 +24,8 @@ export class Tile {
 
     private allocs_: Allocation[] = [];
     readonly market: Market = new Market(this);
+
+    raidEffects = new RaidEffects();
 
     readonly productionSeries = new TimeSeries<PerProduce>();
     readonly capacitySeries = new TimeSeries<number>();
@@ -286,14 +289,6 @@ export class Tile {
 
     get population() { return this.population_; }
     set population(value: number) { this.population_ = value; }
-
-    get attackPower() {
-        return this.population;
-    }
-
-    get defensePower() {
-        return this.population;
-    }
 
     get baseGrowthRate() {
         return 0.4;

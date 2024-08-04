@@ -57,37 +57,9 @@ export class Polity {
             .reduce((a, b) => a + b, 0);
     }
 
-    get attackPower(): number {
-        return this.concurrentBattleModifier * this.world.map.tiles
-            .flat()
-            .filter(t => t.controller == this)
-            .map(t => t.attackPower)
-            .reduce((a, b) => a + b, 0);
-    }
-
-    get defensePower(): number {
-        return this.concurrentBattleModifier * this.world.map.tiles
-            .flat()
-            .filter(t => t.controller == this)
-            .map(t => t.defensePower)
-            .reduce((a, b) => a + b, 0);
-    }
-
     get vassalPopulation(): number {
         return [this, ...this.vassals]
             .map(p => p.population)
-            .reduce((a, b) => a + b, 0);
-    }
-
-    get vassalAP(): number {
-        return [this, ...this.vassals]
-            .map(p => p === this ? p.attackPower : 0.25 * p.attackPower)
-            .reduce((a, b) => a + b, 0);
-    }
-
-    get vassalDP(): number {
-        return [this, ...this.vassals]
-            .map(p => p.defensePower)
             .reduce((a, b) => a + b, 0);
     }
 
