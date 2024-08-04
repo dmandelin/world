@@ -44,14 +44,55 @@
 //   - Production: 
 //     - Coordination bonus to local tile production for all goods
 //       - Represents appropriate subsidy, trade regulation, dispute resolution
-//     - Ability to create larger irrigation works
+//     * Ability to create larger irrigation works
 //   - Trade: 
 //     - Coordination bonus to local trade
-//     - Ability to coordinate long-distance trade, including with off-map trade points
+//     * Ability to coordinate long-distance trade, including with off-map trade points
 //   - Consumption: Utility bonus for redistribution
 //   - Technology: Bonuses due to scale, coordination, and subsidy/insurance
+//     - Maybe ability to increase technological development in a particular area
 //   - Religion: Bonus ability to claim labor
 //   - Military:
 //     - Coordination bonus to military actions, but relatively minor at this point
-//     - Ability to build fortifications
+//     * Ability to build fortifications
+//     * Suppression of internal raiding
+//     * Wars with specific goals: territorial claims, tribute, trade routes
+//   - Diplomacy:
+//     * Peace agreements
+//     * Alliances; perhaps start out with certain traditional alliances in effect
+//     * Trade agreements
 // - Additional features that can develop and their causes and effects
+//   - First, we need to think through what additional developments can occur
+//     in each area to make the politics more "state-like"
+//     - Military:
+//       * Professional armies
+//       - State-provided equipment
+//       - Meritocratic command
+//       - Strategic planning and advisors
+//     - Economy:
+//       * Labor specialization
+//       * Currency
+//       * Long-distance trade
+//       - Trade regulation and jurisprudence
+//       - Taxation and corvee
+//       - Luxury goods
+//       - Marketplaces
+//       - Social stratification determines consumption
+//     - Culture:
+//       - Religious specialization and hierarchy
+//       * More elaborate temples and monuments
+//       - Political endorsement of or affiliation with religion
+//       - Cultural conversion and/or syncretism
+//     - Technology:
+//       - Advanced tools and equipment
+//       * Writing, history, written records, laws, and lineages
+//       - Subsidized education and research
+//     - Diplomacy:
+//       - Formal diplomatic missions and protocols
+//       * Treaties and alliances with other states
+//       - Vassalage relationships
+//     - Politics:
+//       - Decoupling of rulership from family structure
+//       * Variability of power sources
+//       - Bureaucracy
+//       - Written laws
