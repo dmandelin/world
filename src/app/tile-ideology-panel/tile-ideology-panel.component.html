@@ -1,8 +1,10 @@
-<h3>Traditional society: ways of the ancestors</h3>
+<h2>Ways of the Ancestors</h2>
+<p>{{tile?.culture?.group?.typeName}}</p>
+<p>{{tile?.culture?.group?.name}}</p>
 
-<p>Ritual site: {{site?.name}}</p>
-<p>Accomodates {{site?.capacity}} people</p>
+<h3>{{site?.name}}</h3>
 <p>Rites: {{traits}}</p>
+<p>Holds: {{site?.capacity}} people</p>
 
 <ng-container *ngIf="temple?.construction">
     <h4>Under Construction</h4>

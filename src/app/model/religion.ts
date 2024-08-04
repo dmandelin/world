@@ -9,7 +9,7 @@ type Bonuses = {
 
 export type BonusKey = keyof Bonuses;
 
-class ReligiousTrait {
+export class ReligiousTrait {
     constructor(
         readonly name: string,
         readonly bonuses: Bonuses) {

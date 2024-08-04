@@ -54,13 +54,13 @@
                                 <th>Total Cost</th>
                             </tr>
                             <tr *ngFor="let e of l.exchanges">
-                                <td>{{e[0].gross}}</td>
+                                <td class="ra">{{e[0].gross}}</td>
                                 <td>{{e[0].product.name}}</td>
                                 <td class="ra">{{e[1].net.toFixed(0)}}</td>
                                 <td>{{e[1].product.name}}</td>
-                                <td>{{percent(l.transportCost(e[1].product))}}</td>
-                                <td>{{percent(l.coordinationCost)}}</td>
-                                <td>{{percent(l.cost(e[1].product))}}</td>
+                                <td class="ra">{{percent(l.transportCost(e[1].product))}}</td>
+                                <td class="ra">{{percent(l.coordinationCost)}}</td>
+                                <td class="ra">{{percent(l.cost(e[1].product))}}</td>
                              </tr>
                         </table>
                     </ng-container>

@@ -11,6 +11,7 @@ import { randelem, randint } from './lib';
 import { TimeSeries } from '../data/timeseries';
 import { BonusKey, HolySite, ReligiousSite, ReligiousTraits, Temple } from './religion';
 import { RaidEffects } from './raiding';
+import { Culture, CultureGroups } from './culture';
 
 export class Tile {
     private controller_: Polity;
@@ -18,6 +19,7 @@ export class Tile {
 
     private population_: number;
 
+    readonly culture: Culture;
     readonly religiousSite: ReligiousSite;
 
     readonly techKit: TechKit = new TechKit();
@@ -53,16 +55,9 @@ export class Tile {
         const basePopulation = this.isRiver ? randint(1000, 3000) : randint(80, 250);
         this.population_ = Math.floor(basePopulation * popFactor);
 
-        const religiousTrait = randelem([
-            ReligiousTraits.Fertility,
-            ReligiousTraits.Trading,
-            isRiver ? ReligiousTraits.Agrarian : ReligiousTraits.Pastoral,
-        ]);
-        if (isRiver) {
-            this.religiousSite = new Temple([religiousTrait]);
-        } else {
-            this.religiousSite = new HolySite([religiousTrait]);
-        }
+        const cultureGroup = isRiver ? CultureGroups.Sumerian : CultureGroups.Akkadian;
+        this.culture = cultureGroup.createCulture(this);
+        this.religiousSite = this.culture.createReligiousSite();
 
         this.ratioizeLabor();
         this.optimizeLabor();
