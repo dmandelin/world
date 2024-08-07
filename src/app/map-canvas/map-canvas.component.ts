@@ -178,7 +178,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
     const v = tile.capacity / tile.population;
     const a = clamp((v - 0.75) * 2, 0, 1);
     const r = Math.floor(90 * clamp(1 - a, 0.5, 1));
-    const g = Math.floor(150 * a);
+    const g = Math.floor(120 * a);
     const b = 0;
     return `rgb(${r}, ${g}, ${b})`;
   }
