@@ -62,6 +62,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
         const tile = tt[i][j];
         ctx.fillStyle = this.tileColor(tile);
         ctx.fillRect(x, y, this.side, this.side);
+        this.drawRiver(ctx, tt, i, j);
 
         ctx.fillStyle = '#eee';
 
@@ -189,7 +190,40 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
       return `rgb(${r}, ${g}, ${b})`;
     }
   }
-  
+
+  drawRiver(ctx: CanvasRenderingContext2D, tt: Tile[][], i: number, j: number) {
+    if (!tt[i][j].isRiver) return;
+    const [xc, yc] = this.riverCenter(tt, i, j);
+
+    for (let ii = i - 1; ii <= i + 1; ++ii) {
+      for (let jj = j - 1; jj <= j + 1; ++jj) {
+        if (ii == i && jj == j || j < 0 || j >= tt[i].length) continue;
+        if ((ii < 0 || ii >= tt.length) && j == jj || (ii >= 0 && ii < tt.length) && tt[ii][jj].isRiver) {
+          const [x, y] = this.riverCenter(tt, ii, jj);
+          ctx.beginPath();
+          ctx.strokeStyle = '#80a0d0';
+          ctx.lineWidth = 4;
+          ctx.moveTo(xc, yc);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.strokeStyle = '#004060';
+          ctx.lineWidth = 3;
+          ctx.moveTo(xc, yc);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  riverCenter(tt: Tile[][], i: number, j: number): [number, number] {
+    const xc = j * this.side + this.side / 2 + (j <= 1 ? -this.side / 8 : j >= tt.length - 2 ? this.side / 8 : 0);
+    const yc = i * this.side + this.side / 2;
+    return [xc, yc];
+  }
+
   group(tile: Tile): Polity {
     const controller = tile.controller;
     return controller.suzerain || controller;
