@@ -48,12 +48,7 @@ export class Tile {
         capacityRatio: number,
     ) {
         this.controller_ = controller;
-        //this.population_ = this.isRiver ? randint(1000, 3000) : randint(80, 250);
-        // Put a wide range of populations on the map so we can see how that
-        // affects economics.
-        const popFactor = (1 + i * 5 + j) / 2.5;
-        const basePopulation = this.isRiver ? randint(1000, 3000) : randint(80, 250);
-        this.population_ = Math.floor(basePopulation * popFactor);
+        this.population_ = this.isRiver ? randint(2000, 4000) : randint(200, 400);
 
         const cultureGroup = isRiver ? CultureGroups.Sumerian : CultureGroups.Akkadian;
         this.culture = cultureGroup.createCulture(this);
@@ -309,7 +304,7 @@ export class Tile {
     get lastPopulationChange() {
         if (this.populationSeries.length < 2) return 0;
         return (this.populationSeries.lastValue - this.populationSeries.prevValue) / 
-            this.populationSeries.prevValue;
+            (this.populationSeries.prevValue ?? 1);
     }
 
     updatePopulation() {
