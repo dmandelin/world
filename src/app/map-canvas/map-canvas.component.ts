@@ -5,7 +5,7 @@ import { Polity } from '../model/polity';
 import { Tile } from '../model/tile';
 import { Barley, Lentils, Dairy } from '../model/production';
 import { World } from '../model/world';
-import { argmax, sorted } from '../model/lib';
+import { argmax, clamp, sorted } from '../model/lib';
 
 @Component({
   selector: 'app-map-canvas',
@@ -175,10 +175,11 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   }
 
   tileColor(tile: Tile): string {
-    const t = Math.max(0, Math.min(tile.population, 5000) / 5000);
-    const r = Math.floor(140 * (1 - t) + 10 * t);
-    const g = Math.floor(100 * (1 - t) + 180 * t);
-    const b = Math.floor(30 * (1-t) + 10 * t);
+    const v = tile.capacity / tile.population;
+    const a = clamp((v - 0.75) * 2, 0, 1);
+    const r = Math.floor(90 * clamp(1 - a, 0.5, 1));
+    const g = Math.floor(150 * a);
+    const b = 0;
     return `rgb(${r}, ${g}, ${b})`;
   }
   
