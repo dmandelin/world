@@ -177,10 +177,17 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
   tileColor(tile: Tile): string {
     const v = tile.capacity / tile.population;
     const a = clamp((v - 0.75) * 2, 0, 1);
-    const r = Math.floor(90 * clamp(1 - a, 0.5, 1));
-    const g = Math.floor(120 * a);
-    const b = 0;
-    return `rgb(${r}, ${g}, ${b})`;
+    if (tile.isRiver) {
+      const r = Math.floor(90 * clamp(1 - a, 0.5, 1));
+      const g = Math.floor(120 * a);
+      const b = 0;
+      return `rgb(${r}, ${g}, ${b})`;
+    } else {
+      const r = Math.floor(90 * (1 - a) + 150 * a);
+      const g = Math.floor(150 * a);
+      const b = 0;
+      return `rgb(${r}, ${g}, ${b})`;
+    }
   }
   
   group(tile: Tile): Polity {
