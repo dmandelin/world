@@ -1,6 +1,35 @@
 import {Tile} from './tile';
 import {PerProduce, Product, Products, marginalCapacity} from './production';
 
+// * Barter with Variable Pricing
+//
+// Each party has a marginal utility for the two goods they're
+// considering trading (or trading more of). Thus, there is min/max
+// ratio of goods (which is effectively a price) at which each
+// party is willing to trade. That defines an interval of possible
+// prices (which may be empty).
+//
+// If the interval is nonempty, we'll need to choose a price within
+// that range. At first, we could use some sort of average (probably
+// geometric mean since these are ratios). Later, we could add
+// trading advantages from coordination, skill, information technology,
+// and so on that would tilt prices in one party's favor.
+//
+// Other things to do when adding variable pricing:
+// - Show prices in the trade panels. Given that it's a barter model,
+//   interestingly we can't necessarily show in terms of one "currency"
+//   (which might not even be traded in that market). Barley tends to
+//   be involved in a lot of trades, so it might work in practice.
+//   Otherwise, showing the ratio where one of the goods is 1 might
+//   be a good simple system.
+// - Might want to highlight maximum and minimum prices on the map
+//   for different trade pairs, or the world info panel.
+// - Show gains from trade and total volumes. We don't have it yet, but
+//   it's key in understanding trade patterns and the importance of trade. 
+// - Graph at least total trade.
+
+// * Transaction Costs
+//
 // Transaction cost estimates from previous analysis:
 //
 // For transporting grain that draft animals or humans can eat,

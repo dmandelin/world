@@ -5,7 +5,21 @@ import {Tile} from "./tile";
 import {randelem, randint} from "./lib";
 import { resolveRaids } from "./raiding";
 
-// Next steps:
+// Motivation-driven plan:
+// - Starting on turn 1, look for a tile where people would be motivated
+//   to do something different from what the model does now, and then
+//   add that ability to the model.
+// - Problems and opportunities discovered:
+//   - Variable pricing: Bad-Tibira was malnourished because they had
+//     no pasture land, and couldn't get enough dairy at 1:1 trade.
+//     But with a marginal utility of 5 for dairy, and 0.22 for barley,
+//     they'd be willing to trade much more than 1 barley per dairy.
+//   - Visualize these on the map because they're needed to understand
+//     what problems tiles are facing.
+//     - rites
+//     - raiding losses/gains
+//     - population change?
+
 // - Ideology/Culture
 //     - Specialist labor and trade required to take full advantage of temple
 // - Economy
