@@ -110,8 +110,8 @@ export class Market {
         this.links.forEach(l => l.clear());
 
         // Amount had of each good, updated as trades are made.
-        const amounts = this.tile.production.Total;
-        const neighborAmounts = new Map(this.links.map(l => [l, l.dst.production.Total]));
+        const amounts = this.tile.consumption;
+        const neighborAmounts = new Map(this.links.map(l => [l, l.dst.consumption]));
 
         // Links we think there are no more trades available on.
         const doneLinks = new Set<TradeLinkDirection>();
@@ -122,14 +122,11 @@ export class Market {
             // concentrating on the first trade link we consider.
             for (const l of this.links) {
                 let marginalUtility = marginalCapacity(amounts);
+                // TODO - try more products than just max marginal utility
                 const recvProduct = marginalUtility.max()[0];
-                // TODO - Try a different product if the neighbor is out of the first choice.
-                //        Same for below.
-                if (neighborAmounts.get(l)!.get(recvProduct) === 0) continue;
 
                 let neighborMarginalUtility = marginalCapacity(neighborAmounts.get(l)!);
                 const sendProduct = neighborMarginalUtility.max()[0];
-                if (amounts.get(sendProduct) === 0) continue;
                 if (recvProduct === sendProduct) continue;
 
                 // Compute minium exchange ratio we'll accept and maximum they'll accept.
@@ -141,9 +138,15 @@ export class Market {
                       (neighborMarginalUtility.get(sendProduct) * (1 - l.cost(sendProduct)))
                     /  neighborMarginalUtility.get(recvProduct);
 
+                if (minRatio === Infinity || maxRatio === Infinity) {
+                    continue;
+                }
+
                 if (minRatio <= maxRatio) {
                     const ratio = Math.sqrt(minRatio * maxRatio);
-                    if (ratio === 0) debugger;
+
+                    if (amounts.get(sendProduct) < 1) continue;
+                    if (neighborAmounts.get(l)!.get(recvProduct) < ratio) continue;
 
                     // Update the trade link.
                     l.incrExchange(sendProduct, 1, recvProduct, ratio);

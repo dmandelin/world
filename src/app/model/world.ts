@@ -10,14 +10,17 @@ import { resolveRaids } from "./raiding";
 //   to do something different from what the model does now, and then
 //   add that ability to the model.
 // - Problems and opportunities discovered:
+//   * Add processing indicator now that turns take noticeable time.
+//   * Analyze nutritional formula for desert tiles: sometimes results don't
+//     make sense.
 //   - Be consistent about allowing trade through tiles, or otherwise give
 //     bottom corners some trade opportunities.
-//   - Fix a bug where tiles will sometimes trade at a loss.
-//   - Fix a bug where tiles will trade until they have negative of something.
 //   - Some tiles make advantageous trades, but are still left malnourished.
 //     Give them more ways to get more resources:
 //     - Trade over longer distances to get resources not available from
 //       neighbors in large enough quantity.
+//     * Produce different products on the land, especially non-desert for
+//       dairy in tiles that have little desert.
 //     - Decrease leisure get more output, at the expense of some kind of
 //       health, happiness, or organic development.
 //     - Irrigate more land to increase output.
