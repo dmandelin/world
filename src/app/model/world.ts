@@ -10,10 +10,24 @@ import { resolveRaids } from "./raiding";
 //   to do something different from what the model does now, and then
 //   add that ability to the model.
 // - Problems and opportunities discovered:
-//   - Variable pricing: Bad-Tibira was malnourished because they had
-//     no pasture land, and couldn't get enough dairy at 1:1 trade.
-//     But with a marginal utility of 5 for dairy, and 0.22 for barley,
-//     they'd be willing to trade much more than 1 barley per dairy.
+//   - Be consistent about allowing trade through tiles, or otherwise give
+//     bottom corners some trade opportunities.
+//   - Fix a bug where tiles will sometimes trade at a loss.
+//   - Fix a bug where tiles will trade until they have negative of something.
+//   - Some tiles make advantageous trades, but are still left malnourished.
+//     Give them more ways to get more resources:
+//     - Trade over longer distances to get resources not available from
+//       neighbors in large enough quantity.
+//     - Decrease leisure get more output, at the expense of some kind of
+//       health, happiness, or organic development.
+//     - Irrigate more land to increase output.
+//     - Raid neighbors for resources they refuse to trade, but note that
+//       the neighbors may then stop trading or raid back.
+//       - Part 1 would be regular raiding yielding some resources.
+//       - Part 2 would be some sort of political development giving the
+//         ability to do a bigger, more systematic raid.
+//     - Fight neighbors for control of border lands.
+//     - Trade for obsidian and flint to increase labor productivity.
 //   - Visualize these on the map because they're needed to understand
 //     what problems tiles are facing.
 //     - rites
