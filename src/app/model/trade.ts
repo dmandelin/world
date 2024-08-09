@@ -16,12 +16,6 @@ import {PerProduce, Product, Products, marginalCapacity} from './production';
 // and so on that would tilt prices in one party's favor.
 //
 // Other things to do when adding variable pricing:
-// - Show prices in the trade panels. Given that it's a barter model,
-//   interestingly we can't necessarily show in terms of one "currency"
-//   (which might not even be traded in that market). Barley tends to
-//   be involved in a lot of trades, so it might work in practice.
-//   Otherwise, showing the ratio where one of the goods is 1 might
-//   be a good simple system.
 // - Might want to highlight maximum and minimum prices on the map
 //   for different trade pairs, or the world info panel.
 // - Show gains from trade and total volumes. We don't have it yet, but
@@ -117,45 +111,49 @@ export class Market {
         this.message = '';
         this.links.forEach(l => l.clear());
 
-        // Get the current production so we don't have to recalculate too much.
-        const p = this.tile.production.Total;
-        const nnp = new Map(this.links.map(l => [l, l.dst.production.Total]));
-        let mu = marginalCapacity(p);
-        let nnmu = new Map([...nnp.entries()].map(([l, p]) => [l, marginalCapacity(p)]));
+        // Amount had of each good, updated as trades are made.
+        const amounts = this.tile.production.Total;
+        const neighborAmounts = new Map(this.links.map(l => [l, l.dst.production.Total]));
+
+        // Links we think there are no more trades available on.
+        const doneLinks = new Set<TradeLinkDirection>();
 
         // Do a maximum number of iterations.
         for (let i = 0; i < 1000; ++i) {
-            // Try to increment trade along each link in turn.
-            const dg = mu.max()[0];
+            // Spread trade around the different links rather than arbitrarily
+            // concentrating on the first trade link we consider.
             for (const l of this.links) {
-                const nmu = nnmu.get(l);
-                if (!nmu) continue;
-                const sg = nmu.max()[0];
+                let marginalUtility = marginalCapacity(amounts);
+                const recvProduct = marginalUtility.max()[0];
+                // TODO - Try a different product if the neighbor is out of the first choice.
+                //        Same for below.
+                if (neighborAmounts.get(l)!.get(recvProduct) === 0) continue;
 
-                // If the trade is beneficial to both sides, increment trade amounts
-                // and decrement production amounts so we don't trade goods that don't exist.
-                const sgr = 1.0 - l.cost(sg);
-                const dgr = 1.0 - l.cost(dg);
+                let neighborMarginalUtility = marginalCapacity(neighborAmounts.get(l)!);
+                const sendProduct = neighborMarginalUtility.max()[0];
+                if (amounts.get(sendProduct) === 0) continue;
+                if (recvProduct === sendProduct) continue;
 
-                const su = mu.get(dg) * dgr - mu.get(sg) * sgr;
-                const du = nmu.get(sg) * sgr - nmu.get(dg) * dgr;
+                // Compute minium exchange ratio we'll accept and maximum they'll accept.
+                // Exchange ratio is (what they give) / (what we give).
+                const minRatio = 
+                       marginalUtility.get(sendProduct)
+                    / (marginalUtility.get(recvProduct) * (1 - l.cost(recvProduct)));
+                const maxRatio = 
+                      (neighborMarginalUtility.get(sendProduct) * (1 - l.cost(sendProduct)))
+                    /  neighborMarginalUtility.get(recvProduct);
 
-                switch (true) {
-                    case su > 0 && du > 0:
-                        // Update the trade link.
-                        l.incrExchange(sg, dg, 1);
-                        // Mark goods as traded away.
-                        p.incr([sg, -1]);
-                        p.incr([dg, 1]);
-                        nnp.get(l)?.incr([dg, -1]);
-                        nnp.get(l)?.incr([sg, 1]);
-                        // Update marginal utilities.
-                        mu = marginalCapacity(p);
-                        nnmu.set(l, marginalCapacity(nnp.get(l)!));
-                        break;
-                    case su > 0 || du > 0:
-                        l.message = `more trades available with variable prices, such as ${sg.name} for ${dg.name}`;
-                        break;
+                if (minRatio <= maxRatio) {
+                    const ratio = Math.sqrt(minRatio * maxRatio);
+                    if (ratio === 0) debugger;
+
+                    // Update the trade link.
+                    l.incrExchange(sendProduct, 1, recvProduct, ratio);
+                    // Mark goods as traded away.
+                    amounts.incr([sendProduct, -1]);
+                    amounts.incr([recvProduct, ratio]);
+                    neighborAmounts.get(l)!.incr([recvProduct, -ratio]);
+                    neighborAmounts.get(l)!.incr([sendProduct, 1]);
                 }
             }
         }
@@ -186,6 +184,10 @@ export class TradeLink {
     cost(product: Product) {
         return this.transportCost.get(product) + this.coordinationCost;
     }
+
+    get costs() {
+        return this.transportCost.map((p, c) => c + this.coordinationCost);
+    }
 }
 
 export class TradeLinkDirection {
@@ -199,6 +201,7 @@ export class TradeLinkDirection {
     transportCost(product: Product) { return this.link.transportCost.get(product); }
     get coordinationCost() { return this.link.coordinationCost; }
     cost(product: Product) { return this.link.cost(product); }
+    get costs() { return this.link.costs; }
 
     get isActive() { return this.transfers.length > 0; }
 
@@ -231,10 +234,10 @@ export class TradeLinkDirection {
         return transfer;
     }
 
-    incrExchange(srcProduct: Product, dstProduct: Product, amount: number) {
+    incrExchange(srcProduct: Product,  srcAmount: number, dstProduct: Product,dstAmount: number) {
         const send = this.findOrCreateExchange(this.src, srcProduct, this.dst, dstProduct);
-        send.amount += amount;
-        send.inExchangeFor!.amount += amount;
+        send.amount += srcAmount;
+        send.inExchangeFor!.amount += dstAmount;
     }
 
     clear() {

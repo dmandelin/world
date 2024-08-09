@@ -76,6 +76,14 @@ export class PerProduce {
         m.set(p, this.get(p) + incr);
         return new PerProduce(m);
     }
+
+    add(p: PerProduce): PerProduce {
+        const m = new Map(this.m);
+        for (const [k, v] of p.m.entries()) {
+            m.set(k, this.get(k) + v);
+        }
+        return new PerProduce(m);
+    }
 }
 
 export class Terrain {
@@ -217,10 +225,13 @@ export function capacity(p: PerProduce) {
     return c;
 }
 
-export function marginalCapacity(p: PerProduce): PerProduce {
+export function marginalCapacity(amounts: PerProduce, cost?: PerProduce): PerProduce {
     const e = 0.001;
-    const c = capacity(p);
-    return p.map((k, v) => (capacity(p.withIncr(k, e)) - c) / e);
+    const c = capacity(amounts);
+    return amounts.map((k, v) => (
+        capacity(amounts.withIncr(k, cost ? (1 - cost.get(k)) * e : e))
+      - c)
+    / e);
 }
 
 function pastoralDietValue(p: PerProduce) {
