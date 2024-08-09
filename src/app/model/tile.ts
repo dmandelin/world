@@ -265,6 +265,10 @@ export class Tile {
         return c;
     }
 
+    get preTradeCapacity() {
+        return capacity(this.production.Total);
+    }
+
     get capacity() {
         const c = capacity(this.consumption);
         if (isNaN(c)) {

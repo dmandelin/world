@@ -18,8 +18,6 @@ import {PerProduce, Product, Products, marginalCapacity} from './production';
 // Other things to do when adding variable pricing:
 // - Might want to highlight maximum and minimum prices on the map
 //   for different trade pairs, or the world info panel.
-// - Show gains from trade and total volumes. We don't have it yet, but
-//   it's key in understanding trade patterns and the importance of trade. 
 // - Graph at least total trade.
 
 // * Transaction Costs

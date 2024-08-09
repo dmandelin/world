@@ -19,6 +19,7 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   totalProduction: number|undefined;
   nutritionalQuality: number|undefined;
   capacity: number|undefined;
+  preTradeCapacity: number|undefined;
   marginalCapacity: PerProduce = new PerProduce();
   population: number|undefined;
 
@@ -28,6 +29,7 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     this.allocs = this.tile.allocs;
     const production = this.tile.production;
     this.totalProduction = this.products.reduce((total, p) => total + production.Total.get(p), 0);
+    this.preTradeCapacity = this.tile.preTradeCapacity;
     this.capacity = this.tile.capacity;
     this.marginalCapacity = this.tile.marginalCapacity;
     this.nutritionalQuality = this.capacity / this.totalProduction;
