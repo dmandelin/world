@@ -54,8 +54,7 @@ export class Tile {
         this.culture = cultureGroup.createCulture(this);
         this.religiousSite = this.culture.createReligiousSite();
 
-        this.ratioizeLabor();
-        this.optimizeLabor();
+        this.allocate();
     }
 
     get name() { return this.controller.name; }
@@ -177,43 +176,38 @@ export class Tile {
         return this.allocs_;
     }
 
-    ratioizeLabor() {
-        if (this.religiousSite instanceof Temple) {
-            this.allocs_ = [
-                new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.99 * this.wetFraction),
-                new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.99 * this.dryLightSoilFraction),
-                new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.99 * this.desertFraction),
-                new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
-            ];
-        } else {
-            this.allocs_ = [
-                new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, this.wetFraction),
-                new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, this.dryLightSoilFraction),
-                new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, this.desertFraction),
-            ];
-        }
+    allocate() {
+        this.allocs_ = this.defaultAllocs();
         this.world.notifyWatchers();
     }
 
-    equalizeLabor() {
-        if (this.religiousSite instanceof Temple) {
-            this.allocs_ = [
-                new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.33),
-                new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.33),
-                new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.33),
-                new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
-            ];
-        } else {
-            this.allocs_ = [
-                new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.34),
-                new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 1, 0.33),
-                new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.33),
-            ];
+    defaultAllocs() {
+        return this.isRiver ? [
+            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.4),
+            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 0.7, 0.3),
+            new Allocation(this, Dairy, this.techKit.get(Dairy), DryLightSoil, 0.3, 0.15),
+            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.14),
+            new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
+        ] : [
+            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.01),
+            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 0.75, 0.30),
+            new Allocation(this, Dairy, this.techKit.get(Dairy), DryLightSoil, 0.25, 0.10),
+            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.6),
+        ];
+    }
+
+    optimizeLabor() {
+        let bestCapacity = 0;
+        for (let i = 0; i < 200; ++i) {
+            const c = this.optimizeLaborOneStep(true);
+            if (c <= bestCapacity) break;
         }
         this.world.notifyWatchers();
     }
 
     optimizeLaborOneStep(batch = false): number {
+        const marginalUtilityMap = new Map<Allocation, number>();
+
         let bestAllocs: Allocation[] = [];
         let bestCapacity = 0;
         for (const terrainFrom of AllTerrainTypes) {
@@ -239,16 +233,6 @@ export class Tile {
         }
         return bestCapacity;
     }
-
-    optimizeLabor() {
-        let bestCapacity = 0;
-        for (let i = 0; i < 200; ++i) {
-            const c = this.optimizeLaborOneStep(true);
-            if (c <= bestCapacity) break;
-        }
-        this.world.notifyWatchers();
-    }
-
 
     get production(): PerTerrainPerProduce {
         return production(this.allocs_);

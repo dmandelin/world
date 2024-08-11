@@ -4,8 +4,6 @@
             <div class="flex">
                 <h2 class="mtz">Allocations</h2>
                 <button (click)="optimize()">Opt</button>
-                <button (click)="ratioize()">Ratio</button>
-                <button (click)="equalize()">Equal</button>
                 <button (click)="optimizeLaborOneStep()">Step</button>
             </div>
             <table>
@@ -17,9 +15,13 @@
                     <th>Ppl</th>
                     <th>%Ppl</th>
                     <th>Product</th>
-                    <th>Base Output</th>
-                    <th>Religious Boost</th>
+                    <th>Base</th>
+                    <th>Temple</th>
                     <th>Output</th>
+                    <th>MPK</th>
+                    <th>MPL</th>
+                    <th>MUK</th>
+                    <th>MUL</th>
                 </tr>
                 <tr *ngFor="let a of allocs">
                     <td>{{a.tech.name}}</td>
@@ -32,6 +34,10 @@
                     <td class="ra">{{floor(a.production() / tile.outputBoost(a.product))}}</td>
                     <td class="ra">{{tile.outputBoost(a.product).toFixed(2)}}</td>
                     <td class="ra">{{floor(a.production())}}</td>
+                    <td class="ra">{{marginalProductsOfLand?.get(a)?.toFixed(2)}}</td>
+                    <td class="ra">{{marginalProductsOfLabor?.get(a)?.toFixed(2)}}</td>
+                    <td class="ra">{{marginalUtilitiesOfLand?.get(a)?.toFixed(2)}}</td>
+                    <td class="ra">{{marginalUtilitiesOfLabor?.get(a)?.toFixed(2)}}</td>
                 </tr>
             </table>
         </div>

@@ -140,6 +140,10 @@ export class Allocation {
         return new Allocation(this.tile, this.product, this.tech, this.terrain, this.landFraction, this.laborFraction + incr);
     }
 
+    landFractionIncr(incr: number): Allocation {
+        return new Allocation(this.tile, this.product, this.tech, this.terrain, this.landFraction + incr, this.laborFraction);
+    }
+
     updateTech(tech: ProductionTech): Allocation {
         return tech === this.tech 
             ? this 
@@ -212,6 +216,46 @@ export function production(allocs: readonly Allocation[]): PerTerrainPerProduce 
     }
 
     return totals;
+}
+
+export function marginalProductsOfLabor(tile: Tile, allocs: readonly Allocation[]): Map<Allocation, number> {
+    const e = 0.001;
+    return new Map<Allocation, number>(allocs.map(a => {
+        const ah = replaceAlloc(allocs, a, a.laborFractionIncr(e));
+        const ph = production(ah);
+        const p = production(allocs);
+        return [a, (ph.Total.total - p.Total.total) / e / tile.population];
+    }));
+}
+
+export function marginalProductsOfLand(tile: Tile, allocs: readonly Allocation[]): Map<Allocation, number> {
+    const e = 0.001;
+    return new Map<Allocation, number>(allocs.map(a => {
+        const ah = replaceAlloc(allocs, a, a.landFractionIncr(e));
+        const ph = production(ah);
+        const p = production(allocs);
+        return [a, (ph.Total.total - p.Total.total) / e / (tile.areaFraction(a.terrain) * 100)];
+    }));
+}
+
+export function marginalUtilitiesOfLabor(tile: Tile, allocs: readonly Allocation[]): Map<Allocation, number> {
+    const e = 0.001;
+    return new Map<Allocation, number>(allocs.map(a => {
+        const ah = replaceAlloc(allocs, a, a.laborFractionIncr(e));
+        const ph = capacity(production(ah).Total);
+        const p = capacity(production(allocs).Total);
+        return [a, (ph - p) / e / tile.population];
+    }));
+}
+
+export function marginalUtilitiesOfLand(tile: Tile, allocs: readonly Allocation[]): Map<Allocation, number> {
+    const e = 0.001;
+    return new Map<Allocation, number>(allocs.map(a => {
+        const ah = replaceAlloc(allocs, a, a.landFractionIncr(e));
+        const ph = capacity(production(ah).Total);
+        const p = capacity(production(allocs).Total);
+        return [a, (ph - p) / e / (tile.areaFraction(a.terrain) * 100)];
+    }));
 }
 
 // For now, this is a Cobb-Douglas utility function with equal weights.

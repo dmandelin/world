@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
-import { Allocation, AllTerrainTypes, Product, Products, PerProduce, Terrain } from '../model/production';
+import { Allocation, AllTerrainTypes, Product, Products, PerProduce, Terrain, marginalProductsOfLabor, marginalProductsOfLand, marginalUtilitiesOfLabor, marginalUtilitiesOfLand } from '../model/production';
 import { TilePanelBase } from '../util/tile-panel-base';
 
 @Component({
@@ -23,11 +23,20 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   marginalCapacity: PerProduce = new PerProduce();
   population: number|undefined;
 
+  marginalProductsOfLabor: Map<Allocation, number> | undefined;
+  marginalProductsOfLand: Map<Allocation, number> | undefined;
+  marginalUtilitiesOfLabor: Map<Allocation, number> | undefined;
+  marginalUtilitiesOfLand: Map<Allocation, number> | undefined;
+
   override update() {
     if (!this.tile) return;
 
     this.allocs = this.tile.allocs;
     const production = this.tile.production;
+    this.marginalProductsOfLabor = marginalProductsOfLabor(this.tile, this.allocs);
+    this.marginalProductsOfLand = marginalProductsOfLand(this.tile, this.allocs);
+    this.marginalUtilitiesOfLabor = marginalUtilitiesOfLabor(this.tile, this.allocs);
+    this.marginalUtilitiesOfLand = marginalUtilitiesOfLand(this.tile, this.allocs);
     this.totalProduction = this.products.reduce((total, p) => total + production.Total.get(p), 0);
     this.preTradeCapacity = this.tile.preTradeCapacity;
     this.capacity = this.tile.capacity;
@@ -40,16 +49,6 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     if (!this.tile) return 0;
     if (!t) return this.tile.production.Total.get(p);
     return this.tile.production[t.name].get(p);
-  }
-
-  ratioize() {
-    this.tile?.ratioizeLabor();
-    this.update();
-  }
-
-  equalize() {
-    this.tile?.equalizeLabor();
-    this.update();
   }
 
   optimize() {
