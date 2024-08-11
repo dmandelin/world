@@ -9,6 +9,26 @@ import { resolveRaids } from "./raiding";
 // - Starting on turn 1, look for a tile where people would be motivated
 //   to do something different from what the model does now, and then
 //   add that ability to the model.
+// - We may need to introduce more problems:
+//   - Life seems easy for most tiles:
+//     - With more flexible land allocation, overall capacity is up.
+//     - If we start below capacity, typically population will rise,
+//       approaching but not exceeding capacity, so nothing bad happens.
+//   - But what problems actually would occur in this time period?
+//     * Verify nutritional formula: in particular, it seems that agrarian
+//       tiles are able to get away with hardly any lentils. We may want to
+//       prevent them getting too much dairy (maybe need to dial down production).
+//     - Running out of arable land would be a thing, and they'd want to
+//       irrigate to create more.
+//       * We can plot MPL and MPK, and use those to create measures of
+//         worker income and landowner income. If either is dropping there
+//         should be some sort of negative effect, and a motivation to fix it.
+//       - We can change the population model so that population can overshoot
+//         capacity.
+//       - We can add health penalties or negative effects if population gets
+//         close to capacity.
+//     * Trade: We don't have special trade goods yet, but if we add them,
+//       shortages and such become a possibility.
 // - Problems and opportunities discovered:
 //   * Add processing indicator now that turns take noticeable time.
 //   * Analyze nutritional formula for desert tiles: sometimes results don't
@@ -19,8 +39,6 @@ import { resolveRaids } from "./raiding";
 //     Give them more ways to get more resources:
 //     - Trade over longer distances to get resources not available from
 //       neighbors in large enough quantity.
-//     * Produce different products on the land, especially non-desert for
-//       dairy in tiles that have little desert.
 //     - Decrease leisure get more output, at the expense of some kind of
 //       health, happiness, or organic development.
 //     - Irrigate more land to increase output.
