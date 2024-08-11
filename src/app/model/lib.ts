@@ -49,3 +49,27 @@ export function argmax<T>(items: readonly T[], valueFun: (item: T) => number): [
     }
     return [bestItem, bestValue || 0];
 }
+
+export function mapmax<T>(map: Map<T, number>, filterFun: (t: T) => boolean = () => true): [T|undefined, number] {
+    let bestKey = undefined;
+    let bestValue = undefined;
+    for (const [key, value] of map) {
+        if (!filterFun(key)) continue;
+        if (bestValue === undefined || value > bestValue) {
+            [bestKey, bestValue] = [key, value];
+        }
+    }
+    return [bestKey, bestValue || 0];
+}
+
+export function mapmin<T>(map: Map<T, number>, filterFun: (t: T) => boolean = () => true): [T|undefined, number] {
+    let bestKey = undefined;
+    let bestValue = undefined;
+    for (const [key, value] of map) {
+        if (!filterFun(key)) continue;
+        if (bestValue === undefined || value < bestValue) {
+            [bestKey, bestValue] = [key, value];
+        }
+    }
+    return [bestKey, bestValue || 0];
+}

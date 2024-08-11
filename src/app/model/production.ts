@@ -136,6 +136,12 @@ export class Allocation {
         return base * this.tile.outputBoost(this.product);
     }
 
+    incr(landFractionIncr: number, laborFractionIncr: number): Allocation {
+        return new Allocation(
+            this.tile, this.product, this.tech, this.terrain, 
+            this.landFraction + landFractionIncr, this.laborFraction + laborFractionIncr);
+    }
+
     laborFractionIncr(incr: number): Allocation {
         return new Allocation(this.tile, this.product, this.tech, this.terrain, this.landFraction, this.laborFraction + incr);
     }
@@ -177,16 +183,11 @@ export function replaceAlloc(allocs: readonly Allocation[], original: Allocation
     return allocs.with(i, replacement);
 }
 
-export function reallocated(allocs: readonly Allocation[], from: Terrain, to: Terrain, peopleFraction: number): Allocation[]|undefined {
-    const fromAlloc = allocs.find(a => a.terrain == from);
-    const toAlloc = allocs.find(a => a.terrain == to);
-    if (fromAlloc === undefined || toAlloc === undefined) return undefined;
-    if (fromAlloc.laborFraction - peopleFraction < 0) return undefined;
-
+export function reallocated(allocs: readonly Allocation[], from: Allocation, to: Allocation, landFraction: number, peopleFraction: number): Allocation[] {
     return allocs.map(a => {
         switch (a) {
-            case fromAlloc: return a.laborFractionIncr(-peopleFraction);
-            case toAlloc: return a.laborFractionIncr(peopleFraction);
+            case from: return a.incr(-landFraction, -peopleFraction);
+            case to: return a.incr(landFraction, peopleFraction);
             default: return a;
         }
     });

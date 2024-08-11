@@ -237,7 +237,7 @@ export class World {
     advanceTurnStart() {
         this.log.turnlogClear();
 
-        this.forTiles(t => t.optimizeLabor());
+        this.forTiles(t => t.optimizeAllocations());
         this.forTiles(t => t.market.update());
         /*
         this.lastAttacks.clear();

@@ -52,12 +52,12 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   }
 
   optimize() {
-    this.tile?.optimizeLabor();
+    this.tile?.optimizeAllocations();
     this.update();
   }
 
   optimizeLaborOneStep() {
-    this.tile?.optimizeLaborOneStep();
+    this.tile?.optimizeAllocationsOneStep();
     this.update();
   }
 

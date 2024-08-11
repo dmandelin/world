@@ -1,13 +1,13 @@
 import { World } from './world';
 import { Polity } from './polity';
-import { Allocation, BuildingPlot, Product, TempleConstruction } from './production';
+import { Allocation, BuildingPlot, marginalUtilitiesOfLabor, marginalUtilitiesOfLand, Product, TempleConstruction } from './production';
 import { PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated } from './production';
 import { Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert } from './production';
 import { Barley, Lentils, Dairy } from './production';
 import { Market, TradeLink } from './trade';
 import { Settlement, SettlementTier } from './settlements';
 import { ProductionTech, TechKit } from './tech';
-import { randelem, randint } from './lib';
+import { argmax, mapmax, mapmin, randelem, randint } from './lib';
 import { TimeSeries } from '../data/timeseries';
 import { BonusKey, HolySite, ReligiousSite, ReligiousTraits, Temple } from './religion';
 import { RaidEffects } from './raiding';
@@ -48,13 +48,14 @@ export class Tile {
         capacityRatio: number,
     ) {
         this.controller_ = controller;
-        this.population_ = this.isRiver ? randint(2000, 4000) : randint(200, 400);
+        this.population_ = this.isRiver ? randint(3000, 6000) : randint(300, 600);
 
         const cultureGroup = isRiver ? CultureGroups.Sumerian : CultureGroups.Akkadian;
         this.culture = cultureGroup.createCulture(this);
         this.religiousSite = this.culture.createReligiousSite();
 
         this.allocate();
+        this.optimizeAllocations();
     }
 
     get name() { return this.controller.name; }
@@ -196,42 +197,60 @@ export class Tile {
         ];
     }
 
-    optimizeLabor() {
+    optimizeAllocations() {
         let bestCapacity = 0;
         for (let i = 0; i < 200; ++i) {
-            const c = this.optimizeLaborOneStep(true);
+            const c = this.optimizeAllocationsOneStep(true);
             if (c <= bestCapacity) break;
         }
         this.world.notifyWatchers();
     }
 
-    optimizeLaborOneStep(batch = false): number {
-        const marginalUtilityMap = new Map<Allocation, number>();
+    optimizeAllocationsOneStep(batch = false): number {
+        const d = 0.01
+        const muk = marginalUtilitiesOfLand(this, this.allocs);
+        const mul = marginalUtilitiesOfLabor(this, this.allocs);
 
-        let bestAllocs: Allocation[] = [];
-        let bestCapacity = 0;
-        for (const terrainFrom of AllTerrainTypes) {
-            for (const terrainTo of AllTerrainTypes) {
-                if (terrainFrom === terrainTo) continue;
-                if (terrainFrom === BuildingPlot || terrainTo === BuildingPlot) continue;
-                const allocs = reallocated(this.allocs_, terrainFrom, terrainTo, 0.01);
-                if (allocs === undefined) continue;
-                const p = production(allocs);
-                const c = capacity(p.Total);
-                if (c > bestCapacity) {
-                    bestAllocs = allocs;
-                    bestCapacity = c;
-                }
+        // Best gain possible from labor reallocation.
+        const bestMul = mapmax(mul, a => a.terrain !== BuildingPlot);
+        const worstMul = mapmin(mul, a => a.terrain !== BuildingPlot && a.laborFraction >= d);
+        const mulGain = bestMul[1] - worstMul[1];
+
+        // Group MUKs by terrain type because we can only reallocate within the same terrain.
+        const mukByTerrain = new Map<Terrain, Map<Allocation, number>>();
+        for (const [a, u] of muk) {
+            const terrain = a.terrain;
+            if (!mukByTerrain.has(terrain)) {
+                mukByTerrain.set(terrain, new Map());
+            }
+            mukByTerrain.get(terrain)!.set(a, u);
+        }
+
+        let bestMuk = undefined;
+        let worstMuk = undefined;
+        let mukGain = 0;
+        for (const [terrain, tmuk] of mukByTerrain) {
+            if (tmuk.size < 2) continue;
+
+            const bestTMuk = mapmax(tmuk, a => a.terrain !== BuildingPlot);
+            const worstTMuk = mapmin(tmuk, a => a.terrain !== BuildingPlot && a.landFraction >= d);
+            const tmukGain = bestTMuk[1] - worstTMuk[1];
+            if (tmukGain > mukGain) {
+                [bestMuk, worstMuk, mukGain] = [bestTMuk, worstTMuk, tmukGain];
             }
         }
 
-        if (bestCapacity) {
-            this.allocs_ = bestAllocs;
+        if (mukGain > mulGain && worstMuk && worstMuk[0] !== undefined) {
+            // Reallocating land is more beneficial, so do that.
+            this.allocs_ = reallocated(this.allocs_, worstMuk[0], bestMuk![0]!, d, 0);
+        } else if (mulGain > 0 && worstMul[0] !== undefined) {
+            this.allocs_ = reallocated(this.allocs_, worstMul[0], bestMul[0]!, 0, d);
         }
+
         if (!batch) {
             this.world.notifyWatchers();
         }
-        return bestCapacity;
+        return this.capacity;
     }
 
     get production(): PerTerrainPerProduce {
