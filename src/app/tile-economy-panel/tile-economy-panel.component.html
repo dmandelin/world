@@ -12,6 +12,7 @@
                     <th>Boost</th>
                     <th class="la">Terrain</th>
                     <th>A</th>
+                    <th>%A</th>
                     <th>Ppl</th>
                     <th>%Ppl</th>
                     <th>Product</th>
@@ -27,6 +28,7 @@
                     <td>{{a.tech.name}}</td>
                     <td class="ra">{{a.tech.inputBoost}}</td>
                     <td>{{a.terrain.name}}</td>
+                    <td class="ra">{{floor(a.landUnits)}}</td>
                     <td class="ra">{{floor(a.landFraction * tile.areaFraction(a.terrain) * 100)}}%</td>
                     <td class="ra">{{floor(a.laborFraction * a.tile.population)}}</td>
                     <td class="ra">{{floor(a.laborFraction * 100)}}%</td>

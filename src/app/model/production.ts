@@ -124,16 +124,18 @@ export class Allocation {
         readonly laborFraction: number) {}
 
     production(): number {
-        const landUnits = this.landFraction * this.tile.areaFraction(this.terrain) * 
-            (this.terrain.landUnitsPerTile.get(this.product) || 0) *
-            this.tech.inputBoost;
         const laborUnits = this.laborFraction * this.tile.population * this.tech.inputBoost;
 
         const base = this.terrain === BuildingPlot
             ? this.laborOnlyProduction(laborUnits)
-            : this.ces_production(landUnits, laborUnits);
+            : this.ces_production(this.landUnits, laborUnits);
 
         return base * this.tile.outputBoost(this.product);
+    }
+
+    get landUnits(): number {
+        return this.landFraction * this.tile.areaFraction(this.terrain) * 
+            (this.terrain.landUnitsPerTile.get(this.product) || 0);
     }
 
     incr(landFractionIncr: number, laborFractionIncr: number): Allocation {
