@@ -287,6 +287,7 @@ export class Tile {
     get controller() { return this.controller_; }
     set controller(value: Polity) { this.controller_ = value; }
 
+    get pop() { return this.pop_; }
     get population() { return this.pop_.n; }
 
     // Understanding population growth

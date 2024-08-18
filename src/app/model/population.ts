@@ -10,6 +10,7 @@ export class Population {
     private expectedDeathRate_ = 0;
 
     private lastNaturalIncrease: number = 0;
+    private targetGrowthRate_: number = 0;
 
     get census(): Census {
         return this.censusSeries.lastValue;
@@ -19,7 +20,11 @@ export class Population {
         return this.tile.capacity / this.tile.population;
     }
 
-    private get expectedDeathRate(): number {
+    get targetGrowthRate(): number {
+        return this.targetGrowthRate_;
+    }
+
+    get expectedDeathRate(): number {
         if (this.expectedDeathRate_ === 0) {
             // Use actual current rate when there was no previous data.
             this.expectedDeathRate_ = this.baseDeathRate - this.tile.raidEffects.deltaPopulation / this.n;
@@ -36,11 +41,12 @@ export class Population {
             const decrease = this.n - Math.floor(this.n * targetCapacityRatio / capacityRatio);
             // In a famine, raiding losses ease the burden somewhat, but are still net losses.
             this.lastNaturalIncrease = -decrease + 0.5 * raidingLosses;
+            this.targetGrowthRate_ = -decrease / this.n;
         } else {
             // Target overall growth rate for a population of this prosperity level.
-            const targetGrowthRate = (Math.min(capacityRatio, 2) - 0.7) * 0.014;
+            this.targetGrowthRate_ = (Math.min(capacityRatio, 2) - 0.7) / 0.3 * 0.014;
 
-            const birthRate = this.expectedDeathRate + targetGrowthRate;
+            const birthRate = (this.expectedDeathRate + this.targetGrowthRate_) * this.tile.bonus('populationGrowthFactor');
             const growthRate = birthRate - this.baseDeathRate;
             this.lastNaturalIncrease = Math.floor(this.n * growthRate);
         }

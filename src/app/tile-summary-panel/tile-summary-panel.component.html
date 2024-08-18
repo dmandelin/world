@@ -14,8 +14,18 @@
             <td class="ra">{{tile?.capacity?.toFixed(0)}}</td>
             <td class="ra">{{percent(consumptionRatio)}}</td>
         </tr>
+        <tr>
+            <td>Target growth rate</td>
+            <td></td>
+            <td class="ra">{{spercent(tile?.pop?.targetGrowthRate, 2)}}</td>
+        </tr>
+        <tr>
+            <td>Expected death rate</td>
+            <td></td>
+            <td class="ra">{{spercent(tile?.pop?.expectedDeathRate, 2)}}</td>
+        </tr>
         <tr *ngIf="religiousPopulationGrowthFactor != 0">
-            <td>Religious Factor</td>
+            <td>Religious factor</td>
             <td class="ra">{{spercent(religiousPopulationGrowthFactor)}}</td>
             <td></td>
         </tr>
