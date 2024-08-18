@@ -23,7 +23,7 @@ export class EconomyGraphsComponent extends TileGraphBase {
         this.productionDataset('Total', 'blue', pp => pp.total),
 
         this.dataset('Capacity', 'red', t => t.capacitySeries.values),
-        this.dataset('Population', 'black', t => t.populationSeries.values),
+        this.dataset('Population', 'black', t => t.censusSeries.values.map(c => c.n)),
       ]
     };
   }

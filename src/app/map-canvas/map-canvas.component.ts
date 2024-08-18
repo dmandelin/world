@@ -85,7 +85,7 @@ export class MapCanvasComponent implements AfterViewInit, OnDestroy {
 
         // Population change
         ctx.font = '10px sans-serif';
-        this.drawTextRightAligned(ctx, `${Math.floor(tile.lastPopulationChange * 100)}`, 
+        this.drawTextRightAligned(ctx, `${Math.floor(tile.census.relativeChange * 100)}`, 
           x, y + 62, this.side - 4);
 
         // Population

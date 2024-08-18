@@ -20,20 +20,15 @@ export class TileSummaryPanelComponent extends TilePanelBase {
     return (this.tile?.bonus('populationGrowthFactor') ?? 1) - 1;
   }
 
-  get populationChange(): string {
-    const v = (this.tile?.population ?? 0) - (this.tile?.populationSeries?.prevValue ?? 0);
-    return (v < 0 ? '' : '+') + v.toFixed(0);
-  }
-
   formatYear(year: number|undefined): string {
     return year === undefined ? '' : this.wvm.world.yearDisplay(year);
   }
 
-  percent(n: number|undefined): string {
-    return n === undefined ? '' : (n * 100).toFixed(0) + '%';
+  percent(n: number|undefined, places = 0): string {
+    return n === undefined ? '' : (n * 100).toFixed(places) + '%';
   }
 
-  spercent(n: number|undefined): string {
-    return n === undefined ? '' : (n < 0 ? '' : '+') + this.percent(n);
+  spercent(n: number|undefined, places = 0): string {
+    return n === undefined ? '' : (n < 0 ? '' : '+') + this.percent(n, places);
   }
 }

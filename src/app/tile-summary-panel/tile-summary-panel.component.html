@@ -3,10 +3,10 @@
 <div id="leftPanel">
 <h2 class="mtz">Population</h2>
 <table id="population">
-    <ng-container *ngIf="(tile?.populationSeries?.length ?? 0) > 1">
+    <ng-container *ngIf="wvm.world.year > 0">
         <tr>
-            <td>Population in {{formatYear(tile?.populationSeries?.prevYear)}}</td>
-            <td class="ra">{{tile?.populationSeries?.prevValue}}</td>
+            <td>Population in {{formatYear(tile?.prevCensus?.year)}}</td>
+            <td class="ra">{{tile?.prevCensus?.n}}</td>
             <td></td>
         </tr>
         <tr>
@@ -14,35 +14,25 @@
             <td class="ra">{{tile?.capacity?.toFixed(0)}}</td>
             <td class="ra">{{percent(consumptionRatio)}}</td>
         </tr>
-        <tr>
-            <td>Base growth rate</td>
-            <td class="ra">{{spercent(tile?.baseGrowthRate)}}</td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>Capacity factor</td>
-            <td class="ra">{{percent(tile?.prevCapacityGrowthFactor)}}</td>
-            <td></td>
-        </tr>
         <tr *ngIf="religiousPopulationGrowthFactor != 0">
             <td>Religious Factor</td>
             <td class="ra">{{spercent(religiousPopulationGrowthFactor)}}</td>
             <td></td>
         </tr>
         <tr>
-            <td>Growth rate</td>
-            <td class="ra">{{percent(tile?.prevGrowthRate)}}</td>
-            <td></td>
+            <td>Natural increase</td>
+            <td class="ra">{{tile?.census?.naturalIncrease}}</td>
+            <td class="ra">{{spercent((tile?.census?.naturalIncrease ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
         </tr>
         <tr>
             <td>Raiding losses</td>
-            <td class="ra">{{tile?.raidEffects?.deltaPopulation}}</td>
-            <td class="ra">{{spercent((tile?.raidEffects?.deltaPopulation ?? 0) / (tile?.populationSeries?.prevValue ?? 1))}}</td>
+            <td class="ra">{{-(tile?.census?.raidingLosses ?? 0)}}</td>
+            <td class="ra">{{spercent(-(tile?.census?.raidingLosses ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
         </tr>
         <tr>
-            <td>Population change</td>
-            <td class="ra">{{populationChange}}</td>
-            <td></td>
+            <td>Total change</td>
+            <td class="ra">{{tile?.census?.change}}</td>
+            <td class="ra">{{spercent((tile?.census?.change ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
         </tr>
     </ng-container>
         <tr>

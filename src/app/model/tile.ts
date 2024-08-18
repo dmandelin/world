@@ -12,12 +12,14 @@ import { TimeSeries } from '../data/timeseries';
 import { BonusKey, HolySite, ReligiousSite, ReligiousTraits, Temple } from './religion';
 import { RaidEffects } from './raiding';
 import { Culture, CultureGroups } from './culture';
+import { Census, Population } from './population';
+import { Time } from '@angular/common';
 
 export class Tile {
     private controller_: Polity;
     private tradePartners_ = new Set<Tile>();
 
-    private population_: number;
+    private pop_: Population;
 
     readonly culture: Culture;
     readonly religiousSite: ReligiousSite;
@@ -31,8 +33,6 @@ export class Tile {
 
     readonly productionSeries = new TimeSeries<PerProduce>();
     readonly capacitySeries = new TimeSeries<number>();
-    readonly populationSeries = new TimeSeries<number>();
-    readonly raidEffectSeries = new TimeSeries<RaidEffects>();
 
     // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
     // population of 50K+. That means each tile is apparently 50 square miles.
@@ -48,7 +48,7 @@ export class Tile {
         capacityRatio: number,
     ) {
         this.controller_ = controller;
-        this.population_ = this.isRiver ? randint(5000, 10000) : randint(500, 1000);
+        this.pop_ = new Population(this, this.isRiver ? randint(5000, 10000) : randint(500, 1000));
 
         const cultureGroup = isRiver ? CultureGroups.Sumerian : CultureGroups.Akkadian;
         this.culture = cultureGroup.createCulture(this);
@@ -78,10 +78,9 @@ export class Tile {
     }
 
     updateTimeSeries() {
+        this.pop_.updateTimeSeries();
         this.productionSeries.add(this.world.year, this.production.Total);
         this.capacitySeries.add(this.world.year, this.capacity);
-        this.populationSeries.add(this.world.year, this.population);
-        this.raidEffectSeries.add(this.world.year, this.raidEffects);
     }
 
     applyConstruction(): void {
@@ -287,8 +286,7 @@ export class Tile {
     get controller() { return this.controller_; }
     set controller(value: Polity) { this.controller_ = value; }
 
-    get population() { return this.population_; }
-    set population(value: number) { this.population_ = value; }
+    get population() { return this.pop_.n; }
 
     // Understanding population growth
     //
@@ -428,47 +426,19 @@ export class Tile {
     // so that a reduction in raiding could lead to substantial population growth.
     // We probably need some target population growth concept.
 
-    get baseGrowthRate() {
-        return 0.4;
-    }
-
-    get prevCapacityGrowthFactor() {
-        if (this.populationSeries.length < 1) return 0;
-        const r = this.populationSeries.prevValue / (this.capacitySeries.prevValue * 1.2);
-        return (1 - r);
-    }
-
-    get prevGrowthRate() {
-        return this.baseGrowthRate 
-            * this.prevCapacityGrowthFactor 
-            // TODO - Should actually be the factor as it was last turn, but we
-            // don't want to save the entire history of every intermediate value.
-            * this.bonus('populationGrowthFactor');
-    }
-
-    get lastPopulationChange() {
-        if (this.populationSeries.length < 2) return 0;
-        return (this.populationSeries.lastValue - this.populationSeries.prevValue) / 
-            (this.populationSeries.prevValue ?? 1);
-    }
-
     updatePopulation() {
-        const [p, c0] = [this.population, this.capacity];
-        if (p == 0) return;
+        this.pop_.update();
+    }
 
-        // Create a tendency for population to overshoot traditional capacity a bit.
-        const c = 1.2 * c0;
-        const r = p / c;
-        const dp = Math.floor(this.baseGrowthRate 
-            * (1 - r) 
-            // TODO - Positive bonuses perhaps shouldn't increase negative growth.
-            * this.bonus('populationGrowthFactor') 
-            * p);
-       
-        this.population = Math.max(p + dp, Math.floor(0.65 * c));
-        this.population += this.raidEffects.deltaPopulation;
-        if (isNaN(this.population)) {
-            throw new Error(`Invalid population ${this.population}`);
-        }
+    get prevCensus(): Census {
+        return this.pop_.censusSeries.prevValue;
+    }
+
+    get census(): Census {
+        return this.pop_.census;
+    }
+
+    get censusSeries(): TimeSeries<Census> {
+        return this.pop_.censusSeries;
     }
 }

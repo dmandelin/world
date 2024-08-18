@@ -15,11 +15,11 @@ import { TileGraphBase } from '../util/tile-graph-base';
 export class TilePopGraphsComponent extends TileGraphBase {
   public get lineChartData(): ChartConfiguration<'line'>['data'] {
       return {
-        labels: this.wvm.selectedTile?.populationSeries.years ?? [],
+        labels: this.wvm.selectedTile?.censusSeries.years ?? [],
         datasets: [
           this.dataset('Capacity', 'green', t => t.capacitySeries.values),
-          this.dataset('Population', 'black', t => t.populationSeries.values),
-          this.dataset('Losses', 'red', t => t.raidEffectSeries.values.map(e => -e.deltaPopulation)),
+          this.dataset('Population', 'black', t => t.censusSeries.values.map(c => c.n)),
+          this.dataset('Losses', 'red', t => t.censusSeries.values.map(c => c.raidingLosses)),
         ]
       };
     }

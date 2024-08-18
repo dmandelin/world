@@ -464,7 +464,7 @@ class WorldMap {
 
                 
                 const wetFraction = 0.01 * (isRiver
-                    ? 10 + randint(10) + randint(10)
+                    ? 5 + randint(5) + randint(5)
                     : 0)
                 const dryLightSoilFraction = isRiver
                     ? Math.random() * (1 - wetFraction)
