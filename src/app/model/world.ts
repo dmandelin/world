@@ -9,27 +9,32 @@ import { resolveRaids } from "./raiding";
 // - Starting on turn 1, look for a tile where people would be motivated
 //   to do something different from what the model does now, and then
 //   add that ability to the model.
-// - We may need to introduce more problems:
-//   - Life seems easy for most tiles:
-//     - With more flexible land allocation, overall capacity is up.
-//     - If we start below capacity, typically population will rise,
-//       approaching but not exceeding capacity, so nothing bad happens.
-//   - But what problems actually would occur in this time period?
-//     * Verify nutritional formula: in particular, it seems that agrarian
-//       tiles are able to get away with hardly any lentils. We may want to
-//       prevent them getting too much dairy (maybe need to dial down production).
-//     - Running out of arable land would be a thing, and they'd want to
-//       irrigate to create more.
-//       * We can plot MPL and MPK, and use those to create measures of
-//         worker income and landowner income. If either is dropping there
-//         should be some sort of negative effect, and a motivation to fix it.
-//       - We can change the population model so that population can overshoot
-//         capacity.
-//       - We can add health penalties or negative effects if population gets
-//         close to capacity.
-//     * Trade: We don't have special trade goods yet, but if we add them,
-//       shortages and such become a possibility.
+// - In the latest version, we sometimes see stressed tiles at the start
+//   of the simulation. Maybe we can consider them to have just had a flood
+//   or something. At any rate, they have problems to work on.
+// - Developments we want to see in this time period:
+//   - Economy
+//     - Technological development
+//     - Irrigation to increase arable land
+//     - Pottery, wool, and jewelry production
+//     - Long-distance trade
+//   - Culture
+//     - Temple elite and temple lands effects
+//   - Politics
+//     - Power actors and influence levels
+// - Thinking about order to do those in:
+//   - We already have something for most layers, so maybe politics next.
+//     - Can start by simply registering the existence of political actors
+//       and rating their prestige and influence.
+//     - We'd end up doing a bit more on culture getting that working.
+//     - We can also add cross-tile influence right away to start having
+//       a bit of a competitive dynamic.
+// - Then we can go back and add more economic items to support all that.
+//     - Top stuff to do is probably irrigation, pottery, and long-distance trade. 
+//
 // - Problems and opportunities discovered:
+//   * Stress should affect innovation rate.
+//
 //   * Add processing indicator now that turns take noticeable time.
 //   * Analyze nutritional formula for desert tiles: sometimes results don't
 //     make sense.
@@ -39,8 +44,6 @@ import { resolveRaids } from "./raiding";
 //     Give them more ways to get more resources:
 //     - Trade over longer distances to get resources not available from
 //       neighbors in large enough quantity.
-//     - Decrease leisure get more output, at the expense of some kind of
-//       health, happiness, or organic development.
 //     - Irrigate more land to increase output.
 //     - Raid neighbors for resources they refuse to trade, but note that
 //       the neighbors may then stop trading or raid back.
