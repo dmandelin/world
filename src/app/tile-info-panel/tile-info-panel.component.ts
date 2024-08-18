@@ -8,6 +8,7 @@ import { TileSummaryPanelComponent } from '../tile-summary-panel/tile-summary-pa
 import { EconomyGraphsComponent } from '../economy-graphs/economy-graphs.component';
 import { TileIdeologyPanelComponent } from '../tile-ideology-panel/tile-ideology-panel.component';
 import { TileMilitaryPanelComponent } from '../tile-military-panel/tile-military-panel.component';
+import { TilePoliticsPanelComponent } from '../tile-politics-panel/tile-politics-panel.component';
 
 @Component({
   selector: 'app-tile-info-panel',
@@ -20,6 +21,7 @@ import { TileMilitaryPanelComponent } from '../tile-military-panel/tile-military
     TileEconomyPanelComponent,
     TileIdeologyPanelComponent,
     TileMilitaryPanelComponent,
+    TilePoliticsPanelComponent,
     TileSummaryPanelComponent,
   ],
   templateUrl: './tile-info-panel.component.html',

@@ -3,9 +3,44 @@ import { World } from './world';
 import { cityNames } from './content';
 import { Tile } from './tile';
 import { sorted } from './lib';
+import { TimeSeries } from '../data/timeseries';
+
+export abstract class PoliticalActor {
+    constructor(readonly polity: Polity) {}
+
+    abstract get name(): string;
+    abstract get color(): string;
+    abstract get prestige(): number;
+
+    get influence(): number {
+        return this.prestige / this.polity.actors.map(a => a.prestige).reduce((a, b) => a + b, 0);
+    }
+
+    influenceSeries: TimeSeries<number> = new TimeSeries<number>();
+
+    updateTimeSeries(): void {
+        this.influenceSeries.add(this.polity.world.year, this.influence);
+    }
+}
+
+export class Chiefs extends PoliticalActor {
+    override get name() { return 'Traditional Chiefs'; }
+    override get color() { return 'red'; }
+    override get prestige() { 
+        return Math.min(this.polity.population, 10000);
+    }
+}
+
+export class Priests extends PoliticalActor {
+    override get name() { return 'Temple Priests'; }
+    override get color() { return 'black'; }
+    override get prestige() { return 2 * this.polity.home.religiousSite.capacity; }
+}
 
 export class Polity {
     private brain_: Brain;
+
+    actors = [new Chiefs(this), new Priests(this)];
 
     vassals = new Set<Polity>();
     suzerain: Polity|undefined = undefined;
@@ -17,7 +52,7 @@ export class Polity {
     historicalRanks: [number, number][] = [];
 
     constructor(
-        private readonly world: World, 
+        readonly world: World, 
         readonly name: string,
         readonly mapColor: string,
         brain: Brain) {
@@ -105,6 +140,12 @@ export class Polity {
             case this.vassals.has(other): return [false, "can't attack a vassal"];
             case !this.vassalNeighbors.includes(other) && other !== this.suzerain: return [false, "too far to attack"];
             default: return [true, ''];
+        }
+    }
+
+    updateTimeSeries(): void {
+        for (const a of this.actors) {
+            a.updateTimeSeries();
         }
     }
 }

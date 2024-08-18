@@ -81,6 +81,7 @@ export class Tile {
         this.pop_.updateTimeSeries();
         this.productionSeries.add(this.world.year, this.production.Total);
         this.capacitySeries.add(this.world.year, this.capacity);
+        this.controller.updateTimeSeries();
     }
 
     applyConstruction(): void {

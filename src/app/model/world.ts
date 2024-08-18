@@ -20,17 +20,10 @@ import { resolveRaids } from "./raiding";
 //     - Long-distance trade
 //   - Culture
 //     - Temple elite and temple lands effects
+//     - Temple influence into other tiles
 //   - Politics
 //     - Power actors and influence levels
-// - Thinking about order to do those in:
-//   - We already have something for most layers, so maybe politics next.
-//     - Can start by simply registering the existence of political actors
-//       and rating their prestige and influence.
-//     - We'd end up doing a bit more on culture getting that working.
-//     - We can also add cross-tile influence right away to start having
-//       a bit of a competitive dynamic.
-// - Then we can go back and add more economic items to support all that.
-//     - Top stuff to do is probably irrigation, pottery, and long-distance trade. 
+//   - Top stuff to do is probably irrigation, pottery, and long-distance trade. 
 //
 // - Problems and opportunities discovered:
 //   * Stress should affect innovation rate.

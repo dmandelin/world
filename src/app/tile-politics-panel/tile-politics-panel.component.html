@@ -1,0 +1,16 @@
+<h2>Rank Society</h2>
+
+<h3>Political actors</h3>
+<table>
+    <tr>
+        <th class="la">Group</th>
+        <th class="ra">Prestige</th>
+        <th class="ra">Influence</th>
+    <tr *ngFor="let a of tile?.controller?.actors">
+        <td>{{a.name}}</td>
+        <td class="ra">{{a.prestige}}</td>
+        <td class="ra">{{percent(a.influence)}}</td>
+    </tr>
+</table>
+
+<app-tile-politics-graphs></app-tile-politics-graphs>
