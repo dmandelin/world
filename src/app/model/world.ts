@@ -24,6 +24,31 @@ import { resolveRaids } from "./raiding";
 //   - Politics
 //     - Power actors and influence levels
 //   - Top stuff to do is probably irrigation, pottery, and long-distance trade. 
+//     - Irrigation:
+//       - Main thing we need to figure out is how much it costs or how
+//         fast they irrigate. We can do some trial and error there but
+//         treat it as a construction project and aim for breakeven to
+//         take 1-3 turns.
+//     - Pottery:
+//       - Effects:
+//         - Substantial farm product output bonus
+//         - Somehow helps hire specialists
+//       - Costs: Need to research this more, but I think in the beginning, it
+//         was expensive, but during this period a new pottery wheel was invented
+//         that made it much cheaper.
+//       - Production: Have to have the technology. May need to level up in
+//         local skill. Potters can produce locally or for trade
+//     - Long-distance trade:
+//       - This included tools, but for now the most important parts are probably
+//         for elite goods. We can start with gems and gold and maybe add other
+//         luxury goods later.
+//       - Effects: Some of these will actually be needed to establish chiefs
+//         and/or priests. Or maybe prestige is simply much lower if they don't
+//         have them.
+//       - We can start modeling goods as trickling over by sequences of barter,
+//         with very high transaction costs. We can give sufficiently presitigious
+//         political actors the ability to send a trade mission further, such as
+//         to off-map sites, to receive goods with lower transaction costs.
 //
 // - Problems and opportunities discovered:
 //   * Stress should affect innovation rate.
