@@ -11,6 +11,7 @@ export abstract class PoliticalActor {
     abstract get name(): string;
     abstract get color(): string;
     abstract get prestige(): number;
+    abstract get complexity(): number;
 
     get influence(): number {
         return this.prestige / this.polity.actors.map(a => a.prestige).reduce((a, b) => a + b, 0);
@@ -29,12 +30,18 @@ export class Chiefs extends PoliticalActor {
     override get prestige() { 
         return Math.min(this.polity.population, 10000);
     }
+    override get complexity() {
+        return 0.25 * Math.log10(Math.min(this.polity.population, 10000));
+    }
 }
 
 export class Priests extends PoliticalActor {
     override get name() { return 'Temple Priests'; }
     override get color() { return 'black'; }
     override get prestige() { return 2 * this.polity.home.religiousSite.capacity; }
+    override get complexity() {
+        return 0.5 * Math.log10(Math.min(this.polity.population, this.polity.home.religiousSite.capacity));
+    }
 }
 
 export class Polity {
@@ -57,6 +64,15 @@ export class Polity {
         readonly mapColor: string,
         brain: Brain) {
         this.brain_ = brain;
+    }
+
+    get complexity(): number {
+        // Complexity of the influence structure.
+        const ti = this.actors.reduce((a, b) => a + b.influence, 0);
+        const e = -this.actors.map(a => a.influence / ti).reduce((a, b) => a + b * Math.log(b), 0);
+
+        // Internal complexity of each faction.
+        return e + this.actors.reduce((a, b) => a + b.complexity, 0);
     }
 
     get home(): Tile {

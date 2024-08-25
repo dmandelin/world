@@ -10,6 +10,7 @@ export class ProductionTech extends Tech {
 
     constructor(
         name: string,
+        readonly complexity: number,
         readonly product: Product,
         readonly inputBoost: number,
         reqs: Iterable<ProductionTech> = []) {
@@ -32,10 +33,10 @@ export class ProductionTech extends Tech {
 }
 
 class TechsSingleton {
-    readonly basicBarleyFarming = new ProductionTech('Barley I', Barley, 1.0);
-    readonly basicLentilFarming = new ProductionTech('Lentils I', Lentils, 1.0);
-    readonly basicPastoralism = new ProductionTech('Pastoralism I', Dairy, 1.0);
-    readonly basicTempleConstruction = new ProductionTech('Building I', TempleConstruction, 1.0);
+    readonly basicBarleyFarming = new ProductionTech('Barley I', 0.5, Barley, 1.0);
+    readonly basicLentilFarming = new ProductionTech('Lentils I', 0.5, Lentils, 1.0);
+    readonly basicPastoralism = new ProductionTech('Pastoralism I', 0.5, Dairy, 1.0);
+    readonly basicTempleConstruction = new ProductionTech('Building I', 0.5, TempleConstruction, 1.0);
 
     readonly initialTechs: [Product, ProductionTech][] = [
         [Barley, this.basicBarleyFarming],
@@ -48,11 +49,11 @@ class TechsSingleton {
 
     constructor() {
         const improvedBarleyFarming = new ProductionTech(
-            'Barley II', Barley, 1.5, [this.basicBarleyFarming]);
+            'Barley II', 0.6, Barley, 1.5, [this.basicBarleyFarming]);
         const improvedLentilFarming = new ProductionTech(
-            'Lentils II', Lentils, 1.3, [this.basicLentilFarming]);
+            'Lentils II', 0.6, Lentils, 1.3, [this.basicLentilFarming]);
         const improvedPastoralism = new ProductionTech(
-            'Pastoralism II', Dairy, 1.2, [this.basicPastoralism]);
+            'Pastoralism II', 0.6, Dairy, 1.2, [this.basicPastoralism]);
 
         this.techs.push(...this.initialTechs.map(([_, t]) => t));
 
@@ -97,5 +98,9 @@ export class TechKit {
 
     get asMap(): Map<Product, ProductionTech> {
         return new Map(this.map);
+    }
+
+    get complexity(): number {
+        return this.techs.reduce((a, t) => a + t.complexity, 0);
     }
 }

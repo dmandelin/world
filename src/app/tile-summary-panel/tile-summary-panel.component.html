@@ -2,7 +2,7 @@
 <div id="leftPanel">
 <h2 class="mtz">𒈨𒌍 (Me) {{tile?.name}}</h2>
 <div>
-    <table>
+    <table id="summary">
         <tr>
             <th>𒌋 (lu, people)</th>
             <td class="ra">{{this.tile?.population}}</td>
@@ -18,6 +18,19 @@
         <tr>
             <th>𒄑𒋺𒋛 (ama-gi, freedom)</th>
             <td class="ra">{{freedom}}</td>
+        </tr>
+    </table>
+
+    <table id="sources">
+        <tr>
+            <th>Source</th>
+            <th>𒍑𒋼</th>
+            <th>𒄑𒋺𒋛</th>
+        </tr>
+        <tr *ngFor="let s of sources">
+            <td>{{s.name}}</td>
+            <td class="ra">{{s.c.toFixed(1)}}</td>
+            <td class="ra">{{s.f.toFixed(1)}}</td>
         </tr>
     </table>
 </div>

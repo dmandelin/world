@@ -24,6 +24,8 @@ export const CultureGroups = {
             raidIntensity: 1,
             raidCapture: 1,
             raidMobility: 1,
+            peopleFreedomFactor: 0.2,
+            leisureValue: 0.25,
         },
         Temple,
         [
@@ -41,6 +43,8 @@ export const CultureGroups = {
             raidIntensity: 2,
             raidCapture: 2,
             raidMobility: 2,
+            peopleFreedomFactor: 0.5,
+            leisureValue: 0.1,
         },
         HolySite,
         [

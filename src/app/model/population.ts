@@ -58,6 +58,10 @@ export class Population {
         this.expectedDeathRate_ = (this.expectedDeathRate_ + lastDeathRate) / 2;
     }
 
+    get complexity(): number {
+        return 0.5 * Math.log10(this.n);
+    }
+
     updateTimeSeries(): void {
         this.censusSeries.add(this.tile.world.year, new Census(
             this.tile.world.year,

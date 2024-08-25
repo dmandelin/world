@@ -2,9 +2,13 @@ import { WorldLog } from "./world";
 
 export type Bonuses = {
     populationGrowthFactor?: number,
+
     hopeFactor?: number,
     gritFactor?: number,
     prosperityFactor?: number,
+
+    peopleFreedomFactor?: number,
+    leisureValue?: number,
 
     agrarianOutputFactor?: number,
     pastoralOutputFactor?: number,
@@ -70,6 +74,7 @@ export const ReligiousTraits = new ReligiousTraitsSingleton();
 class TempleLevel {
     constructor(
         readonly name: string,
+        readonly complexity: number,
         readonly level: number,
         readonly cost: number, 
         readonly capacity: number) {
@@ -77,11 +82,11 @@ class TempleLevel {
 }
 
 export const TempleLevels = [
-    new TempleLevel('Shrines', 0, 0, 500),
-    new TempleLevel('Temple I', 1, 100, 1000),
-    new TempleLevel('Temple II', 2, 300, 2000),
-    new TempleLevel('Temple III', 3, 1000, 5000),
-    new TempleLevel('Temple IV', 4, 3000, 10000),
+    new TempleLevel('Shrines', 1, 0, 0, 500),
+    new TempleLevel('Temple I', 1.8, 1, 100, 1000),
+    new TempleLevel('Temple II', 2.4, 2, 300, 2000),
+    new TempleLevel('Temple III', 3.2, 3, 1000, 5000),
+    new TempleLevel('Temple IV', 4, 4, 3000, 10000),
 ]
 
 export class ReligiousSite {
@@ -90,6 +95,7 @@ export class ReligiousSite {
 
     get name(): string { throw new Error('abstract method'); }
     get capacity(): number { throw new Error('abstract method'); }
+    get complexity(): number { throw new Error('abstract method'); }
     
     bonus(b: BonusKey, population: number) {
         if (this.traits.length > 1) throw new Error('not implemented: multiple trait bonuses');
@@ -102,6 +108,7 @@ export class ReligiousSite {
 export class HolySite extends ReligiousSite {
     override get name() { return 'Holy Mountain'; }
     override get capacity() { return 500; }
+    override get complexity() { return 1; }
 }
 
 export class Temple extends ReligiousSite {
@@ -111,6 +118,7 @@ export class Temple extends ReligiousSite {
     private get l() { return TempleLevels[this.level_]; }
     override get name() { return this.l.name; }
     override get capacity() { return this.l.capacity; }
+    override get complexity() { return this.l.complexity; }
 
     get construction() { return this.construction_; }
     get nextLevel() { return TempleLevels[this.level_ + 1]; }

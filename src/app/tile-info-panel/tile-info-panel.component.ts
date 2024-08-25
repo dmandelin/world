@@ -9,6 +9,7 @@ import { EconomyGraphsComponent } from '../economy-graphs/economy-graphs.compone
 import { TileIdeologyPanelComponent } from '../tile-ideology-panel/tile-ideology-panel.component';
 import { TileMilitaryPanelComponent } from '../tile-military-panel/tile-military-panel.component';
 import { TilePoliticsPanelComponent } from '../tile-politics-panel/tile-politics-panel.component';
+import { TilePopulationPanelComponent } from '../tile-population-panel/tile-population-panel.component';
 
 @Component({
   selector: 'app-tile-info-panel',
@@ -22,6 +23,7 @@ import { TilePoliticsPanelComponent } from '../tile-politics-panel/tile-politics
     TileIdeologyPanelComponent,
     TileMilitaryPanelComponent,
     TilePoliticsPanelComponent,
+    TilePopulationPanelComponent,
     TileSummaryPanelComponent,
   ],
   templateUrl: './tile-info-panel.component.html',

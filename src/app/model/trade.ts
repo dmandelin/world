@@ -159,6 +159,12 @@ export class Market {
             }
         }
     }
+
+    get complexity() {
+        // Something like proportional to the log of the number of trade links.
+        if (this.links.length === 0) return 0;
+        return 1 + 0.25 * Math.log2(this.links.reduce((a, l) => a + l.transfers.length, 0));
+    }
 }
 
 export class TradeLink {
