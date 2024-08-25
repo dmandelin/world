@@ -14,6 +14,7 @@ import { RaidEffects } from './raiding';
 import { Culture, CultureGroups } from './culture';
 import { Census, Population } from './population';
 import { Time } from '@angular/common';
+import { complexity, flourishing, freedom } from './ways';
 
 export class Tile {
     private controller_: Polity;
@@ -33,6 +34,10 @@ export class Tile {
 
     readonly productionSeries = new TimeSeries<PerProduce>();
     readonly capacitySeries = new TimeSeries<number>();
+
+    readonly flourishingSeries = new TimeSeries<number>();
+    readonly complexitySeries = new TimeSeries<number>();
+    readonly freedomSeries = new TimeSeries<number>();
 
     // Each tile is eventually supposed to potentially host a city of 10K+, implying a tile
     // population of 50K+. That means each tile is apparently 50 square miles.
@@ -79,6 +84,10 @@ export class Tile {
 
     updateTimeSeries() {
         this.pop_.updateTimeSeries();
+        this.flourishingSeries.add(this.world.year, flourishing(this));
+        this.complexitySeries.add(this.world.year, complexity(this));
+        this.freedomSeries.add(this.world.year, freedom(this));
+
         this.productionSeries.add(this.world.year, this.production.Total);
         this.capacitySeries.add(this.world.year, this.capacity);
         this.controller.updateTimeSeries();

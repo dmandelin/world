@@ -1,0 +1,74 @@
+<h3>{{tile?.name}}</h3>
+<div id="main">
+<div id="leftPanel">
+<h2 class="mtz">Population</h2>
+<table id="population">
+    <ng-container *ngIf="wvm.world.year > 0">
+        <tr>
+            <td>Population in {{formatYear(tile?.prevCensus?.year)}}</td>
+            <td class="ra">{{tile?.prevCensus?.n}}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Capacity</td>
+            <td class="ra">{{tile?.capacity?.toFixed(0)}}</td>
+            <td class="ra">{{percent(consumptionRatio)}}</td>
+        </tr>
+        <tr>
+            <td>Target growth rate</td>
+            <td></td>
+            <td class="ra">{{spercent(tile?.pop?.targetGrowthRate, 2)}}</td>
+        </tr>
+        <tr>
+            <td>Expected death rate</td>
+            <td></td>
+            <td class="ra">{{spercent(tile?.pop?.expectedDeathRate, 2)}}</td>
+        </tr>
+        <tr *ngIf="religiousPopulationGrowthFactor != 0">
+            <td>Religious factor</td>
+            <td class="ra">{{spercent(religiousPopulationGrowthFactor)}}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>Natural increase</td>
+            <td class="ra">{{tile?.census?.naturalIncrease}}</td>
+            <td class="ra">{{spercent((tile?.census?.naturalIncrease ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
+        </tr>
+        <tr>
+            <td>Raiding losses</td>
+            <td class="ra">{{-(tile?.census?.raidingLosses ?? 0)}}</td>
+            <td class="ra">{{spercent(-(tile?.census?.raidingLosses ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
+        </tr>
+        <tr>
+            <td>Total change</td>
+            <td class="ra">{{tile?.census?.change}}</td>
+            <td class="ra">{{spercent((tile?.census?.change ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
+        </tr>
+    </ng-container>
+        <tr>
+            <td>Population in {{wvm.world.yearForDisplay}}</td>
+            <td class="ra">{{tile?.population}}</td>
+            <td></td>
+        </tr>
+</table>
+
+<h2 class="mtz">Settlements</h2>
+<table>
+    <tr>
+        <th class="la">Tier</th>
+        <th class="ra">#</th>
+        <th class="ra">Avg Pop</th>
+        <th class="ra">Total Pop</th>
+    </tr>
+    <tr *ngFor="let s of tile?.settlementTiers()">
+        <td>{{s.name}}</td>
+        <td class="ra">{{s.settlements.length}}</td>
+        <td class="ra">{{s.averagePopulation}}</td>
+        <td class="ra">{{s.totalPopulation}}</td>
+    </tr>
+</table>
+</div>
+<div id="rightPanel">
+    <app-tile-pop-graphs></app-tile-pop-graphs>
+</div>
+</div>

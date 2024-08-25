@@ -6,10 +6,19 @@
     text-align: right;
 }
 
-#population td {
-    padding: 0 0.5em;
+td, th {
+    padding: 0.25em 0.5em;
+}
+
+th {
+    text-align: left;
+    font-weight: normal;
 }
 
 #main {
     display: flex;
+}
+
+#leftPanel {
+    padding-right: 4em;
 }

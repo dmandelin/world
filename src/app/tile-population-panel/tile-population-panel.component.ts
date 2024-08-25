@@ -3,27 +3,21 @@ import { TilePanelBase } from '../util/tile-panel-base';
 import { Tile } from '../model/tile';
 import { NgFor, NgIf } from '@angular/common';
 import { TilePopGraphsComponent } from '../tile-pop-graphs/tile-pop-graphs.component';
-import { complexity, freedom, flourishing } from '../model/ways';
-import { TileWaysGraphsComponent } from '../tile-ways-graphs/tile-ways-graphs.component';
 
 @Component({
-  selector: 'app-tile-summary-panel',
+  selector: 'app-tile-population-panel',
   standalone: true,
-  imports: [NgIf, NgFor, TilePopGraphsComponent, TileWaysGraphsComponent],
-  templateUrl: './tile-summary-panel.component.html',
-  styleUrl: './tile-summary-panel.component.scss'
+  imports: [NgIf, NgFor, TilePopGraphsComponent],
+  templateUrl: './tile-population-panel.component.html',
+  styleUrl: './tile-population-panel.component.scss'
 })
-export class TileSummaryPanelComponent extends TilePanelBase {
-  get flourishing(): string {
-    return this.tile ? (flourishing(this.tile) * 100).toFixed(0) : '';
+export class TilePopulationPanelComponent extends TilePanelBase {
+  get consumptionRatio(): number {
+    return (this.tile?.capacity ?? 0) / (this.tile?.population ?? 1); 
   }
 
-  get complexity(): number {
-    return this.tile ? complexity(this.tile) : 0;
-  }
-
-  get freedom(): number {
-    return this.tile ? freedom(this.tile) : 0;
+  get religiousPopulationGrowthFactor() {
+    return (this.tile?.bonus('populationGrowthFactor') ?? 1) - 1;
   }
 
   formatYear(year: number|undefined): string {
