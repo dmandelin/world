@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
-import { TilePanelBase } from '../util/tile-panel-base';
 import { ChartConfiguration } from 'chart.js';
-import { Tile } from '../model/tile';
 import { TileGraphBase } from '../util/tile-graph-base';
 
 @Component({
