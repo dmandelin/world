@@ -5,6 +5,17 @@ import {Tile} from "./tile";
 import {randelem, randint} from "./lib";
 import { resolveRaids } from "./raiding";
 
+// Ratings to add:
+// - Sumerian:
+//   - nam-ti (𒂍𒃲) Flourishing
+//   - šub (𒍑𒋼) Growth
+//   - ama-gi (𒄑𒋺𒋛) Freedom
+// - Akkadian:
+//   - ṭūbu (𒍑𒂷𒆠𒈨𒉣) Flourishing
+//   - wabālu (𒉿𒅁) Growth
+//   - andurāru (𒆠𒈠𒊕𒊕𒀭) Freedom
+
+
 // Motivation-driven plan:
 // - Starting on turn 1, look for a tile where people would be motivated
 //   to do something different from what the model does now, and then
