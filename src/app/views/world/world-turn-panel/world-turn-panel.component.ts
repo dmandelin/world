@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { World } from '../model/world';
+import { World } from '../../../model/world';
 
 @Component({
   selector: 'app-world-turn-panel',

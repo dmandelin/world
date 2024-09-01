@@ -1,10 +1,10 @@
 import { Component, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AreaMapComponent } from './views/area-map/area-map.component';
-import { WorldInfoPanelComponent } from './world-info-panel/world-info-panel.component';
-import { WorldLogPanelComponent } from "./world-log-panel/world-log-panel.component";
+import { WorldInfoPanelComponent } from './views/world/world-info-panel/world-info-panel.component';
+import { WorldLogPanelComponent } from "./views/world/world-log-panel/world-log-panel.component";
 import { TileInfoPanelComponent } from './views/tile-info/tile-info-panel/tile-info-panel.component';
-import { WorldTurnPanelComponent } from './world-turn-panel/world-turn-panel.component';
+import { WorldTurnPanelComponent } from './views/world/world-turn-panel/world-turn-panel.component';
 import { Tile } from './model/tile';
 import { WorldViewModel } from './model/world';
 

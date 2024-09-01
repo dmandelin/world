@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NgFor, NgStyle } from '@angular/common';
 
-import { World } from '../model/world';
-import { Polity } from '../model/polity';
+import { World } from '../../../model/world';
+import { Polity } from '../../../model/polity';
 
 @Component({
   selector: 'app-world-info-panel',
