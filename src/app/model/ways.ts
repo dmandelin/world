@@ -1,6 +1,15 @@
 import { clamp } from "./lib";
 import { Tile } from "./tile";
 
+// - Sumerian names:
+//   - nam-ti (𒂍𒃲) Flourishing
+//   - šub (𒍑𒋼) Growth
+//   - ama-gi (𒄑𒋺𒋛) Freedom
+// - Akkadian names:
+//   - ṭūbu (𒍑𒂷𒆠𒈨𒉣) Flourishing
+//   - wabālu (𒉿𒅁) Growth
+//   - andurāru (𒆠𒈠𒊕𒊕𒀭) Freedom
+
 export function flourishing(t: Tile): number {
     // In our period, let's make this primarily about economics
     // (survival goods) and culture (the sense of a sustainable

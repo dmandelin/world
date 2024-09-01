@@ -1,28 +1,15 @@
 import { Tile, TileModifiers, TileModifierValues } from "./tile";
 import { WorldLog } from "./world";
 
-export type Bonuses = {
-    agrarianOutputFactor?: number,
-    pastoralOutputFactor?: number,
-    transactionCostFactor?: number,
-    raidIntensity?: number,
-    raidCapture?: number,
-    raidMobility?: number,
-}
-
-export type BonusKey = keyof Bonuses;
-
 export class ReligiousTrait {
     constructor(
         readonly name: string,
-        readonly bonuses: Bonuses,
         readonly mods: TileModifierValues = {}) {
     }
 }
 
 class ReligiousTraitsSingleton {
     readonly Fertility = new ReligiousTrait('Fertility', {
-    }, {
         popGrowth: 1.2,
 
         hope: 0.8,
@@ -30,40 +17,41 @@ class ReligiousTraitsSingleton {
         celebration: 0.15,
     });
     readonly Agrarian = new ReligiousTrait('Agrarian', {
-        agrarianOutputFactor: 1.1,
-    }, {
+        farming: 1.1,
+
         hope: 0.6,
         grit: 1.1,
         celebration: 0.2,
     });
     readonly Pastoral = new ReligiousTrait('Pastoral', {
-        pastoralOutputFactor: 1.1,
-    }, {
+        herding: 1.1,
+
         hope: 0.9,
         grit: 1.2,
         celebration: 0.1,
     });
     readonly Trading = new ReligiousTrait('Trading', {
-        transactionCostFactor: 0.7,
-    }, {
+        trading: 0.7,
+
         hope: 0.9,
         celebration: 0.3,
     });
     readonly Peace = new ReligiousTrait('Peace', {
-        agrarianOutputFactor: 1.1,
-        pastoralOutputFactor: 1.05,
-        transactionCostFactor: 0.9,
-    }, {
+        farming: 1.1,
+        herding: 1.05,
+        trading: 0.9,
+
         hope: 0.8,
         celebration: 0.2,
     });
     readonly War = new ReligiousTrait('War', {
+        farming: 0.9,
+        herding: 0.95,
+        trading: 1.1,
+
         raidIntensity: 1.5,
         raidCapture: 1.2,
-        agrarianOutputFactor: 0.9,
-        pastoralOutputFactor: 0.95,
-        transactionCostFactor: 1.1,
-    }, {
+
         celebration: 0.1,
     });
 }
@@ -96,13 +84,6 @@ export class ReligiousSite {
     get capacity(): number { throw new Error('abstract method'); }
     get complexity(): number { throw new Error('abstract method'); }
     
-    bonus(b: BonusKey, population: number) {
-        if (this.traits.length > 1) throw new Error('not implemented: multiple trait bonuses');
-        const baseBonusMinusOne = (this.traits[0].bonuses[b] ?? 1) - 1;
-        const capacityFactor = Math.min(1, this.capacity / population);
-        return 1 + baseBonusMinusOne * capacityFactor;
-    }
-
     refreshModifiers(tile: Tile) {
         for (const trait of this.traits) {
             for (const [modName, baseValue] of Object.entries(trait.mods)) {

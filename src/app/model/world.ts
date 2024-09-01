@@ -5,16 +5,19 @@ import {Tile} from "./tile";
 import {randelem, randint} from "./lib";
 import { resolveRaids } from "./raiding";
 
-// Ratings to add:
-// - Sumerian:
-//   - nam-ti (𒂍𒃲) Flourishing
-//   - šub (𒍑𒋼) Growth
-//   - ama-gi (𒄑𒋺𒋛) Freedom
-// - Akkadian:
-//   - ṭūbu (𒍑𒂷𒆠𒈨𒉣) Flourishing
-//   - wabālu (𒉿𒅁) Growth
-//   - andurāru (𒆠𒈠𒊕𒊕𒀭) Freedom
+// # Next refactorings:
+// - Flow-type concept for things like production and consumption.
+// - Stock-type concept for things like population and constructions.
+// - Start updating UI components to use the new data structures rather
+//   than redundantly representing calculations.
 
+// The on to:
+// - Flooding and irrigation works
+// - Variable climate per turn
+// - Raiding defense bonus for towns
+// - Trade in wool, fish, pottery, and flint
+// - Citizen assemblies
+// - Subpopulations: separate classes for elites, nomads, and urban specialists
 
 // Motivation-driven plan:
 // - Starting on turn 1, look for a tile where people would be motivated

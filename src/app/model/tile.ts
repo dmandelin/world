@@ -2,21 +2,21 @@ import { World } from './world';
 import { Polity } from './polity';
 import { Allocation, BuildingPlot, marginalUtilitiesOfLabor, marginalUtilitiesOfLand, Product, TempleConstruction } from './production';
 import { PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated } from './production';
-import { Terrain, AllTerrainTypes, Alluvium, DryLightSoil, Desert } from './production';
+import { Terrain, Alluvium, DryLightSoil, Desert } from './production';
 import { Barley, Lentils, Dairy } from './production';
-import { Market, TradeLink } from './trade';
+import { Market } from './trade';
 import { Settlement, SettlementTier } from './settlements';
 import { ProductionTech, TechKit } from './tech';
-import { argmax, mapmax, mapmin, randelem, randint } from './lib';
+import { mapmax, mapmin, randelem, randint } from './lib';
 import { TimeSeries } from '../data/timeseries';
-import { BonusKey, HolySite, ReligiousSite, ReligiousTraits, Temple } from './religion';
+import { ReligiousSite, Temple } from './religion';
 import { RaidEffects } from './raiding';
 import { Culture, CultureGroups } from './culture';
 import { Census, Population } from './population';
 import { complexity, flourishing, freedom } from './ways';
 import { Factor, Modifier } from '../data/calc';
 
-export class TileModifiersBase {
+export class TileModifiers {
     // Population growth factor.
     popGrowth = new Factor();
 
@@ -26,13 +26,24 @@ export class TileModifiersBase {
     grit = new Factor();
     // Happiness gain factor from having extra. Generally between 0 and 1.
     celebration = new Factor();
-}
 
-export class TileModifiers extends TileModifiersBase {
+    // Farming output factor.
+    farming = new Factor();
+    // Herding output factor.
+    herding = new Factor();
+    // Transaction cost factor. A bonus is less than 1.
+    trading = new Factor();
+
+    // Raiding activity level factor.
+    raidIntensity = new Factor();
+    // Factor applied to amount of stuff captured on raids.
+    raidCapture = new Factor();
+    // Raiding mobility factor.
+    raidMobility = new Factor();
 }
 
 export type TileModifierValues = {
-    [K in keyof TileModifiersBase]?: number;
+    [K in keyof TileModifiers]?: number;
 };
 
 export class Tile {
@@ -76,8 +87,10 @@ export class Tile {
         this.controller_ = controller;
         this.pop_ = new Population(this, this.isRiver ? randint(5000, 10000) : randint(500, 1000));
 
-        const cultureGroup = isRiver ? CultureGroups.Sumerian : CultureGroups.Akkadian;
+        const cultureGroup = isRiver ? CultureGroups.ProtoSumerian : CultureGroups.DesertNomad;
         this.culture = cultureGroup.createCulture(this);
+        this.culture.refreshModifiers(this);
+
         this.religiousSite = this.culture.createReligiousSite();
 
         this.allocate();
@@ -86,18 +99,13 @@ export class Tile {
 
     get name() { return this.controller.name; }
 
-    bonus(b: BonusKey): number {
-        return (this.religiousSite.bonus(b, this.population) ?? 1) *
-            (this.culture.group.bonuses[b] ?? 1);
-    }
-
     outputBoost(p: Product): number {
         switch (true) {
             case p === Barley:
             case p === Lentils:
-                return this.bonus('agrarianOutputFactor');
+                return this.mods.farming.value;
             case p === Dairy:
-                return this.bonus('pastoralOutputFactor');
+                return this.mods.herding.value;
             default:
                 return 1;
         }

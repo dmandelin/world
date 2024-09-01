@@ -25,7 +25,7 @@ export class Factor extends Modifier {
         this.sourceMap_.set(source, newValue);
         if (oldValue === undefined) {
             this.value_ *= newValue;
-        } else {
+        } else if (oldValue !== newValue) {
             this.refresh();
         }
     }

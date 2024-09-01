@@ -184,8 +184,8 @@ export class TradeLink {
     
     get coordinationCost() {
         // TODO - make coordination cost improvements more effective if both points have them.
-        return 0.05 * this.endpoints[0].bonus('transactionCostFactor')
-             + 0.05 * this.endpoints[1].bonus('transactionCostFactor');
+        return 0.05 * this.endpoints[0].mods.trading.value
+             + 0.05 * this.endpoints[1].mods.trading.value;
     }
 
     cost(product: Product) {

@@ -49,13 +49,13 @@ function resolveTileRaids(t: Tile) {
     for (const v of [t, ...t.neighbors]) {
         const baseVictimPopEffect = ces(raiders, v.population)
             * (0.75 + 0.5 * Math.random())
-            * t.bonus('raidIntensity')
+            * t.mods.raidIntensity.value
             * raidIntensityFactorFromPeace(t, v);
         const baseRaiderPopLoss = baseVictimPopEffect * 0.1;
 
         const victimPopEffect = baseVictimPopEffect
             * raidEffectFactor(t, v);
-        const raiderPopGain = victimPopEffect * 0.2 * t.bonus('raidCapture');
+        const raiderPopGain = victimPopEffect * 0.2 * t.mods.raidCapture.value;
         const raiderPopLoss = baseRaiderPopLoss;
 
         v.raidEffects.deltaPopulation -= Math.floor(victimPopEffect);
@@ -70,7 +70,7 @@ function ces(raiders: number, targets: number): number {
 }
 
 function raidEffectFactor(t: Tile, v: Tile) {
-    const [tm, vm] = [t.bonus('raidMobility'), v.bonus('raidMobility')];
+    const [tm, vm] = [t.mods.raidMobility, v.mods.raidMobility];
     switch (true) {
         case tm > vm:
             return 1.5;

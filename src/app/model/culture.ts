@@ -1,6 +1,6 @@
 import { randelem } from "./lib";
-import { Bonuses, HolySite, ReligiousSite, ReligiousTrait, ReligiousTraits, Temple } from "./religion";
-import { Tile } from "./tile";
+import { HolySite, ReligiousSite, ReligiousTrait, ReligiousTraits, Temple } from "./religion";
+import { Tile, TileModifiers, TileModifierValues } from "./tile";
 
 export class CultureGroup {
     constructor(
@@ -8,7 +8,7 @@ export class CultureGroup {
         readonly typeName: string,
         readonly leisureValue: number,
         readonly freedom: number,
-        readonly bonuses: Bonuses,
+        readonly mods: TileModifierValues,
         readonly religiousSiteType: new (traits: ReligiousTrait[]) => ReligiousSite,
         readonly availableTraits: ReligiousTrait[]) {       
     }
@@ -19,13 +19,10 @@ export class CultureGroup {
 }
 
 export const CultureGroups = {
-    Sumerian: new CultureGroup(
-        'Sumerian', 
+    ProtoSumerian: new CultureGroup(
+        'Proto-Sumerian', 
         'Traditional Agrarian Society', 0.25, 0.2,
         {
-            raidIntensity: 1,
-            raidCapture: 1,
-            raidMobility: 1,
         },
         Temple,
         [
@@ -36,8 +33,8 @@ export const CultureGroups = {
             ReligiousTraits.War,
         ],
     ),
-    Akkadian: new CultureGroup(
-        'Akkadian',
+    DesertNomad: new CultureGroup(
+        'Desert Nomad',
         'Traditional Pastoral Society', 0.1, 0.5,
         {
             raidIntensity: 2,
@@ -60,5 +57,12 @@ export class Culture {
 
     createReligiousSite(): ReligiousSite {
         return new this.group.religiousSiteType([randelem(this.group.availableTraits)]);
+    }
+
+    refreshModifiers(tile: Tile) {
+            for (const [modName, value] of Object.entries(this.group.mods)) {
+                tile.mods[modName as keyof TileModifiers].apply(
+                    this.group.name, value);
+            }
     }
 }
