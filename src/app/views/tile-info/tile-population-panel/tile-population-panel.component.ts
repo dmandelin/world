@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { TilePanelBase } from '../tile-panel-base';
-import { Tile } from '../../../model/tile';
 import { NgFor, NgIf } from '@angular/common';
 import { TilePopGraphsComponent } from '../tile-pop-graphs/tile-pop-graphs.component';
 
@@ -17,7 +16,7 @@ export class TilePopulationPanelComponent extends TilePanelBase {
   }
 
   get religiousPopulationGrowthFactor() {
-    return (this.tile?.bonus('populationGrowthFactor') ?? 1) - 1;
+    return this.tile?.mods.popGrowth.rel;
   }
 
   formatYear(year: number|undefined): string {

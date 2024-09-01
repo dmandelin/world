@@ -13,8 +13,20 @@ import { BonusKey, HolySite, ReligiousSite, ReligiousTraits, Temple } from './re
 import { RaidEffects } from './raiding';
 import { Culture, CultureGroups } from './culture';
 import { Census, Population } from './population';
-import { Time } from '@angular/common';
 import { complexity, flourishing, freedom } from './ways';
+import { Factor, Modifier } from '../data/calc';
+
+export class TileModifiersBase {
+    // Population growth factor.
+    popGrowth = new Factor();
+}
+
+export class TileModifiers extends TileModifiersBase {
+}
+
+export type TileModifierValues = {
+    [K in keyof TileModifiersBase]?: number;
+};
 
 export class Tile {
     private controller_: Polity;
@@ -31,6 +43,8 @@ export class Tile {
     readonly market: Market = new Market(this);
 
     raidEffects = new RaidEffects();
+
+    mods = new TileModifiers();
 
     readonly productionSeries = new TimeSeries<PerProduce>();
     readonly capacitySeries = new TimeSeries<number>();
@@ -97,6 +111,7 @@ export class Tile {
         const construction = this.production.Building.get(TempleConstruction);
         if (construction > 0 && this.religiousSite instanceof Temple) {
             if (this.religiousSite.applyConstruction(construction)) {
+                this.religiousSite.refreshModifiers(this);
                 this.world.log.turnlog(`${this.controller.name} builds ${this.religiousSite.name}`);
             }
         }

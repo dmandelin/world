@@ -46,7 +46,7 @@ export class Population {
             // Target overall growth rate for a population of this prosperity level.
             this.targetGrowthRate_ = (Math.min(capacityRatio, 2) - 0.7) / 0.3 * 0.014;
 
-            const birthRate = (this.expectedDeathRate + this.targetGrowthRate_) * this.tile.bonus('populationGrowthFactor');
+            const birthRate = (this.expectedDeathRate + this.targetGrowthRate_) * this.tile.mods.popGrowth.value;
             const growthRate = birthRate - this.baseDeathRate;
             this.lastNaturalIncrease = Math.floor(this.n * growthRate);
         }

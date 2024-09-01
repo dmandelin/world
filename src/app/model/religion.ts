@@ -1,8 +1,7 @@
+import { Tile, TileModifiers, TileModifierValues } from "./tile";
 import { WorldLog } from "./world";
 
 export type Bonuses = {
-    populationGrowthFactor?: number,
-
     hopeFactor?: number,
     gritFactor?: number,
     prosperityFactor?: number,
@@ -23,16 +22,18 @@ export type BonusKey = keyof Bonuses;
 export class ReligiousTrait {
     constructor(
         readonly name: string,
-        readonly bonuses: Bonuses) {
+        readonly bonuses: Bonuses,
+        readonly mods: TileModifierValues = {}) {
     }
 }
 
 class ReligiousTraitsSingleton {
     readonly Fertility = new ReligiousTrait('Fertility', {
-        populationGrowthFactor: 1.2,
         hopeFactor: 0.8,
         gritFactor: 1.1,
         prosperityFactor: 0.15,
+    }, {
+        popGrowth: 1.2,
     });
     readonly Agrarian = new ReligiousTrait('Agrarian', {
         agrarianOutputFactor: 1.1,
@@ -102,6 +103,15 @@ export class ReligiousSite {
         const baseBonusMinusOne = (this.traits[0].bonuses[b] ?? 1) - 1;
         const capacityFactor = Math.min(1, this.capacity / population);
         return 1 + baseBonusMinusOne * capacityFactor;
+    }
+
+    refreshModifiers(tile: Tile) {
+        for (const trait of this.traits) {
+            for (const [modName, baseValue] of Object.entries(trait.mods)) {
+                tile.mods[modName as keyof TileModifiers].apply(
+                    trait.name + ' rites', baseValue, this.capacity / tile.population)
+            }
+        }
     }
 }
 
