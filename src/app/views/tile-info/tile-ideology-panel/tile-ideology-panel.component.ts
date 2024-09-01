@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { TilePanelBase } from '../util/tile-panel-base';
+import { TilePanelBase } from '../tile-panel-base';
 import { NgIf } from '@angular/common';
-import { Temple } from '../model/religion';
+import { Temple } from '../../../model/religion';
 
 @Component({
   selector: 'app-tile-ideology-panel',

@@ -1,6 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Tile } from "../model/tile";
-import { WorldViewModel } from "../model/world";
+import { WorldViewModel } from "../../model/world";
 
 @Injectable()
 export class TilePanelBase {

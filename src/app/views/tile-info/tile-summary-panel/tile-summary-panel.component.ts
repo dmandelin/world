@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { TilePanelBase } from '../util/tile-panel-base';
-import { Tile } from '../model/tile';
+import { TilePanelBase } from '../tile-panel-base';
 import { NgFor, NgIf } from '@angular/common';
 import { TilePopGraphsComponent } from '../tile-pop-graphs/tile-pop-graphs.component';
-import { complexity, freedom, flourishing, complexities, freedoms, PerFactor } from '../model/ways';
 import { TileWaysGraphsComponent } from '../tile-ways-graphs/tile-ways-graphs.component';
+import { complexity, freedom, flourishing, complexities, freedoms, PerFactor } from '../../../model/ways';
 
 @Component({
   selector: 'app-tile-summary-panel',

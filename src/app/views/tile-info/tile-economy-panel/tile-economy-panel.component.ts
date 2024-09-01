@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
-import { Allocation, AllTerrainTypes, Product, Products, PerProduce, Terrain, marginalProductsOfLabor, marginalProductsOfLand, marginalUtilitiesOfLabor, marginalUtilitiesOfLand } from '../model/production';
-import { TilePanelBase } from '../util/tile-panel-base';
+import { Allocation, AllTerrainTypes, Product, Products, PerProduce, Terrain, marginalProductsOfLabor, marginalProductsOfLand, marginalUtilitiesOfLabor, marginalUtilitiesOfLand } from '../../../model/production';
+import { TilePanelBase } from '../tile-panel-base';
 
 @Component({
   selector: 'app-tile-economy-panel',

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { ChartConfiguration, ChartOptions, ChartType } from "chart.js";
 import { BaseChartDirective } from 'ng2-charts';
-import { Barley, Lentils, Dairy, PerProduce } from '../model/production';
-import { Tile } from '../model/tile';
-import { TileGraphBase } from '../util/tile-graph-base';
+import { Barley, Lentils, Dairy, PerProduce } from '../../../model/production';
+import { Tile } from '../../../model/tile';
+import { TileGraphBase } from '../tile-graph-base';
 
 @Component({
   selector: 'app-economy-graphs',

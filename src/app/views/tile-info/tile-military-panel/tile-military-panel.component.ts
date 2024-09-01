@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TilePanelBase } from '../util/tile-panel-base';
+import { TilePanelBase } from '../tile-panel-base';
 
 @Component({
   selector: 'app-tile-military-panel',

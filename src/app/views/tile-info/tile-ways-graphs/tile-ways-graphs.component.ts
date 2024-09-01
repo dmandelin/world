@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
-import { TileGraphBase } from '../util/tile-graph-base';
+import { TileGraphBase } from '../tile-graph-base';
 
 @Component({
   selector: 'app-tile-ways-graphs',

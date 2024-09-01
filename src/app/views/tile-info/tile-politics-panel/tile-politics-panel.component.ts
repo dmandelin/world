@@ -1,6 +1,6 @@
 import { NgFor } from '@angular/common';
 import { Component } from '@angular/core';
-import { TilePanelBase } from '../util/tile-panel-base';
+import { TilePanelBase } from '../tile-panel-base';
 import { TilePoliticsGraphsComponent } from "../tile-politics-graphs/tile-politics-graphs.component";
 
 @Component({

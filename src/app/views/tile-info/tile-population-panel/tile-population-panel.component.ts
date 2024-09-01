@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { TilePanelBase } from '../util/tile-panel-base';
-import { Tile } from '../model/tile';
+import { TilePanelBase } from '../tile-panel-base';
+import { Tile } from '../../../model/tile';
 import { NgFor, NgIf } from '@angular/common';
 import { TilePopGraphsComponent } from '../tile-pop-graphs/tile-pop-graphs.component';
 
