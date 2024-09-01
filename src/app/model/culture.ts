@@ -6,6 +6,8 @@ export class CultureGroup {
     constructor(
         readonly name: string, 
         readonly typeName: string,
+        readonly leisureValue: number,
+        readonly freedom: number,
         readonly bonuses: Bonuses,
         readonly religiousSiteType: new (traits: ReligiousTrait[]) => ReligiousSite,
         readonly availableTraits: ReligiousTrait[]) {       
@@ -19,13 +21,11 @@ export class CultureGroup {
 export const CultureGroups = {
     Sumerian: new CultureGroup(
         'Sumerian', 
-        'Traditional Agrarian Society',
+        'Traditional Agrarian Society', 0.25, 0.2,
         {
             raidIntensity: 1,
             raidCapture: 1,
             raidMobility: 1,
-            peopleFreedomFactor: 0.2,
-            leisureValue: 0.25,
         },
         Temple,
         [
@@ -38,13 +38,11 @@ export const CultureGroups = {
     ),
     Akkadian: new CultureGroup(
         'Akkadian',
-        'Traditional Pastoral Society',
+        'Traditional Pastoral Society', 0.1, 0.5,
         {
             raidIntensity: 2,
             raidCapture: 2,
             raidMobility: 2,
-            peopleFreedomFactor: 0.5,
-            leisureValue: 0.1,
         },
         HolySite,
         [

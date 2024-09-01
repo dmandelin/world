@@ -2,9 +2,6 @@ import { Tile, TileModifiers, TileModifierValues } from "./tile";
 import { WorldLog } from "./world";
 
 export type Bonuses = {
-    peopleFreedomFactor?: number,
-    leisureValue?: number,
-
     agrarianOutputFactor?: number,
     pastoralOutputFactor?: number,
     transactionCostFactor?: number,

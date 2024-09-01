@@ -40,7 +40,7 @@ function raidDiscountFactor(t: Tile): number {
 
 function deprivationDiscountFactor(t: Tile): number {
     const cr = t.pop.capacityRatio;
-    const lv = t.culture.group.bonuses['leisureValue'] || 0.25;
+    const lv = t.culture.group.leisureValue;
     if (cr < 0.7) {
         // Deprivation from famine goes up to 100%, but
         // at base value we still have some deprivation
@@ -110,7 +110,7 @@ export function development(t: Tile, freedom: boolean): PerFactor {
         // by laws, which will be customary at this point. We'll assume this doesn't
         // actually allow much wiggle room in agrarian societies, but some. Pastoral
         // societies might have more freedom.
-        d.people *= t.culture.group.bonuses['peopleFreedomFactor'] || 1.0;
+        d.people *= t.culture.group.freedom;
 
         // Discount for things we want freedom from.
         for (const [k, v] of Object.entries(d)) {
