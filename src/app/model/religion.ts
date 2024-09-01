@@ -2,10 +2,6 @@ import { Tile, TileModifiers, TileModifierValues } from "./tile";
 import { WorldLog } from "./world";
 
 export type Bonuses = {
-    hopeFactor?: number,
-    gritFactor?: number,
-    prosperityFactor?: number,
-
     peopleFreedomFactor?: number,
     leisureValue?: number,
 
@@ -29,36 +25,40 @@ export class ReligiousTrait {
 
 class ReligiousTraitsSingleton {
     readonly Fertility = new ReligiousTrait('Fertility', {
-        hopeFactor: 0.8,
-        gritFactor: 1.1,
-        prosperityFactor: 0.15,
     }, {
         popGrowth: 1.2,
+
+        hope: 0.8,
+        grit: 1.1,
+        celebration: 0.15,
     });
     readonly Agrarian = new ReligiousTrait('Agrarian', {
         agrarianOutputFactor: 1.1,
-        hopeFactor: 0.6,
-        gritFactor: 1.1,
-        prosperityFactor: 0.2,
+    }, {
+        hope: 0.6,
+        grit: 1.1,
+        celebration: 0.2,
     });
     readonly Pastoral = new ReligiousTrait('Pastoral', {
         pastoralOutputFactor: 1.1,
-        hopeFactor: 0.9,
-        gritFactor: 1.2,
-        prosperityFactor: 0.1,
+    }, {
+        hope: 0.9,
+        grit: 1.2,
+        celebration: 0.1,
     });
     readonly Trading = new ReligiousTrait('Trading', {
         transactionCostFactor: 0.7,
-        hopeFactor: 0.9,
-        prosperityFactor: 0.3,
+    }, {
+        hope: 0.9,
+        celebration: 0.3,
     });
     readonly Peace = new ReligiousTrait('Peace', {
         agrarianOutputFactor: 1.1,
         pastoralOutputFactor: 1.05,
         transactionCostFactor: 0.9,
-        hopeFactor: 0.8,
-        gritFactor: 1.1,
-        prosperityFactor: 0.2,
+    }, {
+        hope: 0.8,
+        celebration: 0.2,
     });
     readonly War = new ReligiousTrait('War', {
         raidIntensity: 1.5,
@@ -66,7 +66,8 @@ class ReligiousTraitsSingleton {
         agrarianOutputFactor: 0.9,
         pastoralOutputFactor: 0.95,
         transactionCostFactor: 1.1,
-        prosperityFactor: 0.1,
+    }, {
+        celebration: 0.1,
     });
 }
 

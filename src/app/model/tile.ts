@@ -19,6 +19,13 @@ import { Factor, Modifier } from '../data/calc';
 export class TileModifiersBase {
     // Population growth factor.
     popGrowth = new Factor();
+
+    // Mitigates happiness loss from poverty. A bonus is less than 1.
+    hope = new Factor();
+    // Boosts happiness gain from getting to basic healthy consumption. A bonus is greater than 1.
+    grit = new Factor();
+    // Happiness gain factor from having extra. Generally between 0 and 1.
+    celebration = new Factor();
 }
 
 export class TileModifiers extends TileModifiersBase {

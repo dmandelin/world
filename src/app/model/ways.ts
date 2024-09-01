@@ -13,7 +13,7 @@ export function flourishing(t: Tile): number {
     if (cr < 0.5) {
         // Famine or other disaster. Negative happiness, but mitigated
         // by religious belief.
-        baseValue = (cr - 0.5) * t.bonus('hopeFactor');
+        baseValue = (cr - 0.5) * t.mods.hope.value;
     } else {
         // Enough to sustain the population, so positive happiness.
         // A basic flourishing of 0.5 would come from a capacity ratio
@@ -22,10 +22,10 @@ export function flourishing(t: Tile): number {
         // perhaps capacity ratio 2 along with a strong cultural base
         // indicating this is sustainable. Our current temples are maybe
         // enough to get it up to 
-        const survivalValue = Math.min(cr - 0.5, 0.5) * t.bonus('gritFactor');
+        const survivalValue = Math.min(cr - 0.5, 0.5) * t.mods.grit.value;
 
         const surplusValue = cr <= 1.0 ? 0
-            : Math.log2(cr) * 0.1 + Math.log2(cr) * t.bonus('prosperityFactor');
+            : Math.log2(cr) * 0.1 + Math.log2(cr) * t.mods.celebration.value;
 
         baseValue = survivalValue + surplusValue;
     }
