@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MapCanvasComponent } from './map-canvas.component';
+import {AreaMapComponent } from './area-map.component';
 
 describe('MapCanvasComponent', () => {
-  let component: MapCanvasComponent;
-  let fixture: ComponentFixture<MapCanvasComponent>;
+  let component: AreaMapComponent
+  let fixture: ComponentFixture<AreaMapComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MapCanvasComponent]
+      imports: [AreaMapComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(MapCanvasComponent);
+    fixture = TestBed.createComponent(AreaMapComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

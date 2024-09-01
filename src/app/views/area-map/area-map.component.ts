@@ -1,20 +1,20 @@
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { NgFor } from '@angular/common';
 
-import { Polity } from '../model/polity';
-import { Tile } from '../model/tile';
-import { Barley, Lentils, Dairy } from '../model/production';
-import { World } from '../model/world';
-import { argmax, clamp, sorted } from '../model/lib';
+import { Polity } from '../../model/polity';
+import { Tile } from '../../model/tile';
+import { Barley, Lentils, Dairy } from '../../model/production';
+import { World } from '../../model/world';
+import { argmax, clamp, sorted } from '../../model/lib';
 
 @Component({
-  selector: 'app-map-canvas',
+  selector: 'area-map',
   standalone: true,
   imports: [NgFor],
-  templateUrl: './map-canvas.component.html',
-  styleUrl: './map-canvas.component.scss'
+  templateUrl: './area-map.component.html',
+  styleUrl: './area-map.component.scss'
 })
-export class MapCanvasComponent implements AfterViewInit, OnDestroy {
+export class AreaMapComponent implements AfterViewInit, OnDestroy {
   @ViewChild('worldCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
   private context!: CanvasRenderingContext2D | null;
   private deleteWatcher: Function|undefined;
