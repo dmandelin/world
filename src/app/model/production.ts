@@ -130,7 +130,7 @@ export class Allocation {
             ? this.laborOnlyProduction(laborUnits)
             : this.ces_production(this.landUnits, laborUnits);
 
-        return base * this.tile.outputBoost(this.product);
+        return base * this.tile.outputFactor(this.product).value;
     }
 
     get landUnits(): number {

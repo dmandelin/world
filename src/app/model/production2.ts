@@ -26,6 +26,7 @@
 //
 // Later, we can try to extend this model to trade, raiding, and consumption.
 
+import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
@@ -89,7 +90,7 @@ abstract class Process {
     output = 0;
 
     // Factor by which output is modified, accounting for all factors.
-    outputModifierFactor = 1;
+    outputFactor: Factor = new Factor(1);
 
     canUse(terrain: Terrain) { return false; }
 
@@ -128,12 +129,12 @@ class LandUseProcess extends LandProcess {
     }
 
     get name() { return this.terrain.name + ' ' + this.product.name; }
-    get modifiedBaseOutput() { return this.baseOutput * this.outputModifierFactor; }
+    get modifiedBaseOutput() { return this.baseOutput * this.outputFactor.value; }
 
     override canUse(terrain: Terrain) { return terrain === this.terrain; }
 
     override apply() {
-        this.outputModifierFactor = this.tile.outputBoost(this.product);
+        this.outputFactor = this.tile.outputFactor(this.product);
 
         this.output = CESProductionExpOneHalf(
             0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres);

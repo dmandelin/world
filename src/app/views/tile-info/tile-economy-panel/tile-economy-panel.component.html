@@ -47,7 +47,10 @@
             <td>{{p.terrainDisplay}}</td>
             <td class="ra">{{p.workers}}</td>
             <td class="ra">{{p.acresPerWorkerDisplay}}</td>
-            <td class="ra">{{spercent(p.outputModifierFactor)}}</td>
+            <td class="ra ttc">
+                {{spercent(p.outputFactor.value)}}
+                <div class="tooltip" [innerHTML]="p.outputFactor.tooltip"></div>
+            </td>
             <td class="ra">{{p.outputDisplay}}</td>
             <td>{{p.productDisplay}}</td>
             <td class="ra">{{p.apk === 0 ? '': p.apk.toFixed(3)}}</td>
@@ -90,8 +93,8 @@
                     <td class="ra">{{floor(a.laborFraction * a.tile.population)}}</td>
                     <td class="ra">{{floor(a.laborFraction * 100)}}%</td>
                     <td class="ra">{{a.product.name}}</td>
-                    <td class="ra">{{floor(a.production() / tile.outputBoost(a.product))}}</td>
-                    <td class="ra">{{tile.outputBoost(a.product).toFixed(2)}}</td>
+                    <td class="ra">{{floor(a.production() / tile.outputFactor(a.product).value)}}</td>
+                    <td class="ra">{{tile.outputFactor(a.product).value.toFixed(2)}}</td>
                     <td class="ra">{{floor(a.production())}}</td>
                     <td class="ra">{{marginalProductsOfLand?.get(a)?.toFixed(2)}}</td>
                     <td class="ra">{{marginalProductsOfLabor?.get(a)?.toFixed(2)}}</td>

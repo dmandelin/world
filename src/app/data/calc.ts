@@ -36,4 +36,18 @@ export class Factor extends Modifier {
             this.value_ *= v;
         }
     }
+
+    get tooltip(): string {
+        if (this.sourceMap_.size === 0) {
+            return '(none)';
+        }
+        return Array.from(this.sourceMap_.entries())
+            .map(([source, value]) => `${source}: ${spercent(value)}`)
+            .join('<br>');
+    }
 }
+
+function spercent(n: number): string { 
+    const s = Math.round((n - 1) * 100);
+    return `${s < 0 ? '' : '+'}${s.toFixed(0)}%`;
+  }

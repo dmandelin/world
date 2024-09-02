@@ -121,15 +121,15 @@ export class Tile {
         return Tile.acres * this.fractionOf(t);
     }
 
-    outputBoost(p: Product): number {
+    outputFactor(p: Product): Factor {
         switch (true) {
             case p === Barley:
             case p === Lentils:
-                return this.mods.farming.value;
+                return this.mods.farming;
             case p === Dairy:
-                return this.mods.herding.value;
+                return this.mods.herding;
             default:
-                return 1;
+                return new Factor();
         }
     }
 
