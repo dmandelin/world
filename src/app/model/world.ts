@@ -11,7 +11,7 @@ import { resolveRaids } from "./raiding";
 // - Start updating UI components to use the new data structures rather
 //   than redundantly representing calculations.
 
-// The on to:
+// Then on to:
 // - Flooding and irrigation works
 // - Variable climate per turn
 // - Raiding defense bonus for towns
@@ -229,121 +229,16 @@ export class World {
         return this.map.tiles.flat().map(t => t.population).reduce((a, b) => a + b);
     }
 
-    private advanceState: 'startTurn'|'skipAction'|'continue' = 'startTurn';
-    private actorState: number = 0;
-
-    get actor(): Polity { return this.polities_[this.actorState]; }
-
-    get advanceStateDisplay() {
-        switch (this.advanceState) {
-            case 'startTurn':
-                return 'Click to start turn';
-            case 'skipAction':
-                return 'Click to attack or skip';
-            case 'continue':
-                return 'Click to continue';
-        }
-    }
-
     advance() {
-        switch (this.advanceState) {
-            case 'startTurn':
-                this.advanceTurnStart();
-                if (this.advanceTurnAct()) {
-                    this.advanceState = 'skipAction';
-                    this.notifyWatchers();
-                    return;
-                }
-                this.advanceTurnFinish();
-                this.notifyWatchers();
-                break;
-            case 'skipAction':
-                this.skipAction();
-                if (this.advanceTurnAct()) {
-                    this.advanceState = 'skipAction';
-                    this.notifyWatchers();
-                    return;
-                }
-                this.advanceTurnFinish();
-                this.advanceState = 'startTurn';
-                this.notifyWatchers();
-                break;
-            case 'continue':
-                this.skipAction();
-                if (this.advanceTurnAct()) {
-                    this.advanceState = 'skipAction';
-                    this.notifyWatchers();
-                    return;
-                }
-                this.advanceTurnFinish();
-                this.advanceState = 'startTurn';
-                this.notifyWatchers();
-                break;
-        }
+        this.advanceTurn();
     }
-
+    
     advanceTurn() {
-        this.advanceTurnStart();
-        this.advanceTurnFinish();
-    }
-
-    advanceTurnStart() {
         this.log.turnlogClear();
 
         this.forTiles(t => t.optimizeAllocations());
         this.forTiles(t => t.market.update());
-        /*
-        this.lastAttacks.clear();
 
-        if (this.year == 200) {
-            this.log.turnlog('Large-scale irrigation works begun!');
-            for (const t of this.map.tiles.flat()) {
-                t.enableDryLightSoil();
-            }
-        }
-
-        // Compute what alliance exists against each potential aggressor.
-        for (const p of this.polities) {
-            p.counterAlliance = p.neighboringPolities.filter(n => 
-                n != p && n.brain.joinsCounterAlliance(this, n, p));
-        }
-        */
-    }
-
-    advanceTurnAct() {
-        while (this.actorState < this.polities.length) {
-            const p = this.polities[this.actorState];
-            if (!this.polities.includes(p)) continue;
-            
-            //this.startTurnFor(p);
-            if (!this.locallyControlledPolities.has(p.name)) {
-                //p.brain.move(this, p);
-            } else {
-                return true;
-            }
-
-            ++this.actorState;
-        }
-        this.actorState = 0;
-        return false;
-    }
-
-    actAttack(target: Polity) {
-        const actor = this.polities[this.actorState];
-        if (!actor.canAttack(target)[0]) {
-            return;
-        }
-        //this.performAttack(actor, target);
-        
-        this.advanceState = 'continue';
-        this.notifyWatchers();
-    }
-
-    skipAction() {
-        ++this.actorState; 
-    }
-
-    advanceTurnFinish() {
         // Raiding.
         resolveRaids(this);
 
