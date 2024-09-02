@@ -30,7 +30,7 @@ import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
-import { Nutrition, nutrition } from "./utility";
+import { marginalNutrition, Nutrition, nutrition } from "./utility";
 
 class Pool<P extends Process> {
     readonly allocs: Map<P, number>;
@@ -108,9 +108,11 @@ abstract class Process {
     get apk() { return 0; }
     get mpk() { return 0; }
     get mpk2() { return 0; }
+    muk(consumption: Map<Product, number>) { return 0; }
     get apl() { return 0; }
     get mpl() { return 0; }
     get mpl2() { return 0; }
+    mul(consumption: Map<Product, number>) { return 0; }
 }
 
 abstract class LandProcess extends Process {
@@ -156,6 +158,10 @@ class LandUseProcess extends LandProcess {
              - CESProductionExpOneHalf(
             0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres)
     }
+    override muk(consumption: Map<Product, number>) { 
+        return this.mpk * marginalNutrition(consumption, this.product); 
+    }
+
     override get apl() { return this.output / this.workers; }
     override get mpl() { 
         return CESMPLaborExpOneHalf(
@@ -166,6 +172,9 @@ class LandUseProcess extends LandProcess {
             0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers + 1, this.acres)
              - CESProductionExpOneHalf(
             0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres)
+    }
+    override mul(consumption: Map<Product, number>) { 
+        return this.mpl * marginalNutrition(consumption, this.product); 
     }
 
     override get terrainDisplay() { return this.terrain.name; }
