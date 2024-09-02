@@ -28,6 +28,7 @@
             <th colspan="2">Land</th>
             <th>Workers</th>
             <th>L/W</th>
+            <th>Mod</th>
             <th colspan="2">Output</th>
             <th>APK</th>
             <th>MPK</th>
@@ -39,6 +40,7 @@
             <td>{{p.terrainDisplay}}</td>
             <td class="ra">{{p.workers}}</td>
             <td class="ra">{{p.acresPerWorkerDisplay}}</td>
+            <td class="ra">{{spercent(p.outputModifierFactor)}}</td>
             <td class="ra">{{p.outputDisplay}}</td>
             <td>{{p.productDisplay}}</td>
             <td class="ra">{{p.apk === 0 ? '': p.apk.toFixed(3)}}</td>

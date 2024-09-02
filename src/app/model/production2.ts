@@ -88,6 +88,9 @@ abstract class Process {
     // Quantity of output.
     output = 0;
 
+    // Factor by which output is modified, accounting for all factors.
+    outputModifierFactor = 1;
+
     canUse(terrain: Terrain) { return false; }
 
     reset() { this.workers = 0; }
@@ -117,6 +120,7 @@ abstract class LandProcess extends Process {
 
 class LandUseProcess extends LandProcess {
     constructor(
+        readonly tile: Tile,
         readonly terrain: Terrain, readonly product: Product, 
         readonly baseAcresPerWorker: number, readonly baseOutput: number) {
 
@@ -124,35 +128,38 @@ class LandUseProcess extends LandProcess {
     }
 
     get name() { return this.terrain.name + ' ' + this.product.name; }
+    get modifiedBaseOutput() { return this.baseOutput * this.outputModifierFactor; }
 
     override canUse(terrain: Terrain) { return terrain === this.terrain; }
 
     override apply() {
+        this.outputModifierFactor = this.tile.outputBoost(this.product);
+
         this.output = CESProductionExpOneHalf(
-            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres);
+            0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres);
     }
 
     override get apk() { return this.output / this.acres; }
     override get mpk() { 
         return CESMPLandExpOneHalf(
-            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres);
+            0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres);
     }
     override get mpk2() { 
         return CESProductionExpOneHalf(
-            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres + 1)
+            0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres + 1)
              - CESProductionExpOneHalf(
-            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres)
+            0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres)
     }
     override get apl() { return this.output / this.workers; }
     override get mpl() { 
         return CESMPLaborExpOneHalf(
-            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres);
+            0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres);
     }
     override get mpl2() { 
         return CESProductionExpOneHalf(
-            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers + 1, this.acres)
+            0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers + 1, this.acres)
              - CESProductionExpOneHalf(
-            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres)
+            0.6, 0.4, this.baseAcresPerWorker, this.modifiedBaseOutput, this.workers, this.acres)
     }
 
     override get terrainDisplay() { return this.terrain.name; }
@@ -183,11 +190,11 @@ export class TileProduction {
     readonly fallowProcess = new FallowProcess();
     readonly leisureProcess = new LeisureProcess();
     readonly landAndLaborProcesses = [
-        new LandUseProcess(Alluvium, Barley, 10, 5),
-        new LandUseProcess(Alluvium, Lentils, 7, 2.5),
-        new LandUseProcess(DryLightSoil, Dairy, 50, 5),
-        new LandUseProcess(Desert, Dairy, 200, 4),
-    ];
+        new LandUseProcess(this.tile, Alluvium, Barley, 10, 5),
+        new LandUseProcess(this.tile, Alluvium, Lentils, 7, 2.5),
+        new LandUseProcess(this.tile, DryLightSoil, Dairy, 50, 5),
+        new LandUseProcess(this.tile, Desert, Dairy, 200, 4),
+    ].filter(p => this.tile.fractionOf(p.terrain));
     readonly landProcesses = [
         ...this.landAndLaborProcesses,
         this.fallowProcess,

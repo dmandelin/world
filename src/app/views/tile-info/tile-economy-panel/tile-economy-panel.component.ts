@@ -79,19 +79,25 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   get landGroups() {
     if (!this.tile) return [];
     const tile = this.tile;
-    return tile.prod.landPools.map(pool => ({
-      terrain: pool.terrain,
-      fractionOfTile: tile.fractionOf(pool.terrain),
-      allocs: [...pool.allocs.entries()]
-        .filter(e => e[1])
-        .map(e => ({
-          process: e[0],
-          fraction: e[1],
-        }))
-    }));
+    return tile.prod.landPools
+      .map(pool => ({
+        terrain: pool.terrain,
+        fractionOfTile: tile.fractionOf(pool.terrain),
+        allocs: [...pool.allocs.entries()]
+          .filter(e => e[1])
+          .map(e => ({
+            process: e[0],
+            fraction: e[1],
+          }))
+      }))
+      .filter(g => g.fractionOfTile);
   }
 
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }
   round(n: number|undefined, p: number): string { return n === undefined ? '0' : n.toFixed(p); }
   percent(n: number): string { return `${Math.floor(n * 100)}%`; }
+  spercent(n: number): string { 
+    const s = Math.round((n - 1) * 100);
+    return s < 0 ? s.toFixed(2) : `+${s.toFixed(2)}`;
+  }
 }
