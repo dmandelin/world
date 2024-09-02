@@ -66,6 +66,11 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     this.update();
   }
 
+  get mods() {
+    if (!this.tile) return [];
+    return Object.entries(this.tile.mods);
+  }
+
   get workerRows() {
     if (!this.tile) return [];
     return [...this.tile.prod.laborPool.allocs.entries()]

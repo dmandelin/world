@@ -1,5 +1,12 @@
 <div *ngIf="tile">
     <h2>New Production Code</h2>
+    <h3>Tile Modifiers</h3>
+    <table>
+        <tr *ngFor="let m of mods">
+            <td>{{m[0]}}</td>
+            <td class="ra">{{m[1].value}}</td>
+        </tr>
+    </table>
     <h3>Workers</h3>
     <table>
         <tr *ngFor="let r of workerRows">
