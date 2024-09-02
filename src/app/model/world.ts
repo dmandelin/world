@@ -5,6 +5,17 @@ import {Tile} from "./tile";
 import {randelem, randint} from "./lib";
 import { resolveRaids } from "./raiding";
 
+// Next steps for the new production code:
+// - Modify nutrition so that 2:1 barley:lentils is the optimum plant food
+//   ratio for protein, also allowing all dairy to be optimal protein quality.
+// - Generalize land allocation to allocate off of fallow land as well,
+//   or initialize not having anything fallow.
+// - Add labor allocation function based on marginal utility.
+// - Pull together to get a full optimization function and apply.
+// - Remove the old production code and patch in the new.
+// - After that, either work on weather variability or take care of
+//   non-land processes to finish off that stuff.
+
 // Variable weather, flooding, and water works:
 // - Weather/flooding:
 //   - This could vary substantially year to year, but over 20 years the
