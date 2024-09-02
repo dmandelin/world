@@ -232,7 +232,7 @@ export class TileProduction {
     readonly pools = [this.laborPool, ...this.landPools];
 
     consumption = new Map<Product, number>();
-    nutrition = new Nutrition(0);
+    nutrition = new Nutrition(0, 0);
 
     initAllocs() {
         for (const pool of this.pools) {

@@ -83,6 +83,11 @@
             <td class="ra">{{floor(tile.prod.nutrition.amount)}}</td>
         </tr>
         <tr>
+            <td>Protein</td>
+            <td class="ra">{{percent(tile.prod.nutrition.proteinFactor)}}</td>
+            <td class="ra">({{percent(tile.prod.nutrition.proteinRatio)}} protein)</td>
+        </tr>
+        <tr>
             <td>Nutritional value</td>
             <td class="ra">{{floor(tile.prod.nutrition.value)}}</td>
         </tr>
