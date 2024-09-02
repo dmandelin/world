@@ -15,6 +15,7 @@
         </tr>
     </table>
     <h3>Land</h3>
+    <button (click)="allocLand()">Opt</button>
     <table>
         <ng-container *ngFor="let g of landGroups">
             <tr *ngFor="let a of g.allocs; let i = index">

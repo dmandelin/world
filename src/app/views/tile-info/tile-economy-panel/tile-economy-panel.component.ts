@@ -109,6 +109,11 @@ export class TileEconomyPanelComponent extends TilePanelBase {
       }));
   }
 
+  allocLand() {
+    this.tile?.prod.allocate();
+    this.wvm.world.notifyWatchers();
+  }
+
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }
   round(n: number|undefined, p: number): string { return n === undefined ? '0' : n.toFixed(p); }
   percent(n: number): string { return `${Math.floor(n * 100)}%`; }

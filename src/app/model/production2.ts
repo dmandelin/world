@@ -79,6 +79,18 @@ class LandPool extends Pool<LandProcess> {
             p.acres += na;
         }
     }    
+
+    realloc(p0: LandProcess, p1: LandProcess, fraction: number) {
+        const f0 = this.allocs.get(p0)!;
+        const f1 = this.allocs.get(p1)!;
+        if (f0 < fraction) return;
+        this.allocs.set(p0, f0 - fraction);
+        this.allocs.set(p1, f1 + fraction);
+        p0.acres -= Math.floor(fraction * this.acres);
+        p1.acres += Math.floor(fraction * this.acres);
+        p0.apply();
+        p1.apply();
+    }
 }
 
 abstract class Process {
@@ -204,9 +216,12 @@ export class TileProduction {
 
     readonly fallowProcess = new FallowProcess();
     readonly leisureProcess = new LeisureProcess();
-    readonly landAndLaborProcesses = [
+    readonly tradeoffProcesses = [
         new LandUseProcess(this.tile, Alluvium, Barley, 10, 5),
         new LandUseProcess(this.tile, Alluvium, Lentils, 7, 2.5),
+    ]
+    readonly landAndLaborProcesses = [
+        ...this.tradeoffProcesses,
         new LandUseProcess(this.tile, DryLightSoil, Dairy, 50, 5),
         new LandUseProcess(this.tile, Desert, Dairy, 200, 4),
     ].filter(p => this.tile.fractionOf(p.terrain));
@@ -230,6 +245,7 @@ export class TileProduction {
         .map(terrain => new LandPool(this.tile, terrain, this.landProcesses, this.fallowProcess));
 
     readonly pools = [this.laborPool, ...this.landPools];
+    readonly alluviumPool = this.landPools.find(p => p.terrain === Alluvium);
 
     consumption = new Map<Product, number>();
     nutrition = new Nutrition(0, 0);
@@ -241,13 +257,29 @@ export class TileProduction {
     }
 
     allocate() {
+        if (this.alluviumPool) {
+            const [p0, p1] = this.tradeoffProcesses;
+            const chunkSize = 0.01;
+            for (let i = 0; i < 1; ++i) {
+                if (p0.muk(this.consumption) > p1.muk(this.consumption)) {
+                    this.alluviumPool.realloc(p1, p0, chunkSize);
+                    this.updateConsumption();
+                } else {
+                    this.alluviumPool.realloc(p0, p1, chunkSize);
+                    this.updateConsumption();
+                }
+            }
+        }
     }
 
     update() {
         for (const process of this.processes) process.reset();
         for (const pool of this.pools) pool.apply();
         for (const process of this.processes) process.apply();
+        this.updateConsumption();
+    }
 
+    updateConsumption() {
         this.consumption.clear();
         for (const p of this.processes) {
             if (p.product) {
