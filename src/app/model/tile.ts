@@ -491,6 +491,7 @@ export class Tile {
 
     updatePopulation() {
         this.pop_.update();
+        this.religiousSite.refreshModifiers(this);
     }
 
     get prevCensus(): Census {
