@@ -241,8 +241,8 @@ export class TileProduction {
 
         this.consumption.clear();
         for (const p of this.processes) {
-            if (p) {
-                this.consumption.set(p.product!, (this.consumption.get(p.product!) || 0) + p.output);
+            if (p.product) {
+                this.consumption.set(p.product, (this.consumption.get(p.product) || 0) + p.output);
             }
         }
 

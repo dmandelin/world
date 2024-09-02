@@ -61,9 +61,15 @@
     </table>
     <h3>Consumption</h3>
     <table>
-        <tr *ngFor="let e of tile.prod.consumption.entries()">
-            <td>{{e[0].name}}</td>
-            <td class="ra">{{e[1].toFixed(0)}}</td>
+        <tr>
+            <th class="la">Product</th>
+            <th class="ra">Amount</th>
+            <th class="ra">Marginal Value</th>
+        </tr>
+        <tr *ngFor="let r of consumptionRows">
+            <td>{{r.name}}</td>
+            <td class="ra">{{r.amount.toFixed(0)}}</td>
+            <td class="ra">{{r.marginalUtility.toFixed(0)}}</td>
         </tr>
     </table>
     <h3>Nutrition</h3>

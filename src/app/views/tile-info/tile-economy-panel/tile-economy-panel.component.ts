@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
 import { Allocation, AllTerrainTypes, Product, Products, PerProduce, Terrain, marginalProductsOfLabor, marginalProductsOfLand, marginalUtilitiesOfLabor, marginalUtilitiesOfLand } from '../../../model/production';
 import { TilePanelBase } from '../tile-panel-base';
+import { marginalNutrition } from '../../../model/utility';
 
 @Component({
   selector: 'app-tile-economy-panel',
@@ -96,6 +97,16 @@ export class TileEconomyPanelComponent extends TilePanelBase {
           }))
       }))
       .filter(g => g.fractionOfTile);
+  }
+
+  get consumptionRows() {
+    if (!this.tile) return [];
+    return [...this.tile.prod.consumption.entries()]
+      .map(e => ({ 
+        name: e[0].name,
+        amount: e[1],
+        marginalUtility: this.tile ? marginalNutrition(this.tile.prod.consumption, e[0]) : 0,
+      }));
   }
 
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }
