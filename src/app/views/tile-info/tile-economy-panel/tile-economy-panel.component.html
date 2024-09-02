@@ -59,6 +59,24 @@
             <td class="ra">{{p.mpl === 0 ? '': p.mpl.toFixed(1)}} / {{p.mpl2.toFixed(2)}}</td>
         </tr>
     </table>
+    <h3>Consumption</h3>
+    <table>
+        <tr *ngFor="let e of tile.prod.consumption.entries()">
+            <td>{{e[0].name}}</td>
+            <td class="ra">{{e[1].toFixed(0)}}</td>
+        </tr>
+    </table>
+    <h3>Nutrition</h3>
+    <table>
+        <tr>
+            <td>Food quantity</td>
+            <td class="ra">{{floor(tile.prod.nutrition.amount)}}</td>
+        </tr>
+        <tr>
+            <td>Nutritional value</td>
+            <td class="ra">{{floor(tile.prod.nutrition.value)}}</td>
+        </tr>
+    </table>
     <div id="main">
         <div>
             <div class="flex">

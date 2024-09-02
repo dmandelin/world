@@ -30,6 +30,7 @@ import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
+import { Nutrition, nutrition } from "./utility";
 
 class Pool<P extends Process> {
     readonly allocs: Map<P, number>;
@@ -93,6 +94,7 @@ abstract class Process {
     outputFactor: Factor = new Factor(1);
 
     canUse(terrain: Terrain) { return false; }
+    get product(): Product|undefined { return undefined; }
 
     reset() { this.workers = 0; }
     apply() { this.output = 0; }
@@ -122,7 +124,7 @@ abstract class LandProcess extends Process {
 class LandUseProcess extends LandProcess {
     constructor(
         readonly tile: Tile,
-        readonly terrain: Terrain, readonly product: Product, 
+        readonly terrain: Terrain, private readonly product_: Product, 
         readonly baseAcresPerWorker: number, readonly baseOutput: number) {
 
         super();
@@ -132,6 +134,9 @@ class LandUseProcess extends LandProcess {
     get modifiedBaseOutput() { return this.baseOutput * this.outputFactor.value; }
 
     override canUse(terrain: Terrain) { return terrain === this.terrain; }
+    override get product(): Product {
+        return this.product_;
+    }
 
     override apply() {
         this.outputFactor = this.tile.outputFactor(this.product);
@@ -217,6 +222,9 @@ export class TileProduction {
 
     readonly pools = [this.laborPool, ...this.landPools];
 
+    consumption = new Map<Product, number>();
+    nutrition = new Nutrition(0);
+
     initAllocs() {
         for (const pool of this.pools) {
             pool.allocEqual();
@@ -230,5 +238,14 @@ export class TileProduction {
         for (const process of this.processes) process.reset();
         for (const pool of this.pools) pool.apply();
         for (const process of this.processes) process.apply();
+
+        this.consumption.clear();
+        for (const p of this.processes) {
+            if (p) {
+                this.consumption.set(p.product!, (this.consumption.get(p.product!) || 0) + p.output);
+            }
+        }
+
+        this.nutrition = nutrition(this.consumption);
     }
 }
