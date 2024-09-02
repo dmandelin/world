@@ -26,7 +26,7 @@
 //
 // Later, we can try to extend this model to trade, raiding, and consumption.
 
-import { CESProductionExpOneHalf } from "../data/ces";
+import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
 
@@ -98,6 +98,13 @@ abstract class Process {
     get acresPerWorkerDisplay() { return ''; }
     get outputDisplay() { return this.output.toFixed(0); }
     get productDisplay() { return ''; }
+
+    get apk() { return 0; }
+    get mpk() { return 0; }
+    get mpk2() { return 0; }
+    get apl() { return 0; }
+    get mpl() { return 0; }
+    get mpl2() { return 0; }
 }
 
 abstract class LandProcess extends Process {
@@ -121,7 +128,31 @@ class LandUseProcess extends LandProcess {
     override canUse(terrain: Terrain) { return terrain === this.terrain; }
 
     override apply() {
-        this.output = CESProductionExpOneHalf(0.6, 0.4, this.baseAcresPerWorker, this.workers, this.acres, this.baseOutput);
+        this.output = CESProductionExpOneHalf(
+            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres);
+    }
+
+    override get apk() { return this.output / this.acres; }
+    override get mpk() { 
+        return CESMPLandExpOneHalf(
+            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres);
+    }
+    override get mpk2() { 
+        return CESProductionExpOneHalf(
+            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres + 1)
+             - CESProductionExpOneHalf(
+            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres)
+    }
+    override get apl() { return this.output / this.workers; }
+    override get mpl() { 
+        return CESMPLaborExpOneHalf(
+            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres);
+    }
+    override get mpl2() { 
+        return CESProductionExpOneHalf(
+            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers + 1, this.acres)
+             - CESProductionExpOneHalf(
+            0.6, 0.4, this.baseAcresPerWorker, this.baseOutput, this.workers, this.acres)
     }
 
     override get terrainDisplay() { return this.terrain.name; }

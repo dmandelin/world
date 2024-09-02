@@ -29,6 +29,10 @@
             <th>Workers</th>
             <th>L/W</th>
             <th colspan="2">Output</th>
+            <th>APK</th>
+            <th>MPK</th>
+            <th>APL</th>
+            <th>MPL</th>
         </tr>
         <tr *ngFor="let p of tile.prod.processes">
             <td class="ra">{{p.acresDisplay}}</td>
@@ -37,6 +41,10 @@
             <td class="ra">{{p.acresPerWorkerDisplay}}</td>
             <td class="ra">{{p.outputDisplay}}</td>
             <td>{{p.productDisplay}}</td>
+            <td class="ra">{{p.apk === 0 ? '': p.apk.toFixed(3)}}</td>
+            <td class="ra">{{p.mpk === 0 ? '': p.mpk.toFixed(3)}} / {{p.mpk2.toFixed(3)}}</td>
+            <td class="ra">{{p.apl === 0 ? '': p.apl.toFixed(1)}}</td>
+            <td class="ra">{{p.mpl === 0 ? '': p.mpl.toFixed(1)}} / {{p.mpl2.toFixed(2)}}</td>
         </tr>
     </table>
     <div id="main">
