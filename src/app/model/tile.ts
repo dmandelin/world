@@ -85,6 +85,10 @@ export class Tile {
         public readonly dryLightSoilFraction: number,
         capacityRatio: number,
     ) {
+        if (this.isRiver && this.j <= 2) {
+            this.mods.farming.apply('Euphrates', 1.2);
+        }
+
         this.controller_ = controller;
         this.pop_ = new Population(this, this.isRiver ? randint(5000, 10000) : randint(500, 1000));
 

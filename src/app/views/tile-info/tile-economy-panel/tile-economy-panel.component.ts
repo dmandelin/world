@@ -103,6 +103,6 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   percent(n: number): string { return `${Math.floor(n * 100)}%`; }
   spercent(n: number): string { 
     const s = Math.round((n - 1) * 100);
-    return s < 0 ? s.toFixed(2) : `+${s.toFixed(2)}`;
+    return s < 0 ? s.toFixed(0) : `+${s.toFixed(0)}`;
   }
 }
