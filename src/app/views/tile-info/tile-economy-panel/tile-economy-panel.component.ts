@@ -66,6 +66,31 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     this.update();
   }
 
+  get workerRows() {
+    if (!this.tile) return [];
+    return [...this.tile.prod.laborPool.allocs.entries()]
+      .filter(e => e[1])
+      .map(e => ({
+        process: e[0], 
+        fraction: e[1],
+      }));
+  }
+
+  get landGroups() {
+    if (!this.tile) return [];
+    const tile = this.tile;
+    return tile.prod.landPools.map(pool => ({
+      terrain: pool.terrain,
+      fractionOfTile: tile.fractionOf(pool.terrain),
+      allocs: [...pool.allocs.entries()]
+        .filter(e => e[1])
+        .map(e => ({
+          process: e[0],
+          fraction: e[1],
+        }))
+    }));
+  }
+
   floor(n: number|undefined): number { return n === undefined ? 0 : Math.floor(n); }
   round(n: number|undefined, p: number): string { return n === undefined ? '0' : n.toFixed(p); }
   percent(n: number): string { return `${Math.floor(n * 100)}%`; }

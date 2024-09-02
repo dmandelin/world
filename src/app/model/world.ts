@@ -5,6 +5,46 @@ import {Tile} from "./tile";
 import {randelem, randint} from "./lib";
 import { resolveRaids } from "./raiding";
 
+// Variable weather, flooding, and water works:
+// - Weather/flooding:
+//   - This could vary substantially year to year, but over 20 years the
+//     variation in the total will be less.
+//   - For the initial period, we'll start with moderate-high variability,
+//     representing an overall favorable climate, but as-yet only partially
+//     tamed rivers, perhaps a coefficient of variation of 0.3.
+//   - With that level, we don't have to worry about major famines too much,
+//     and we start with a clan organization, so clans will sometimes need
+//     help from neighboring clans or priests, leading to shifts in power.
+//   - Also, the amount of variability will reduce effective output, as
+//     with higher variability people need more "insurance", which costs.
+//   - CV over a 20-year turn is 0.067, so we'll see some fluctuations in
+//     output but it probably won't be a huge deal.
+//   - We'll want some similarities by location. We can start by generating
+//     random weather in each tile and then averaging across neighbors. We
+//     can do more averaging along each river, and also make the Euphrates
+//     20% more productive on average.
+//   - Actual dynamics for volatility:
+//     - Effective output reduced by the CV => large incentive to reduce
+//     - 0.1 * CV per turn become debtors, generating an elite of 0.1 per debtor.
+//       Note that horizontal ties can avoid this. At first we might model
+//       them as constant, but elites might weaken them.
+//     - Granaries (owned by temple, elites, people, etc) can mitigate this
+//       at the consumption level.
+//     - Larger irrigation works can mitigate this at the production level.
+// - Water works:
+//   - There is some level of water infrastructure at the beginning, which
+//     has arable land and volatility where they are. We also assume small-
+//     scale works are built as needed to farm new land.
+//   - Medium-scale works built by towns can further double the amount of
+//     irrigable land.
+//     - Exactly how this would be organized is unclear, but it seems this
+//       didn't result in state formation, so apparently the tribal systems
+//       were able to do this.
+//     - This probably would result in some inequality as either people more
+//       involved in planning could sway some things in their favor, or some
+//       clans would simply be more able to take advantage of the new land.
+//   - Medium-scale works also reduce variation by 1/3.
+
 // # Next refactorings:
 // - Flow-type concept for things like production and consumption.
 // - Stock-type concept for things like population and constructions.
@@ -167,6 +207,9 @@ export class World {
             t.market.update();
         }
 
+        this.forTiles(t => t.prod.initAllocs());
+        this.forTiles(t => t.prod.update());
+
         this.recordRanks();
 
         this.forTiles(t => t.updateTimeSeries());
@@ -232,10 +275,11 @@ export class World {
     advance() {
         this.advanceTurn();
     }
-    
+
     advanceTurn() {
         this.log.turnlogClear();
 
+        this.forTiles(t => t.updateProduction());
         this.forTiles(t => t.optimizeAllocations());
         this.forTiles(t => t.market.update());
 

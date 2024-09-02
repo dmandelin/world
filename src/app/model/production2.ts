@@ -1,0 +1,195 @@
+// New production code
+//
+// Key ideas:
+// - think in terms of flows and stocks if it helps
+// - clearer data structures
+// - more mutability for performance
+//
+// Allocating labor differently for different parts of the system
+// may be easier if we more explicitly represent how inputs are
+// mapped to productive activities.
+//
+// We start with a labor pool and land pools per terrain type.
+// - Each can send different parts of its output to different
+//   productive activities, including leisure or waste.
+// - An activity is pretty abstract, but perhaps we don't actually
+//   want to privilege either land or labor, which means neither
+//   can be treated as the primary thing to which the other is
+//   allocated.
+// - Activity has outputs which at first will be captured as
+//   a production flow.
+// - If we represent the whole system, perhaps we then don't need
+//   to represent source information for goods down the line.
+//   I suppose for the most part the production factors cease to
+//   matter, but in some cases, perhaps such as pottery styles,
+//   we'll want to tag goods.
+//
+// Later, we can try to extend this model to trade, raiding, and consumption.
+
+import { CESProductionExpOneHalf } from "../data/ces";
+import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
+import { Tile } from "./tile";
+
+class Pool<P extends Process> {
+    readonly allocs: Map<P, number>;
+
+    constructor(readonly tile: Tile, readonly processes: P[], initialProcess: P) {
+        this.allocs = new Map(processes.map(p => [p, p === initialProcess ? 1 : 0]));
+    }
+
+    allocEqual() {
+        const n = this.processes.length;
+        for (const p of this.processes) {
+            this.allocs.set(p, 1 / n);
+        }
+    }
+}
+
+class LaborPool extends Pool<Process> {
+    get workers() {
+        return Math.floor(0.25 * this.tile.population);
+    }
+
+    apply() {
+        const n = this.workers;
+        for (const [p, f] of this.allocs) {
+            // TODO - send the extras somewhere.
+            const na = Math.floor(f * n);
+            p.workers += na;
+        }
+    }
+}
+
+class LandPool extends Pool<LandProcess> {
+    constructor(tile: Tile, readonly terrain: Terrain, processes: LandProcess[], initialProcess: LandProcess) {
+        super(tile, processes.filter(p => p.canUse(terrain)), initialProcess);
+    }
+
+    get acres() {
+        return this.tile.acresOf(this.terrain);
+    }
+
+    apply() {
+        const a = this.acres;
+        for (const [p, f] of this.allocs) {
+            // TODO - send the extras somewhere.
+            const na = Math.floor(f * a);
+            p.acres += na;
+        }
+    }    
+}
+
+abstract class Process {
+    abstract get name(): string;
+
+    // Number of people working on this process.
+    workers = 0;
+
+    // Quantity of output.
+    output = 0;
+
+    canUse(terrain: Terrain) { return false; }
+
+    reset() { this.workers = 0; }
+    apply() { this.output = 0; }
+
+    get acresDisplay() { return ''; }
+    get terrainDisplay() { return ''; }
+    get acresPerWorkerDisplay() { return ''; }
+    get outputDisplay() { return this.output.toFixed(0); }
+    get productDisplay() { return ''; }
+}
+
+abstract class LandProcess extends Process {
+    acres = 0;
+
+    override canUse(terrain: Terrain) { return true; }
+
+    override get acresDisplay() { return this.acres.toFixed(0); }
+}
+
+class LandUseProcess extends LandProcess {
+    constructor(
+        readonly terrain: Terrain, readonly product: Product, 
+        readonly baseAcresPerWorker: number, readonly baseOutput: number) {
+
+        super();
+    }
+
+    get name() { return this.terrain.name + ' ' + this.product.name; }
+
+    override canUse(terrain: Terrain) { return terrain === this.terrain; }
+
+    override apply() {
+        this.output = CESProductionExpOneHalf(0.6, 0.4, this.baseAcresPerWorker, this.workers, this.acres, this.baseOutput);
+    }
+
+    override get terrainDisplay() { return this.terrain.name; }
+    override get acresPerWorkerDisplay() { return this.workers ? (this.acres / this.workers).toFixed(1) : ''; }
+    override get productDisplay() { return this.product.name; }
+}
+
+class ConstructionProcess extends Process {
+    get name() { return 'Construction'; }
+    override get productDisplay() { return 'Construction'; }
+}
+
+class LeisureProcess extends Process {
+    get name() { return 'Leisure'; }
+    override get outputDisplay() { return ''; }
+    override get productDisplay() { return 'Leisure'; }
+}
+
+class FallowProcess extends LandProcess {
+    get name() { return 'Fallow'; }
+    override get outputDisplay() { return ''; }
+    override get productDisplay() { return 'Fallow'; }
+}
+
+export class TileProduction {
+    constructor(readonly tile: Tile) {}
+
+    readonly fallowProcess = new FallowProcess();
+    readonly leisureProcess = new LeisureProcess();
+    readonly landAndLaborProcesses = [
+        new LandUseProcess(Alluvium, Barley, 10, 5),
+        new LandUseProcess(Alluvium, Lentils, 7, 2.5),
+        new LandUseProcess(DryLightSoil, Dairy, 50, 5),
+        new LandUseProcess(Desert, Dairy, 200, 4),
+    ];
+    readonly landProcesses = [
+        ...this.landAndLaborProcesses,
+        this.fallowProcess,
+    ];
+    readonly laborProcesses = [
+        ...this.landAndLaborProcesses,
+        new ConstructionProcess(),
+        this.leisureProcess,
+    ]
+    readonly processes = [
+        ...this.laborProcesses,
+        this.fallowProcess,
+    ];
+
+    readonly laborPool = new LaborPool(this.tile, this.laborProcesses, this.leisureProcess);
+
+    readonly landPools = [Alluvium, DryLightSoil, Desert]
+        .map(terrain => new LandPool(this.tile, terrain, this.landProcesses, this.fallowProcess));
+
+    readonly pools = [this.laborPool, ...this.landPools];
+
+    initAllocs() {
+        for (const pool of this.pools) {
+            pool.allocEqual();
+        }
+    }
+
+    allocate() {
+    }
+
+    update() {
+        for (const process of this.processes) process.reset();
+        for (const pool of this.pools) pool.apply();
+        for (const process of this.processes) process.apply();
+    }
+}

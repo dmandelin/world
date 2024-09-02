@@ -15,6 +15,7 @@ import { Culture, CultureGroups } from './culture';
 import { Census, Population } from './population';
 import { complexity, flourishing, freedom } from './ways';
 import { Factor, Modifier } from '../data/calc';
+import { TileProduction } from './production2';
 
 export class TileModifiers {
     // Population growth factor.
@@ -47,11 +48,10 @@ export type TileModifierValues = {
 };
 
 export class Tile {
+    static readonly acres = 144000;
+
     private controller_: Polity;
-    private tradePartners_ = new Set<Tile>();
-
     private pop_: Population;
-
     readonly culture: Culture;
     readonly religiousSite: ReligiousSite;
 
@@ -62,7 +62,8 @@ export class Tile {
 
     raidEffects = new RaidEffects();
 
-    mods = new TileModifiers();
+    readonly mods = new TileModifiers();
+    readonly prod = new TileProduction(this);
 
     readonly productionSeries = new TimeSeries<PerProduce>();
     readonly capacitySeries = new TimeSeries<number>();
@@ -98,6 +99,23 @@ export class Tile {
     }
 
     get name() { return this.controller.name; }
+
+    updateProduction() {
+        this.prod.update();
+    }
+
+    fractionOf(t: Terrain): number {
+        switch (t) {
+            case Alluvium: return this.wetFraction;
+            case DryLightSoil: return this.dryLightSoilFraction;
+            case Desert: return this.desertFraction;
+            default: throw new Error(`Unknown terrain ${t}`);
+        }
+    }
+
+    acresOf(t: Terrain): number {
+        return Tile.acres * this.fractionOf(t);
+    }
 
     outputBoost(p: Product): number {
         switch (true) {

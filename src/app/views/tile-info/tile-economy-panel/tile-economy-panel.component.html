@@ -1,4 +1,44 @@
 <div *ngIf="tile">
+    <h2>New Production Code</h2>
+    <h3>Workers</h3>
+    <table>
+        <tr *ngFor="let r of workerRows">
+            <td>{{r.process.name}}</td>
+            <td class="ra">{{percent(r.fraction)}}</td>
+        </tr>
+    </table>
+    <h3>Land</h3>
+    <table>
+        <ng-container *ngFor="let g of landGroups">
+            <tr *ngFor="let a of g.allocs; let i = index">
+                <td *ngIf="i === 0" [attr.rowspan]="g.allocs.length" class="ra">
+                    {{percent(g.fractionOfTile)}}
+                </td>
+                <td *ngIf="i === 0" [attr.rowspan]="g.allocs.length">
+                    {{g.terrain.name}}
+                </td>
+                <td class="ra">{{percent(a.fraction)}}</td>
+                <td>{{a.process.name}}</td>
+            </tr>        
+        </ng-container>
+    </table>
+    <h3>Processes</h3>
+    <table>
+        <tr>
+            <th colspan="2">Land</th>
+            <th>Workers</th>
+            <th>L/W</th>
+            <th colspan="2">Output</th>
+        </tr>
+        <tr *ngFor="let p of tile.prod.processes">
+            <td class="ra">{{p.acresDisplay}}</td>
+            <td>{{p.terrainDisplay}}</td>
+            <td class="ra">{{p.workers}}</td>
+            <td class="ra">{{p.acresPerWorkerDisplay}}</td>
+            <td class="ra">{{p.outputDisplay}}</td>
+            <td>{{p.productDisplay}}</td>
+        </tr>
+    </table>
     <div id="main">
         <div>
             <div class="flex">
