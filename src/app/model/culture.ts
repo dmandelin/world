@@ -45,7 +45,10 @@ class ProtoSumerian extends CultureGroup {
     }
 
     override initialPops(tile: Tile, n: number): Pop[] {
-        return [new Pop(n, tile, Roles.ClansPeople)];
+        return [
+            new Pop(Math.round(n * 0.01), tile, Roles.Priests),
+            new Pop(Math.round(n * 0.99), tile, Roles.ClansPeople),
+        ];
     }
 }
 

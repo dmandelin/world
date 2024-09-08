@@ -9,6 +9,7 @@ export class Role {
 
 export const Roles = {
     ClansPeople: new Role('Clanspeople'),
+    Priests: new Role('Priests'),
 }
 
 export class Pop {
