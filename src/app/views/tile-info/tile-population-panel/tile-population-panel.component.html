@@ -52,7 +52,19 @@
         </tr>
 </table>
 
-<h2 class="mtz">Settlements</h2>
+<h3 class="mtz">People</h3>
+<table>
+    <tr>
+        <th class="la">Role</th>
+        <th class="ra">Number</th>
+    </tr>
+    <tr *ngFor="let pop of tile?.pop?.pops">
+        <td>{{pop.role.name}}</td>
+        <td class="ra">{{pop.n}}</td>
+    </tr>
+</table>
+
+<h3 class="mtz">Settlements</h3>
 <div>
 {{tile?.settlementsDescription}}
 </div>

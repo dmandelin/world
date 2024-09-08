@@ -1,8 +1,28 @@
 import { TimeSeries } from "../data/timeseries";
 import { Tile } from "./tile";
 
+export class Role {
+    constructor(
+        readonly name: string,
+    ) {}
+}
+
+export const Roles = {
+    ClansPeople: new Role('Clanspeople'),
+}
+
+export class Pop {
+    constructor(
+        public n: number,
+        readonly tile: Tile,
+        readonly role: Role,
+    ) {}
+}
+
 export class Population {
-    constructor(readonly tile: Tile, public n: number) {}
+    constructor(readonly tile: Tile, readonly pops: Pop[]) {}
+
+    public n = this.pops.reduce((a, p) => a + p.n, 0);
 
     readonly baseDeathRate = 0.040;
 
@@ -55,7 +75,17 @@ export class Population {
             this.lastNaturalIncrease = Math.floor(this.n * growthRate);
         }
 
-        this.n += this.lastNaturalIncrease - raidingLosses;
+        const delta = this.lastNaturalIncrease - raidingLosses;
+
+        // Distribute the delta among pops and update the population.
+        let deltaRemaining = delta;
+        for (const pop of this.pops) {
+            const deltaPop = Math.round(delta * pop.n / this.n);
+            pop.n += deltaPop;
+            deltaRemaining -= deltaPop;
+        }
+        this.pops[0].n += deltaRemaining;
+        this.n = this.pops.reduce((a, p) => a + p.n, 0);
         
         // Update moving average expected death rate.
         const lastDeathRate = this.baseDeathRate + raidingLosses / originalPopulation;

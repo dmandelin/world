@@ -82,18 +82,19 @@ export class Tile {
         public readonly isRiver: boolean,
         public readonly wetFraction: number,
         public readonly dryLightSoilFraction: number,
-        capacityRatio: number,
     ) {
         if (this.isRiver && this.j <= 2) {
             this.mods.farming.apply('Euphrates', 1.2);
         }
 
         this.controller_ = controller;
-        this.pop_ = new Population(this, this.isRiver ? randint(1000, 3000) : randint(100, 300));
 
         const cultureGroup = isRiver ? CultureGroups.ProtoSumerian : CultureGroups.DesertNomad;
         this.culture = cultureGroup.createCulture(this);
         this.culture.refreshModifiers(this);
+
+        const initialPopulation = this.isRiver ? randint(1000, 3000) : randint(100, 300)
+        this.pop_ = new Population(this, this.culture.initialPops(this, initialPopulation));
 
         this.religiousSite = this.culture.createReligiousSite();
 

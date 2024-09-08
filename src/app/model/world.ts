@@ -455,7 +455,7 @@ class WorldMap {
                     ? Math.random() * (1 - wetFraction)
                     : Math.random() * 0.1;
                 const capacityRatio = Math.random() * 0.3 + 0.5;
-                this.tiles[i][j] = new Tile(world, i, j, polity, isRiver, wetFraction, dryLightSoilFraction, capacityRatio);
+                this.tiles[i][j] = new Tile(world, i, j, polity, isRiver, wetFraction, dryLightSoilFraction);
             }
         }
     }
