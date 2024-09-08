@@ -6,6 +6,8 @@ export class CultureGroup {
     constructor(
         readonly name: string, 
         readonly typeName: string,
+        readonly baseSettlementSize: number,
+        readonly baseSettlementName: string,
         readonly leisureValue: number,
         readonly freedom: number,
         readonly mods: TileModifierValues,
@@ -21,7 +23,9 @@ export class CultureGroup {
 export const CultureGroups = {
     ProtoSumerian: new CultureGroup(
         'Proto-Sumerian', 
-        'Traditional Agrarian Society', 0.25, 0.2,
+        'Traditional Agrarian Society', 
+        400, 'villages',
+        0.25, 0.2,
         {
         },
         Temple,
@@ -35,7 +39,9 @@ export const CultureGroups = {
     ),
     DesertNomad: new CultureGroup(
         'Desert Nomad',
-        'Traditional Pastoral Society', 0.1, 0.5,
+        'Traditional Pastoral Society', 
+        40, 'camps',
+        0.1, 0.5,
         {
             raidIntensity: 2,
             raidCapture: 2,
@@ -64,5 +70,13 @@ export class Culture {
                 tile.mods[modName as keyof TileModifiers].apply(
                     this.group.name, value);
             }
+    }
+
+    get baseSettlementSize(): number {
+        return this.group.baseSettlementSize;
+    }
+
+    get baseSettlementName(): string {
+        return this.group.baseSettlementName;
     }
 }

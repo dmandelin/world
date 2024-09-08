@@ -5,7 +5,6 @@ import { PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacit
 import { Terrain, Alluvium, DryLightSoil, Desert } from './production';
 import { Barley, Lentils, Dairy } from './production';
 import { Market } from './trade';
-import { Settlement, SettlementTier } from './settlements';
 import { ProductionTech, TechKit } from './tech';
 import { mapmax, mapmin, randelem, randint } from './lib';
 import { TimeSeries } from '../data/timeseries';
@@ -90,7 +89,7 @@ export class Tile {
         }
 
         this.controller_ = controller;
-        this.pop_ = new Population(this, this.isRiver ? randint(5000, 10000) : randint(500, 1000));
+        this.pop_ = new Population(this, this.isRiver ? randint(1000, 3000) : randint(100, 300));
 
         const cultureGroup = isRiver ? CultureGroups.ProtoSumerian : CultureGroups.DesertNomad;
         this.culture = cultureGroup.createCulture(this);
@@ -195,12 +194,8 @@ export class Tile {
         return ns;
     }
 
-    settlements(): Settlement[] {
-        return Settlement.zipfSettlements(this.population);
-    }
-
-    settlementTiers(): SettlementTier[] {
-        return Settlement.zipfSettlementTiers(this.population);
+    get settlementsDescription(): string {
+        return this.pop.settlementsDescription;
     }
 
     areaFraction(terrain: Terrain): number {

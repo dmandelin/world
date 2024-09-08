@@ -296,7 +296,7 @@ class that can be gradually extended to other peoples.
 
 - Clans and their influence
 - Baseline ideological doctrines emphasizing collective agrarian power
-- Villages of roughly equal size
+x Villages of roughly equal size
 - Priest class that appears with temples: they are paid by donations
   at first; they start to gain influence
 - Artisan class that appears with priests, working for part of the
@@ -308,6 +308,7 @@ class that can be gradually extended to other peoples.
   luxury goods
 - Trade goods that start coming in for temples, different luxuries
   at first used for collective purposes
+- Optional: Model some people as nomads even in river tiles.
 
 ### 4200 BC
 

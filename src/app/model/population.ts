@@ -16,6 +16,10 @@ export class Population {
         return this.censusSeries.lastValue;
     }
 
+    get settlementsDescription(): string {
+        return `${Math.round(this.n / this.tile.culture.baseSettlementSize)} ${this.tile.culture.baseSettlementName}`;
+    }
+
     get capacityRatio(): number {
         return this.tile.capacity / this.tile.population;
     }

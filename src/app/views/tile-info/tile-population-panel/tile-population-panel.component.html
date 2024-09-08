@@ -53,20 +53,9 @@
 </table>
 
 <h2 class="mtz">Settlements</h2>
-<table>
-    <tr>
-        <th class="la">Tier</th>
-        <th class="ra">#</th>
-        <th class="ra">Avg Pop</th>
-        <th class="ra">Total Pop</th>
-    </tr>
-    <tr *ngFor="let s of tile?.settlementTiers()">
-        <td>{{s.name}}</td>
-        <td class="ra">{{s.settlements.length}}</td>
-        <td class="ra">{{s.averagePopulation}}</td>
-        <td class="ra">{{s.totalPopulation}}</td>
-    </tr>
-</table>
+<div>
+{{tile?.settlementsDescription}}
+</div>
 </div>
 <div id="rightPanel">
     <app-tile-pop-graphs></app-tile-pop-graphs>
