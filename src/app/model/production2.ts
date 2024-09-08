@@ -28,6 +28,7 @@
 
 import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
+import { Pop, Role, Roles } from "./population";
 import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
 import { marginalNutrition, Nutrition, nutrition } from "./utility";
@@ -48,8 +49,12 @@ class Pool<P extends Process> {
 }
 
 class LaborPool extends Pool<Process> {
+    constructor(readonly pop: Pop, processes: Process[], initialProcess: Process) {
+        super(pop.tile, processes.filter(p => p.canBeWorkedBy(pop)), initialProcess);
+    }
+
     get workers() {
-        return Math.floor(0.25 * this.tile.population);
+        return Math.floor(0.25 * this.pop.n);
     }
 
     apply() {
@@ -106,6 +111,7 @@ abstract class Process {
     outputFactor: Factor = new Factor(1);
 
     canUse(terrain: Terrain) { return false; }
+    canBeWorkedBy(pop: Pop) { return false; }
     get product(): Product|undefined { return undefined; }
 
     reset() { this.workers = 0; }
@@ -138,7 +144,9 @@ abstract class LandProcess extends Process {
 class LandUseProcess extends LandProcess {
     constructor(
         readonly tile: Tile,
-        readonly terrain: Terrain, private readonly product_: Product, 
+        readonly terrain: Terrain, 
+        readonly role: Role,
+        private readonly product_: Product, 
         readonly baseAcresPerWorker: number, readonly baseOutput: number) {
 
         super();
@@ -148,6 +156,7 @@ class LandUseProcess extends LandProcess {
     get modifiedBaseOutput() { return this.baseOutput * this.outputFactor.value; }
 
     override canUse(terrain: Terrain) { return terrain === this.terrain; }
+    override canBeWorkedBy(pop: Pop) { return pop.role === this.role; }
     override get product(): Product {
         return this.product_;
     }
@@ -217,13 +226,13 @@ export class TileProduction {
     readonly fallowProcess = new FallowProcess();
     readonly leisureProcess = new LeisureProcess();
     readonly tradeoffProcesses = [
-        new LandUseProcess(this.tile, Alluvium, Barley, 10, 5),
-        new LandUseProcess(this.tile, Alluvium, Lentils, 7, 2.5),
+        new LandUseProcess(this.tile, Alluvium, Roles.ClansPeople, Barley, 10, 5),
+        new LandUseProcess(this.tile, Alluvium, Roles.ClansPeople, Lentils, 7, 2.5),
     ]
     readonly landAndLaborProcesses = [
         ...this.tradeoffProcesses,
-        new LandUseProcess(this.tile, DryLightSoil, Dairy, 50, 5),
-        new LandUseProcess(this.tile, Desert, Dairy, 200, 4),
+        new LandUseProcess(this.tile, DryLightSoil, Roles.ClansPeople, Dairy, 50, 5),
+        new LandUseProcess(this.tile, Desert, Roles.ClansPeople, Dairy, 200, 4),
     ].filter(p => this.tile.fractionOf(p.terrain));
     readonly landProcesses = [
         ...this.landAndLaborProcesses,
@@ -239,12 +248,12 @@ export class TileProduction {
         this.fallowProcess,
     ];
 
-    readonly laborPool = new LaborPool(this.tile, this.laborProcesses, this.leisureProcess);
+    readonly laborPools = this.tile.pop.pops.map(pop => new LaborPool(pop, this.laborProcesses, this.leisureProcess));
 
     readonly landPools = [Alluvium, DryLightSoil, Desert]
         .map(terrain => new LandPool(this.tile, terrain, this.landProcesses, this.fallowProcess));
 
-    readonly pools = [this.laborPool, ...this.landPools];
+    readonly pools = [...this.laborPools, ...this.landPools];
     readonly alluviumPool = this.landPools.find(p => p.terrain === Alluvium);
 
     consumption = new Map<Product, number>();

@@ -62,7 +62,7 @@ export class Tile {
     raidEffects = new RaidEffects();
 
     readonly mods = new TileModifiers();
-    readonly prod = new TileProduction(this);
+    readonly prod: TileProduction;
 
     readonly productionSeries = new TimeSeries<PerProduce>();
     readonly capacitySeries = new TimeSeries<number>();
@@ -98,6 +98,7 @@ export class Tile {
 
         this.religiousSite = this.culture.createReligiousSite();
 
+        this.prod = new TileProduction(this);
         this.allocate();
         this.optimizeAllocations();
     }
