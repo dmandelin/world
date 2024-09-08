@@ -113,6 +113,7 @@ abstract class Process {
     canUse(terrain: Terrain) { return false; }
     canBeWorkedBy(pop: Pop) { return false; }
     get product(): Product|undefined { return undefined; }
+    get roleName(): string { return ''; }
 
     reset() { this.workers = 0; }
     apply() { this.output = 0; }
@@ -160,6 +161,7 @@ class LandUseProcess extends LandProcess {
     override get product(): Product {
         return this.product_;
     }
+    override get roleName(): string { return this.role.name; }
 
     override apply() {
         this.outputFactor = this.tile.outputFactor(this.product);

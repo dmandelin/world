@@ -10,6 +10,7 @@
     <h3>Workers</h3>
     <table>
         <tr *ngFor="let r of workerRows">
+            <td>{{r.process.roleName}}</td>
             <td>{{r.process.name}}</td>
             <td class="ra">{{percent(r.fraction)}}</td>
         </tr>
@@ -34,7 +35,7 @@
     <table>
         <tr>
             <th colspan="2">Land</th>
-            <th>Workers</th>
+            <th colspan="2">Workers</th>
             <th>L/W</th>
             <th>Mod</th>
             <th colspan="2">Output</th>
@@ -49,6 +50,7 @@
             <td class="ra">{{p.acresDisplay}}</td>
             <td>{{p.terrainDisplay}}</td>
             <td class="ra">{{p.workers}}</td>
+            <td class="ra">{{p.roleName}}</td>
             <td class="ra">{{p.acresPerWorkerDisplay}}</td>
             <td class="ra ttc">
                 {{spercent(p.outputFactor.value)}}
