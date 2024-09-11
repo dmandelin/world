@@ -72,14 +72,19 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     return Object.entries(this.tile.mods);
   }
 
-  get workerRows() {
+  get workerGroups() {
     if (!this.tile) return [];
-    return this.tile.prod.laborPools.flatMap(pool => [...pool.allocs.entries()])
-      .filter(e => e[1])
-      .map(e => ({
-        process: e[0], 
-        fraction: e[1],
-      }));
+    return this.tile.prod.laborPools
+      .map(pool => ({ 
+        role: pool.pop.role,
+        workers: pool.workers,
+        allocs: [...pool.allocs.entries()]
+          .filter(e => e[1])
+          .map(e => ({
+            process: e[0], 
+            fraction: e[1],
+          }))
+      }))
   }
 
   get landGroups() {

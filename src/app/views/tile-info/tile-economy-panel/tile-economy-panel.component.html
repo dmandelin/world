@@ -1,36 +1,51 @@
 <div *ngIf="tile">
     <h2>New Production Code</h2>
-    <h3>Tile Modifiers</h3>
-    <table>
-        <tr *ngFor="let m of mods">
-            <td>{{m[0]}}</td>
-            <td class="ra">{{m[1].value}}</td>
-        </tr>
-    </table>
-    <h3>Workers</h3>
-    <table>
-        <tr *ngFor="let r of workerRows">
-            <td>{{r.process.roleName}}</td>
-            <td>{{r.process.name}}</td>
-            <td class="ra">{{percent(r.fraction)}}</td>
-        </tr>
-    </table>
-    <h3>Land</h3>
-    <button (click)="allocLand()">Opt</button>
-    <table>
-        <ng-container *ngFor="let g of landGroups">
-            <tr *ngFor="let a of g.allocs; let i = index">
-                <td *ngIf="i === 0" [attr.rowspan]="g.allocs.length" class="ra">
-                    {{percent(g.fractionOfTile)}}
-                </td>
-                <td *ngIf="i === 0" [attr.rowspan]="g.allocs.length">
-                    {{g.terrain.name}}
-                </td>
-                <td class="ra">{{percent(a.fraction)}}</td>
-                <td>{{a.process.name}}</td>
-            </tr>        
-        </ng-container>
-    </table>
+    <div class="flex">
+        <div>
+            <h3>Tile Modifiers</h3>
+            <table>
+                <tr *ngFor="let m of mods">
+                    <td>{{m[0]}}</td>
+                    <td class="ra">{{m[1].value}}</td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <h3>Workers</h3>
+            <table>
+                <ng-container *ngFor="let g of workerGroups">
+                    <tr *ngFor="let a of g.allocs; let i = index">
+                        <td *ngIf="i === 0" [attr.rowspan]="g.allocs.length" class="ra">
+                            {{g.workers}}
+                        </td>
+                        <td *ngIf="i === 0" [attr.rowspan]="g.allocs.length">
+                            {{g.role.name}}
+                        </td>
+                        <td class="ra">{{percent(a.fraction)}}</td>
+                        <td>{{a.process.name}}</td>
+                    </tr>
+                </ng-container>
+            </table>
+        </div>
+        <div>
+            <h3>Land</h3>
+            <button (click)="allocLand()">Opt</button>
+            <table>
+                <ng-container *ngFor="let g of landGroups">
+                    <tr *ngFor="let a of g.allocs; let i = index">
+                        <td *ngIf="i === 0" [attr.rowspan]="g.allocs.length" class="ra">
+                            {{percent(g.fractionOfTile)}}
+                        </td>
+                        <td *ngIf="i === 0" [attr.rowspan]="g.allocs.length">
+                            {{g.terrain.name}}
+                        </td>
+                        <td class="ra">{{percent(a.fraction)}}</td>
+                        <td>{{a.process.name}}</td>
+                    </tr>        
+                </ng-container>
+            </table>
+        </div>
+    </div>
     <h3>Processes</h3>
     <table>
         <tr>

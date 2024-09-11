@@ -49,8 +49,11 @@ class Pool<P extends Process> {
 }
 
 class LaborPool extends Pool<Process> {
-    constructor(readonly pop: Pop, processes: Process[], initialProcess: Process) {
-        super(pop.tile, processes.filter(p => p.canBeWorkedBy(pop)), initialProcess);
+    constructor(readonly pop: Pop, processes: Process[]) {
+        super(
+            pop.tile, 
+            processes.filter(p => p.canBeWorkedBy(pop)), 
+            processes.find(p => p instanceof LeisureProcess && p.canBeWorkedBy(pop))!);
     }
 
     get workers() {
@@ -63,6 +66,10 @@ class LaborPool extends Pool<Process> {
             // TODO - send the extras somewhere.
             const na = Math.floor(f * n);
             p.workers += na;
+            if (p.workerRole && p.workerRole !== this.pop.role) {
+                throw `Worker role mismatch: ${p.workerRole.name} vs ${this.pop.role.name}`;
+            }
+            p.workerRole = this.pop.role;
         }
     }
 }
@@ -104,6 +111,9 @@ abstract class Process {
     // Number of people working on this process.
     workers = 0;
 
+    // Role of workers assigned to this process.
+    workerRole: Role|undefined;
+
     // Quantity of output.
     output = 0;
 
@@ -113,7 +123,7 @@ abstract class Process {
     canUse(terrain: Terrain) { return false; }
     canBeWorkedBy(pop: Pop) { return false; }
     get product(): Product|undefined { return undefined; }
-    get roleName(): string { return ''; }
+    get roleName(): string { return this.workerRole?.name || '-'; }
 
     reset() { this.workers = 0; }
     apply() { this.output = 0; }
@@ -161,7 +171,6 @@ class LandUseProcess extends LandProcess {
     override get product(): Product {
         return this.product_;
     }
-    override get roleName(): string { return this.role.name; }
 
     override apply() {
         this.outputFactor = this.tile.outputFactor(this.product);
@@ -211,7 +220,11 @@ class ConstructionProcess extends Process {
 }
 
 class LeisureProcess extends Process {
+    constructor(readonly role: Role) {
+        super();
+    }
     get name() { return 'Leisure'; }
+    override canBeWorkedBy(pop: Pop) { return pop.role === this.role; }
     override get outputDisplay() { return ''; }
     override get productDisplay() { return 'Leisure'; }
 }
@@ -226,7 +239,10 @@ export class TileProduction {
     constructor(readonly tile: Tile) {}
 
     readonly fallowProcess = new FallowProcess();
-    readonly leisureProcess = new LeisureProcess();
+    readonly leisureProcesses = [
+        new LeisureProcess(Roles.Priests),
+        new LeisureProcess(Roles.ClansPeople),
+    ];
     readonly tradeoffProcesses = [
         new LandUseProcess(this.tile, Alluvium, Roles.ClansPeople, Barley, 10, 5),
         new LandUseProcess(this.tile, Alluvium, Roles.ClansPeople, Lentils, 7, 2.5),
@@ -243,14 +259,14 @@ export class TileProduction {
     readonly laborProcesses = [
         ...this.landAndLaborProcesses,
         new ConstructionProcess(),
-        this.leisureProcess,
+        ...this.leisureProcesses,
     ]
     readonly processes = [
         ...this.laborProcesses,
         this.fallowProcess,
     ];
 
-    readonly laborPools = this.tile.pop.pops.map(pop => new LaborPool(pop, this.laborProcesses, this.leisureProcess));
+    readonly laborPools = this.tile.pop.pops.map(pop => new LaborPool(pop, this.laborProcesses));
 
     readonly landPools = [Alluvium, DryLightSoil, Desert]
         .map(terrain => new LandPool(this.tile, terrain, this.landProcesses, this.fallowProcess));
