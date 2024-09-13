@@ -308,6 +308,16 @@ export class TileProduction {
     }
 
     allocate() {
+        for (let i = 0; i < 100; ++i) {
+            const u = nutrition(this.consumption).value;
+            this.allocateOneStep();
+            const v = nutrition(this.consumption).value;
+            // Utility will be slightly lower than optimum but it should be close.
+            if (v <= u) break;
+        }
+    }
+
+    allocateOneStep() {
         this.allocateLabor();
         this.allocateLand();
     }
@@ -323,6 +333,7 @@ export class TileProduction {
                 
                 if (luPool !== muPool) {
                     pool.realloc(luPool!, muPool!, chunkSize);
+                    this.updateConsumption();
                 }
             }
         }

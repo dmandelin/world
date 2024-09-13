@@ -140,13 +140,13 @@ export class Tile {
         this.complexitySeries.add(this.world.year, complexity(this));
         this.freedomSeries.add(this.world.year, freedom(this));
 
-        this.productionSeries.add(this.world.year, this.production.Total);
+        this.productionSeries.add(this.world.year, this.oldProduction.Total);
         this.capacitySeries.add(this.world.year, this.capacity);
         this.controller.updateTimeSeries();
     }
 
     applyConstruction(): void {
-        const construction = this.production.Building.get(TempleConstruction);
+        const construction = this.oldProduction.Building.get(TempleConstruction);
         if (construction > 0 && this.religiousSite instanceof Temple) {
             if (this.religiousSite.applyConstruction(construction)) {
                 this.religiousSite.refreshModifiers(this);
@@ -163,7 +163,7 @@ export class Tile {
         for (const n of this.neighbors) {
             for (const st of this.techKit.techs) {
                 const nt = snapshot.get(n)!.get(st.product)!;
-                if (st.next.has(nt) && this.production.Total.get(st.product) > 0) {
+                if (st.next.has(nt) && this.oldProduction.Total.get(st.product) > 0) {
                     this.techKit.adopt(nt);
                     this.world.log.turnlog(`${this.controller.name} adopts ${nt.name} from ${n.controller.name}`);
                 }
@@ -311,12 +311,12 @@ export class Tile {
         return this.capacity;
     }
 
-    get production(): PerTerrainPerProduce {
+    get oldProduction(): PerTerrainPerProduce {
         return production(this.allocs_);
     }
 
     get consumption(): PerProduce {
-        let c = this.production.Total;
+        let c = this.oldProduction.Total;
         for (const l of this.market.links) {
             for (const [send, recv] of l.exchanges) {
                 c.incr([send.product, -send.gross]);
@@ -327,7 +327,7 @@ export class Tile {
     }
 
     get preTradeCapacity() {
-        return capacity(this.production.Total);
+        return capacity(this.oldProduction.Total);
     }
 
     get capacity() {

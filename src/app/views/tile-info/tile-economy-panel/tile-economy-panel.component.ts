@@ -33,7 +33,7 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     if (!this.tile) return;
 
     this.allocs = this.tile.allocs;
-    const production = this.tile.production;
+    const production = this.tile.oldProduction;
     this.marginalProductsOfLabor = marginalProductsOfLabor(this.tile, this.allocs);
     this.marginalProductsOfLand = marginalProductsOfLand(this.tile, this.allocs);
     this.marginalUtilitiesOfLabor = marginalUtilitiesOfLabor(this.tile, this.allocs);
@@ -48,8 +48,8 @@ export class TileEconomyPanelComponent extends TilePanelBase {
 
   production(p: Product, t?: Terrain): number {
     if (!this.tile) return 0;
-    if (!t) return this.tile.production.Total.get(p);
-    return this.tile.production[t.name].get(p);
+    if (!t) return this.tile.oldProduction.Total.get(p);
+    return this.tile.oldProduction[t.name].get(p);
   }
 
   optimize() {
