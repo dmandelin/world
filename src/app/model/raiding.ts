@@ -29,14 +29,12 @@
 //       - Larger tile raiding smaller:
 //         - Could have significantly more effect
 
-import { PerProduce } from "./production";
 import { ReligiousTraits } from "./religion";
 import { Tile } from "./tile";
 import { World } from "./world";
 
 export class RaidEffects {
     deltaPopulation = 0;
-    deltaOutput = PerProduce.of();
 }
 
 export function resolveRaids(world: World) {

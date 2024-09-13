@@ -1,12 +1,11 @@
 <div *ngIf="tile">
-    <h2>New Production Code</h2>
     <div class="flex">
         <div>
             <h3>Tile Modifiers</h3>
-            <table>
+            <table id="mods-table">
                 <tr *ngFor="let m of mods">
                     <td>{{m[0]}}</td>
-                    <td class="ra">{{m[1].value}}</td>
+                    <td class="ra">{{round(m[1].value, 2)}}</td>
                 </tr>
             </table>
         </div>
@@ -81,80 +80,41 @@
             <td class="ra">{{p.mul(tile.prod.consumption) === 0 ? '': p.mul(tile.prod.consumption).toFixed(1)}}</td>
         </tr>
     </table>
-    <h3>Consumption</h3>
-    <table>
-        <tr>
-            <th class="la">Product</th>
-            <th class="ra">Amount</th>
-            <th class="ra">Marginal Value</th>
-        </tr>
-        <tr *ngFor="let r of consumptionRows">
-            <td>{{r.name}}</td>
-            <td class="ra">{{r.amount.toFixed(0)}}</td>
-            <td class="ra">{{r.marginalUtility.toFixed(0)}}</td>
-        </tr>
-    </table>
-    <h3>Nutrition</h3>
-    <table>
-        <tr>
-            <td>Food quantity</td>
-            <td class="ra">{{floor(tile.prod.nutrition.amount)}}</td>
-        </tr>
-        <tr>
-            <td>Protein</td>
-            <td class="ra">{{percent(tile.prod.nutrition.proteinFactor)}}</td>
-            <td class="ra">({{percent(tile.prod.nutrition.proteinRatio)}} protein)</td>
-        </tr>
-        <tr>
-            <td>Nutritional value</td>
-            <td class="ra">{{floor(tile.prod.nutrition.value)}}</td>
-        </tr>
-    </table>
+    <div class="flex">
+    <div>
+        <h3>Consumption</h3>
+        <table>
+            <tr>
+                <th class="la">Product</th>
+                <th class="ra">Amount</th>
+                <th class="ra">Marginal Value</th>
+            </tr>
+            <tr *ngFor="let r of consumptionRows">
+                <td>{{r.name}}</td>
+                <td class="ra">{{r.amount.toFixed(0)}}</td>
+                <td class="ra">{{r.marginalUtility.toFixed(0)}}</td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <h3>Nutrition</h3>
+        <table>
+            <tr>
+                <td>Food quantity</td>
+                <td class="ra">{{floor(tile.cons.nutrition.amount)}}</td>
+            </tr>
+            <tr>
+                <td>Protein</td>
+                <td class="ra">{{percent(tile.cons.nutrition.proteinFactor)}}</td>
+                <td class="ra">({{percent(tile.cons.nutrition.proteinRatio)}} protein)</td>
+            </tr>
+            <tr>
+                <td>Nutritional value</td>
+                <td class="ra">{{floor(tile.cons.nutrition.value)}}</td>
+            </tr>
+        </table>
+    </div>
     <div id="main">
-        <div>
-            <div class="flex">
-                <h2 class="mtz">Allocations</h2>
-                <button (click)="optimize()">Opt</button>
-                <button (click)="optimizeLaborOneStep()">Step</button>
-            </div>
-            <table>
-                <tr>
-                    <th class="la">Tech</th>
-                    <th>Boost</th>
-                    <th class="la">Terrain</th>
-                    <th>A</th>
-                    <th>%A</th>
-                    <th>Ppl</th>
-                    <th>%Ppl</th>
-                    <th>Product</th>
-                    <th>Base</th>
-                    <th>Temple</th>
-                    <th>Output</th>
-                    <th>MPK</th>
-                    <th>MPL</th>
-                    <th>MUK</th>
-                    <th>MUL</th>
-                </tr>
-                <tr *ngFor="let a of allocs">
-                    <td>{{a.tech.name}}</td>
-                    <td class="ra">{{a.tech.inputBoost}}</td>
-                    <td>{{a.terrain.name}}</td>
-                    <td class="ra">{{floor(a.landUnits)}}</td>
-                    <td class="ra">{{floor(a.landFraction * tile.areaFraction(a.terrain) * 100)}}%</td>
-                    <td class="ra">{{floor(a.laborFraction * a.tile.population)}}</td>
-                    <td class="ra">{{floor(a.laborFraction * 100)}}%</td>
-                    <td class="ra">{{a.product.name}}</td>
-                    <td class="ra">{{floor(a.production() / tile.outputFactor(a.product).value)}}</td>
-                    <td class="ra">{{tile.outputFactor(a.product).value.toFixed(2)}}</td>
-                    <td class="ra">{{floor(a.production())}}</td>
-                    <td class="ra">{{marginalProductsOfLand?.get(a)?.toFixed(2)}}</td>
-                    <td class="ra">{{marginalProductsOfLabor?.get(a)?.toFixed(2)}}</td>
-                    <td class="ra">{{marginalUtilitiesOfLand?.get(a)?.toFixed(2)}}</td>
-                    <td class="ra">{{marginalUtilitiesOfLabor?.get(a)?.toFixed(2)}}</td>
-                </tr>
-            </table>
-        </div>
-    
         <div id="submain">
             <div id="leftPanel">
                 <div class="flex">
@@ -188,35 +148,9 @@
             </div>
 
 
-            <div id="midPanel">
-                <h2 class="mtz">Consumption</h2>
-                <table>
-                    <tr>
-                        <th>Product</th>
-                        <th>Amount</th>
-                    </tr>
-                    <tr *ngFor="let e of tile.consumption.entries()">
-                        <td>{{e[0].name}}</td>
-                        <td class="ra">{{floor(e[1])}}</td>
-                    </tr>
-                </table>
-            </div>
-
             <div id="rightPanel">
                 <h2>Utility</h2>
                 <table>
-                    <tr>
-                        <td>Total Produce</td>
-                        <td class="ra">{{floor(totalProduction)}}</td>
-                    </tr>
-                    <tr>
-                        <td>Nutritional Quality</td>
-                        <td class="ra">x {{round(nutritionalQuality, 2)}}</td>
-                    </tr>
-                    <tr>
-                        <td>Population Capacity</td>
-                        <td class="ra">= {{floor(capacity)}}</td>
-                    </tr>
                     <tr>
                         <td>Nutrition</td>
                         <td class="ra">{{round((capacity || 0) / (population || 1), 2)}}</td>
@@ -228,13 +162,6 @@
                     <tr>
                         <td>(Gains From Trade)</td>
                         <td class="ra">= {{percent(((capacity ?? 0) - (preTradeCapacity ?? 0)) / (preTradeCapacity ?? 0))}}</td>
-                    </tr>
-                </table>
-                <h3>Marginal Utility</h3>
-                <table>
-                    <tr *ngFor="let e of marginalCapacity.entries()">
-                        <td>{{e[0].name}}</td>
-                        <td class="ra">{{round(e[1], 2)}}</td>
                     </tr>
                 </table>
             </div>

@@ -1,7 +1,6 @@
 import { World } from './world';
 import { Polity } from './polity';
-import { Allocation, BuildingPlot, marginalUtilitiesOfLabor, marginalUtilitiesOfLand, Product, TempleConstruction } from './production';
-import { PerProduce, PerTerrainPerProduce, production, capacity, marginalCapacity, reallocated } from './production';
+import { BuildingPlot, Product, TempleConstruction } from './production';
 import { Terrain, Alluvium, DryLightSoil, Desert } from './production';
 import { Barley, Lentils, Dairy } from './production';
 import { Market } from './trade';
@@ -15,6 +14,7 @@ import { Census, Population } from './population';
 import { complexity, flourishing, freedom } from './ways';
 import { Factor, Modifier } from '../data/calc';
 import { TileProduction } from './production2';
+import { TileConsumption } from './consumption';
 
 export class TileModifiers {
     // Population growth factor.
@@ -56,15 +56,15 @@ export class Tile {
 
     readonly techKit: TechKit = new TechKit();
 
-    private allocs_: Allocation[] = [];
+    readonly prod: TileProduction;
     readonly market: Market = new Market(this);
+    readonly cons: TileConsumption = new TileConsumption(this);
 
     raidEffects = new RaidEffects();
 
     readonly mods = new TileModifiers();
-    readonly prod: TileProduction;
 
-    readonly productionSeries = new TimeSeries<PerProduce>();
+    readonly productionSeries = new TimeSeries<Map<Product, number>>();
     readonly capacitySeries = new TimeSeries<number>();
 
     readonly flourishingSeries = new TimeSeries<number>();
@@ -99,8 +99,6 @@ export class Tile {
         this.religiousSite = this.culture.createReligiousSite();
 
         this.prod = new TileProduction(this);
-        this.allocate();
-        this.optimizeAllocations();
     }
 
     get name() { return this.controller.name; }
@@ -140,12 +138,14 @@ export class Tile {
         this.complexitySeries.add(this.world.year, complexity(this));
         this.freedomSeries.add(this.world.year, freedom(this));
 
-        this.productionSeries.add(this.world.year, this.oldProduction.Total);
+        this.productionSeries.add(this.world.year, this.prod.output);
         this.capacitySeries.add(this.world.year, this.capacity);
         this.controller.updateTimeSeries();
     }
 
     applyConstruction(): void {
+        // TODO - restore
+        /*
         const construction = this.oldProduction.Building.get(TempleConstruction);
         if (construction > 0 && this.religiousSite instanceof Temple) {
             if (this.religiousSite.applyConstruction(construction)) {
@@ -153,17 +153,22 @@ export class Tile {
                 this.world.log.turnlog(`${this.controller.name} builds ${this.religiousSite.name}`);
             }
         }
+        */
     }
 
     updateMarket(): void {
         this.market.update()
     }
 
+    get capacity(): number {
+        return this.cons.nutrition.value;
+    }
+
     adoptNeighborTechs(snapshot: Map<Tile, Map<Product, ProductionTech>>): void {
         for (const n of this.neighbors) {
             for (const st of this.techKit.techs) {
                 const nt = snapshot.get(n)!.get(st.product)!;
-                if (st.next.has(nt) && this.oldProduction.Total.get(st.product) > 0) {
+                if (st.next.has(nt) && (this.prod.output.get(st.product) || 0) > 0) {
                     this.techKit.adopt(nt);
                     this.world.log.turnlog(`${this.controller.name} adopts ${nt.name} from ${n.controller.name}`);
                 }
@@ -173,7 +178,7 @@ export class Tile {
     }
 
     advanceTechKit(): void {
-        const newTechs = this.techKit.advance(this.population, this.allocs);
+        const newTechs = this.techKit.advance(this.population, this.prod);
         if (newTechs.length) {
             this.updateTechs();
             this.world.log.turnlog(`${this.controller.name} advances techs: ${newTechs.map(t => t.name).join(', ')}`);
@@ -181,7 +186,7 @@ export class Tile {
     }
 
     updateTechs(): void {
-        this.allocs_ = this.allocs.map(a => a.updateTech(this.techKit.get(a.product)));
+        // TODO - probably need something her
     }
 
     get neighbors(): Tile[] {
@@ -212,134 +217,6 @@ export class Tile {
 
     get desertFraction(): number {
         return 1 - this.wetFraction - this.dryLightSoilFraction;
-    }
-
-    // General facts about production.
-    // (Yield rating order: none, low, marginal, moderate, good, high, excellent)
-    //
-    // Primary yields for agriculture and pasturage:
-    //
-    //                      Barley        Lentils       Dairy
-    // Alluvium             excellent     good          moderate
-    // Dry light soil       low           moderate      moderate (grazing)
-    // Desert               none          none          marginal (grazing)
-    //
-    // - Grazing uses 10x the land as agriculture.
-    // - Barley is more labor-intensive than lentils and degrades soil quality if not managed.
-    // - Lentils improve soil quality.
-    //
-    // Hunting and gathering yields a balanced combination of all products, but
-    // requires 10-1000x the land area.
-
-    get allocs(): readonly Allocation[] {
-        return this.allocs_;
-    }
-
-    allocate() {
-        this.allocs_ = this.defaultAllocs();
-        this.world.notifyWatchers();
-    }
-
-    defaultAllocs() {
-        return this.isRiver ? [
-            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.4),
-            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 0.7, 0.3),
-            new Allocation(this, Dairy, this.techKit.get(Dairy), DryLightSoil, 0.3, 0.15),
-            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.14),
-            new Allocation(this, TempleConstruction, this.techKit.get(TempleConstruction), BuildingPlot, 0, 0.01),
-        ] : [
-            new Allocation(this, Barley, this.techKit.get(Barley), Alluvium, 1, 0.01),
-            new Allocation(this, Lentils, this.techKit.get(Lentils), DryLightSoil, 0.75, 0.30),
-            new Allocation(this, Dairy, this.techKit.get(Dairy), DryLightSoil, 0.25, 0.10),
-            new Allocation(this, Dairy, this.techKit.get(Dairy), Desert, 1, 0.6),
-        ];
-    }
-
-    optimizeAllocations() {
-        let bestCapacity = 0;
-        for (let i = 0; i < 200; ++i) {
-            const c = this.optimizeAllocationsOneStep(true);
-            if (c <= bestCapacity) break;
-        }
-        this.world.notifyWatchers();
-    }
-
-    optimizeAllocationsOneStep(batch = false): number {
-        const d = 0.01
-        const muk = marginalUtilitiesOfLand(this, this.allocs);
-        const mul = marginalUtilitiesOfLabor(this, this.allocs);
-
-        // Best gain possible from labor reallocation.
-        const bestMul = mapmax(mul, a => a.terrain !== BuildingPlot);
-        const worstMul = mapmin(mul, a => a.terrain !== BuildingPlot && a.laborFraction >= d);
-        const mulGain = bestMul[1] - worstMul[1];
-
-        // Group MUKs by terrain type because we can only reallocate within the same terrain.
-        const mukByTerrain = new Map<Terrain, Map<Allocation, number>>();
-        for (const [a, u] of muk) {
-            const terrain = a.terrain;
-            if (!mukByTerrain.has(terrain)) {
-                mukByTerrain.set(terrain, new Map());
-            }
-            mukByTerrain.get(terrain)!.set(a, u);
-        }
-
-        let bestMuk = undefined;
-        let worstMuk = undefined;
-        let mukGain = 0;
-        for (const [terrain, tmuk] of mukByTerrain) {
-            if (tmuk.size < 2) continue;
-
-            const bestTMuk = mapmax(tmuk, a => a.terrain !== BuildingPlot);
-            const worstTMuk = mapmin(tmuk, a => a.terrain !== BuildingPlot && a.landFraction >= d);
-            const tmukGain = bestTMuk[1] - worstTMuk[1];
-            if (tmukGain > mukGain) {
-                [bestMuk, worstMuk, mukGain] = [bestTMuk, worstTMuk, tmukGain];
-            }
-        }
-
-        if (mukGain > mulGain && worstMuk && worstMuk[0] !== undefined) {
-            // Reallocating land is more beneficial, so do that.
-            this.allocs_ = reallocated(this.allocs_, worstMuk[0], bestMuk![0]!, d, 0);
-        } else if (mulGain > 0 && worstMul[0] !== undefined) {
-            this.allocs_ = reallocated(this.allocs_, worstMul[0], bestMul[0]!, 0, d);
-        }
-
-        if (!batch) {
-            this.world.notifyWatchers();
-        }
-        return this.capacity;
-    }
-
-    get oldProduction(): PerTerrainPerProduce {
-        return production(this.allocs_);
-    }
-
-    get oldConsumption(): PerProduce {
-        let c = this.oldProduction.Total;
-        for (const l of this.market.links) {
-            for (const [send, recv] of l.exchanges) {
-                c.incr([send.product, -send.gross]);
-                c.incr([recv.product, recv.net]);
-            }
-        }
-        return c;
-    }
-
-    get preTradeCapacity() {
-        return capacity(this.oldProduction.Total);
-    }
-
-    get capacity() {
-        const c = capacity(this.oldConsumption);
-        if (isNaN(c)) {
-            throw new Error(`Invalid capacity ${c}`);
-        }
-        return c;
-    }
-
-    get marginalCapacity(): PerProduce {
-        return marginalCapacity(this.oldConsumption);
     }
 
     get controller() { return this.controller_; }

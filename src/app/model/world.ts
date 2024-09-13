@@ -291,7 +291,6 @@ export class World {
         this.log.turnlogClear();
 
         this.forTiles(t => t.updateProduction());
-        this.forTiles(t => t.optimizeAllocations());
         this.forTiles(t => t.market.update());
 
         // Raiding.

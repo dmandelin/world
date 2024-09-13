@@ -1,5 +1,7 @@
 import {Tile} from './tile';
-import {PerProduce, Product, Products, marginalCapacity} from './production';
+import {Barley, Dairy, Lentils, Product} from './production';
+import { marginalNutrition } from './utility';
+import { argmax } from './lib';
 
 // * Barter with Variable Pricing
 //
@@ -108,10 +110,7 @@ export class Market {
         // Reset and recalculate from scratch each time.
         this.message = '';
         this.links.forEach(l => l.clear());
-
-        // Amount had of each good, updated as trades are made.
-        const amounts = this.tile.oldConsumption;
-        const neighborAmounts = new Map(this.links.map(l => [l, l.dst.oldConsumption]));
+        this.tile.cons.resetTrade();
 
         // Links we think there are no more trades available on.
         const doneLinks = new Set<TradeLinkDirection>();
@@ -121,22 +120,29 @@ export class Market {
             // Spread trade around the different links rather than arbitrarily
             // concentrating on the first trade link we consider.
             for (const l of this.links) {
-                let marginalUtility = marginalCapacity(amounts);
+                // Try to get the product that's most useful to us.
                 // TODO - try more products than just max marginal utility
-                const recvProduct = marginalUtility.max()[0];
+                let [recvProduct, mu] = argmax(
+                    [...this.tile.cons.amounts.keys()],
+                    p => marginalNutrition(this.tile.cons.amounts, p));
 
-                let neighborMarginalUtility = marginalCapacity(neighborAmounts.get(l)!);
-                const sendProduct = neighborMarginalUtility.max()[0];
+                let [sendProduct, neighborMu] = argmax(
+                    [...l.dst.cons.amounts.keys()],
+                    p => marginalNutrition(l.dst.cons.amounts, p));
+
+                if (recvProduct === undefined || sendProduct === undefined) continue;
                 if (recvProduct === sendProduct) continue;
+
+                // TODO - apply transaction costs
 
                 // Compute minium exchange ratio we'll accept and maximum they'll accept.
                 // Exchange ratio is (what they give) / (what we give).
                 const minRatio = 
-                       marginalUtility.get(sendProduct)
-                    / (marginalUtility.get(recvProduct) * (1 - l.cost(recvProduct)));
+                       marginalNutrition(this.tile.cons.amounts, sendProduct)
+                    / (mu * (1 - l.cost(recvProduct)));
                 const maxRatio = 
-                      (neighborMarginalUtility.get(sendProduct) * (1 - l.cost(sendProduct)))
-                    /  neighborMarginalUtility.get(recvProduct);
+                      (neighborMu * (1 - l.cost(sendProduct)))
+                    /  marginalNutrition(l.dst.cons.amounts, recvProduct);
 
                 if (minRatio === Infinity || maxRatio === Infinity) {
                     continue;
@@ -145,16 +151,14 @@ export class Market {
                 if (minRatio <= maxRatio) {
                     const ratio = Math.sqrt(minRatio * maxRatio);
 
-                    if (amounts.get(sendProduct) < 1) continue;
-                    if (neighborAmounts.get(l)!.get(recvProduct) < ratio) continue;
+                    if (this.tile.cons.amounts.get(sendProduct)! < 1) continue;
+                    if (l.dst.cons.amounts.get(recvProduct)! < ratio) continue;
 
                     // Update the trade link.
                     l.incrExchange(sendProduct, 1, recvProduct, ratio);
                     // Mark goods as traded away.
-                    amounts.incr([sendProduct, -1]);
-                    amounts.incr([recvProduct, ratio]);
-                    neighborAmounts.get(l)!.incr([recvProduct, -ratio]);
-                    neighborAmounts.get(l)!.incr([sendProduct, 1]);
+                    this.tile.cons.applyTrade(sendProduct, 1, recvProduct, ratio);
+                    l.dst.cons.applyTrade(recvProduct, ratio, sendProduct, 1);
                 }
             }
         }
@@ -170,9 +174,9 @@ export class Market {
 export class TradeLink {
     message = '';
 
-    readonly transportCost: PerProduce = this.alongRiver
-        ? PerProduce.of([['Barley', 0.02], ['Lentils', 0.02], ['Dairy', 0.02]])
-        : PerProduce.of([['Barley', 0.2], ['Lentils', 0.2], ['Dairy', 0.02]]);
+    readonly transportCost: Map<Product, number> = this.alongRiver
+        ? new Map([[Barley, 0.02], [Lentils, 0.02], [Dairy, 0.02]])
+        : new Map([[Barley, 0.2], [Lentils, 0.2], [Dairy, 0.02]]);
 
     constructor(readonly endpoints: [Tile, Tile]) {}
 
@@ -189,11 +193,11 @@ export class TradeLink {
     }
 
     cost(product: Product) {
-        return this.transportCost.get(product) + this.coordinationCost;
+        return (this.transportCost.get(product) || 1) + this.coordinationCost;
     }
 
     get costs() {
-        return this.transportCost.map((p, c) => c + this.coordinationCost);
+        return [...this.transportCost.entries()].map((p, c) => c + this.coordinationCost);
     }
 }
 

@@ -298,8 +298,9 @@ export class TileProduction {
     readonly pools = [...this.laborPools, ...this.landPools];
     readonly alluviumPool = this.landPools.find(p => p.terrain === Alluvium);
 
-    consumption = new Map<Product, number>();
-    nutrition = new Nutrition(0, 0);
+    output = new Map<Product, number>();
+
+    get consumption() { return this.tile.cons.amounts; }
 
     initAllocs() {
         for (const pool of this.pools) {
@@ -333,7 +334,7 @@ export class TileProduction {
                 
                 if (luPool !== muPool) {
                     pool.realloc(luPool!, muPool!, chunkSize);
-                    this.updateConsumption();
+                    this.updateSinks();
                 }
             }
         }
@@ -346,30 +347,38 @@ export class TileProduction {
             for (let i = 0; i < 1; ++i) {
                 if (p0.muk(this.consumption) > p1.muk(this.consumption)) {
                     this.alluviumPool.realloc(p1, p0, chunkSize);
-                    this.updateConsumption();
+                    this.updateSinks();
                 } else {
                     this.alluviumPool.realloc(p0, p1, chunkSize);
-                    this.updateConsumption();
+                    this.updateSinks();
                 }
             }
         }
     }
 
     update() {
+        this.allocate();
         for (const process of this.processes) process.reset();
         for (const pool of this.pools) pool.apply();
         for (const process of this.processes) process.apply();
+        this.updateSinks();
+    }
+    
+    updateSinks() {
+        this.updateOutput();
         this.updateConsumption();
     }
 
-    updateConsumption() {
-        this.consumption.clear();
+    updateOutput() {
+        this.output.clear();
         for (const p of this.processes) {
             if (p.product) {
-                this.consumption.set(p.product, (this.consumption.get(p.product) || 0) + p.output);
+                this.output.set(p.product, (this.output.get(p.product) || 0) + p.output);
             }
         }
+    }
 
-        this.nutrition = nutrition(this.consumption);
+    updateConsumption() {
+        this.tile.cons.setProduction(this.output);
     }
 }

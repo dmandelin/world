@@ -1,4 +1,5 @@
-import { Allocation, Barley, Dairy, Lentils, Product, TempleConstruction } from './production';
+import { Barley, Dairy, Lentils, Product, TempleConstruction } from './production';
+import { TileProduction } from './production2';
 
 export class Tech {
     constructor(readonly name: string) {}
@@ -68,17 +69,19 @@ export const Techs = new TechsSingleton();
 export class TechKit {
     private readonly map: Map<Product, ProductionTech> = new Map(Techs.initialTechs);
 
-    advance(totalLabor: number, allocs: readonly Allocation[]): ProductionTech[] {
-        const a = []
-        for (const alloc of allocs) {
-            if (!alloc.tech.hasNext) continue;
-            const labor = alloc.laborFraction * totalLabor;
-            if (Math.random() <= labor * 1e-6) {
-                const nextTech = alloc.tech.next.values().next().value;
+    advance(totalLabor: number, prod: TileProduction): ProductionTech[] {
+        const a: ProductionTech[] = [];
+        // TODO restore
+        /*
+        for (const proc of prod.processes) {
+            if (!proc.tech.hasNext) continue;
+            if (Math.random() <= proc.workers * 1e-6) {
+                const nextTech = proc.tech.next.values().next().value;
                 this.map.set(nextTech.product, nextTech);
                 a.push(nextTech);
             }
         }
+        */
         return a;
     }
 
