@@ -272,8 +272,8 @@ export class TileProduction {
     ]
     readonly landAndLaborProcesses = [
         ...this.tradeoffProcesses,
-        new LandUseProcess(this.tile, DryLightSoil, Roles.ClansPeople, Dairy, 50, 5),
-        new LandUseProcess(this.tile, Desert, Roles.ClansPeople, Dairy, 200, 4),
+        new LandUseProcess(this.tile, DryLightSoil, Roles.ClansPeople, Dairy, 100, 5),
+        new LandUseProcess(this.tile, Desert, Roles.ClansPeople, Dairy, 400, 4),
     ].filter(p => this.tile.fractionOf(p.terrain));
     readonly landProcesses = [
         ...this.landAndLaborProcesses,
