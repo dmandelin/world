@@ -231,7 +231,8 @@ class LeisureProcess extends Process {
         super();
     }
     get name() { return 'Leisure'; }
-    override canBeWorkedBy(pop: Pop) { return pop.role === this.role; }
+    //override canBeWorkedBy(pop: Pop) { return pop.role === this.role; }
+    override canBeWorkedBy(pop: Pop) { return false; }
     override get outputDisplay() { return ''; }
     override get productDisplay() { return 'Leisure'; }
 }
