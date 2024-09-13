@@ -254,6 +254,8 @@ class FallowProcess extends LandProcess {
     get name() { return 'Fallow'; }
     override get outputDisplay() { return ''; }
     override get productDisplay() { return 'Fallow'; }
+
+    override canUse(terrain: Terrain) { return false; }
 }
 
 export class TileProduction {
