@@ -219,6 +219,13 @@ class ConstructionProcess extends Process {
     override get productDisplay() { return 'Construction'; }
 }
 
+class RitualProcess extends Process {
+    get name() { return 'Rituals'; }
+    override get productDisplay() { return 'Rituals'; }
+
+    override canBeWorkedBy(pop: Pop) { return pop.role === Roles.Priests; }
+}
+
 class LeisureProcess extends Process {
     constructor(readonly role: Role) {
         super();
@@ -259,6 +266,7 @@ export class TileProduction {
     readonly laborProcesses = [
         ...this.landAndLaborProcesses,
         new ConstructionProcess(),
+        new RitualProcess(),
         ...this.leisureProcesses,
     ]
     readonly processes = [
