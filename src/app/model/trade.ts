@@ -110,8 +110,8 @@ export class Market {
         this.links.forEach(l => l.clear());
 
         // Amount had of each good, updated as trades are made.
-        const amounts = this.tile.consumption;
-        const neighborAmounts = new Map(this.links.map(l => [l, l.dst.consumption]));
+        const amounts = this.tile.oldConsumption;
+        const neighborAmounts = new Map(this.links.map(l => [l, l.dst.oldConsumption]));
 
         // Links we think there are no more trades available on.
         const doneLinks = new Set<TradeLinkDirection>();

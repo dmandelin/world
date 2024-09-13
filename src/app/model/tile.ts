@@ -315,7 +315,7 @@ export class Tile {
         return production(this.allocs_);
     }
 
-    get consumption(): PerProduce {
+    get oldConsumption(): PerProduce {
         let c = this.oldProduction.Total;
         for (const l of this.market.links) {
             for (const [send, recv] of l.exchanges) {
@@ -331,7 +331,7 @@ export class Tile {
     }
 
     get capacity() {
-        const c = capacity(this.consumption);
+        const c = capacity(this.oldConsumption);
         if (isNaN(c)) {
             throw new Error(`Invalid capacity ${c}`);
         }
@@ -339,7 +339,7 @@ export class Tile {
     }
 
     get marginalCapacity(): PerProduce {
-        return marginalCapacity(this.consumption);
+        return marginalCapacity(this.oldConsumption);
     }
 
     get controller() { return this.controller_; }
