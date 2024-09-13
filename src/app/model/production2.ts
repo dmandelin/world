@@ -142,7 +142,7 @@ abstract class Process {
     apply() { this.output = 0; }
 
     get acresDisplay() { return ''; }
-    get terrainDisplay() { return ''; }
+    get terrainDisplay() { return 'Settlement'; }
     get acresPerWorkerDisplay() { return ''; }
     get outputDisplay() { return this.output.toFixed(0); }
     get productDisplay() { return ''; }
@@ -277,17 +277,17 @@ export class TileProduction {
     ].filter(p => this.tile.fractionOf(p.terrain));
     readonly landProcesses = [
         ...this.landAndLaborProcesses,
-        this.fallowProcess,
+        //this.fallowProcess,
     ];
     readonly laborProcesses = [
         ...this.landAndLaborProcesses,
         new ConstructionProcess(),
         new RitualProcess(),
-        ...this.leisureProcesses,
+        //...this.leisureProcesses,
     ]
     readonly processes = [
         ...this.laborProcesses,
-        this.fallowProcess,
+        //this.fallowProcess,
     ];
 
     readonly laborPools = this.tile.pop.pops.map(pop => new LaborPool(pop, this.laborProcesses));
