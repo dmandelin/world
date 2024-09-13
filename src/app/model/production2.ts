@@ -28,6 +28,7 @@
 
 import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
+import { argmax, argmin } from "./lib";
 import { Pop, Role, Roles } from "./population";
 import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
@@ -71,6 +72,18 @@ class LaborPool extends Pool<Process> {
             }
             p.workerRole = this.pop.role;
         }
+    }
+
+    realloc(p0: Process, p1: Process, fraction: number) {
+        const f0 = this.allocs.get(p0)!;
+        const f1 = this.allocs.get(p1)!;
+        if (f0 < fraction) return;
+        this.allocs.set(p0, f0 - fraction);
+        this.allocs.set(p1, f1 + fraction);
+        p0.workers -= Math.floor(fraction * this.workers);
+        p1.workers += Math.floor(fraction * this.workers);
+        p0.apply();
+        p1.apply();
     }
 }
 
@@ -293,6 +306,27 @@ export class TileProduction {
     }
 
     allocate() {
+        this.allocateLabor();
+        this.allocateLand();
+    }
+
+    allocateLabor() {
+        for (const pool of this.laborPools) {
+            if (pool.allocs.size < 1) continue;
+
+            const chunkSize = 0.01;
+            for (let i = 0; i < 1; ++i) {
+                const [luPool, lu] = argmin([...pool.allocs.keys()], p => p.mul(this.consumption));
+                const [muPool, mu] = argmax([...pool.allocs.keys()], p => p.mul(this.consumption));
+                
+                if (luPool !== muPool) {
+                    pool.realloc(luPool!, muPool!, chunkSize);
+                }
+            }
+        }
+    }
+
+    allocateLand() {
         if (this.alluviumPool) {
             const [p0, p1] = this.tradeoffProcesses;
             const chunkSize = 0.01;

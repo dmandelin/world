@@ -50,6 +50,18 @@ export function argmax<T>(items: readonly T[], valueFun: (item: T) => number): [
     return [bestItem, bestValue || 0];
 }
 
+export function argmin<T>(items: readonly T[], valueFun: (item: T) => number): [T|undefined, number] {
+    let bestItem = undefined;
+    let bestValue = undefined;
+    for (const item of items) {
+        const value = valueFun(item);
+        if (bestValue === undefined || value < bestValue) {
+            [bestItem, bestValue] = [item, value];
+        }
+    }
+    return [bestItem, bestValue || 0];
+}
+
 export function mapmax<T>(map: Map<T, number>, filterFun: (t: T) => boolean = () => true): [T|undefined, number] {
     let bestKey = undefined;
     let bestValue = undefined;
