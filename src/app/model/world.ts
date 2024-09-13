@@ -5,16 +5,52 @@ import {Tile} from "./tile";
 import {randelem, randint} from "./lib";
 import { resolveRaids } from "./raiding";
 
-// Next steps for the new production code:
+// Next steps:
+// - Economics
+//   - Weather variability (see below)
+// - Religion
+//   - Have workers donate 2% of income to ritual leaders. This can be an
+//     ideological element. Somehow represent this extra wealth for priests,
+//     or whether they're even getting enough to eat.
+//   - Create an effect for the rituals. Since we don't have special trade
+//     goods yet, this should at first be relatively small.
+//     - The effect can have an impressiveness level and an audience size.
+//     - There are background clan rituals with a basic impressiveness level
+//       and covering everyone.
+//     - The basic specialist ritual would represent "big men" creating a
+//       new, more impressive ritual by practicing more, exchanging more
+//       innovations, with the ritual mainly based on dance, sacrifice, and
+//       gifting, for an overall impressiveness level only a bit higher than
+//       the clan rituals.
+//     - People only go to and are affected by rituals that are sufficiently
+//       more impressive than the background clan rituals. If they are
+//       impressed, modifiers will apply based on religious doctrine.
+//     - [Optional] Add a special trade good or two that can be purchased
+//       from distant sites and used in rituals to increase impressiveness.
+//   - Create an ideological element "Temples" that's initially held by
+//     some tile.
+//     - Priests will use resources to build a small temple.
+//     - The small temple increases donations to 3%.
+//     - It also increases ritual effects.
+//     - Once the temple exists, the "Temples" ideology can spread to other
+//       tiles close enough to notice the temple.
+// - Politics
+//   - Initial power distribution
+//     - Baseline, the clans and tribes have the power.
+//     - Priests will tend to be leaders of more important/presigious/holy
+//       clans, and then gain additional influence from their role.
+//       - If they're the top 2%, maybe with the initial ideology they have
+//         10x the influence of a regular clan member.
+//       - Impressiveness and reach of their rituals will then cause the
+//         audience to transfer a % of its influence to the priests. This
+//         could be quite large, depending on ideology, but here at first
+//         it's probably small.
+//       - to be continued
+
+
+// Soon:
 // - Modify nutrition so that 2:1 barley:lentils is the optimum plant food
 //   ratio for protein, also allowing all dairy to be optimal protein quality.
-// - Generalize land allocation to allocate off of fallow land as well,
-//   or initialize not having anything fallow.
-// - Add labor allocation function based on marginal utility.
-// - Pull together to get a full optimization function and apply.
-// - Remove the old production code and patch in the new.
-// - After that, either work on weather variability or take care of
-//   non-land processes to finish off that stuff.
 
 // Variable weather, flooding, and water works:
 // - Weather/flooding:
