@@ -15,6 +15,7 @@ import { complexity, flourishing, freedom } from './ways';
 import { Factor, Modifier } from '../data/calc';
 import { TileProduction } from './production2';
 import { TileConsumption } from './consumption';
+import { randomTileClimateFactor } from './climate';
 
 export class TileModifiers {
     // Population growth factor.
@@ -63,6 +64,7 @@ export class Tile {
     raidEffects = new RaidEffects();
 
     readonly mods = new TileModifiers();
+    climateFactor = 1.0;
 
     readonly productionSeries = new TimeSeries<Map<Product, number>>();
     readonly capacitySeries = new TimeSeries<number>();
@@ -102,6 +104,12 @@ export class Tile {
     }
 
     get name() { return this.controller.name; }
+
+    updateClimate() {
+        this.climateFactor = randomTileClimateFactor()
+        this.mods.farming.apply('Climate', this.climateFactor);
+        this.mods.herding.apply('Climate', this.climateFactor);
+    }
 
     updateProduction() {
         this.prod.update();

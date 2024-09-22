@@ -212,12 +212,7 @@ export class World {
             t.market.update();
         }
 
-        this.forTiles(t => t.prod.initAllocs());
-        this.forTiles(t => t.prod.update());
-
-        this.recordRanks();
-
-        this.forTiles(t => t.updateTimeSeries());
+        this.start();
     }
 
     isLocallyControlled(p: Polity) {
@@ -277,6 +272,16 @@ export class World {
         return this.map.tiles.flat().map(t => t.population).reduce((a, b) => a + b);
     }
 
+    start() {
+        this.forTiles(t => t.updateClimate());
+        this.forTiles(t => t.prod.initAllocs());
+        this.forTiles(t => t.prod.update());
+
+        this.recordRanks();
+
+        this.forTiles(t => t.updateTimeSeries());
+    }
+
     advance() {
         this.advanceTurn();
     }
@@ -284,6 +289,7 @@ export class World {
     advanceTurn() {
         this.log.turnlogClear();
 
+        this.forTiles(t => t.updateClimate());
         this.forTiles(t => t.updateProduction());
         this.forTiles(t => t.market.update());
 

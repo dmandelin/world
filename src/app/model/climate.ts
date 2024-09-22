@@ -10,6 +10,14 @@
 //       can motivate religious development
 //     - higher volality means more to worry about
 // - set and visualize a random volatility per tile
+// - also do some longer waves of climate better or worse over longer time
+//   scales.
+
+import { lognormal } from "../data/randdist";
+
+export function randomTileClimateFactor() {
+    return lognormal(0.2);
+}
 
 // Variable weather, flooding, and water works:
 // - Weather/flooding:

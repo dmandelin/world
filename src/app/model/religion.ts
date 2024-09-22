@@ -1,6 +1,41 @@
 import { Tile, TileModifiers, TileModifierValues } from "./tile";
 import { WorldLog } from "./world";
 
+// More on religion from Atran:
+// - Religion is not an evolutionary adaptation. This was argued
+//   extensively using different models. Also, I found this the
+//   evolutionary story initially appealing, but I couldn't imagine
+//   dynamics that would actually make it happen. For one, although
+//   there were different conquest events and cultural assimilations
+//   in history, I'm really not aware of any natural laboratory
+//   where we can see Darwinian-type processes among societies.
+//   Rather, it's a much more complicated process involving also
+//   imitation, blending, and choice.
+// - What does promote religious belief and commitment:
+//   - Inexplicable stuff
+//   - Anxieties practical and existential
+//   - Cultural transmission, emphasizing songs, stories with
+//     just enough incongruous elements to stand out, and linkages
+//     among practices
+//   - Costly rituals, which especially help form community
+//     membership and higher expectations of cooperation
+// - Note spectrum of doctrinal vs enactive
+// - Note schisms and reformations
+// - Once it exists, religion can have effects on other aspects of
+//   society and development:
+//   + individual peace of mind and well-being
+//   + solidarity
+//   + peace
+//   + morale in conflicts
+//   + donations and public goods
+//   + trustworthy trade
+//   + emotions: can be many: fear, hope, awe
+//   + cultural development
+//   + intellectual development
+// - This could all get increasingly complicated, adding and subtracting
+//   different practices and beliefs, and allowing for both altruistic
+//   and exploitative behavior.
+
 export class ReligiousTrait {
     constructor(
         readonly name: string,
