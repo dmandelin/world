@@ -135,27 +135,7 @@ import { resolveRaids } from "./raiding";
 //     - raiding losses/gains
 //     - population change?
 
-// - Ideology/Culture
-//     - Specialist labor and trade required to take full advantage of temple
-// - Economy
-// - Military
-//   * Simple raiding model
-//     * Capture produce, and/or trade goods
-//     - Defensive works and patrols
-//       - Specialist labor required to take full advantage
-// - Politics
-//   - Start with achievement-based societies
-//     - Collective for agrarians, individualistic for pastoralists
-//   - Define some sort of coordination bonuses that impact
-//     each other power source
-// - Environment
-//   - Climate conditions that change over time and affect productivity.
-
 // Top economic TODOs:
-// - allocations
-//   - experiment with land allocation and both allocation
-//   - retune production functions based on above analysis
-//   - apply to actual production
 // - trade food for increased production
 // - trade for obsidian for labor productivity and health bonuses
 // - trade for lapis lazuli for culture bonuses

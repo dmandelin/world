@@ -1,3 +1,4 @@
+import { Myth, Rite } from "./culture2";
 import { randelem } from "./lib";
 import { Pop, Roles } from "./population";
 import { Desert } from "./production";
@@ -13,8 +14,10 @@ export abstract class CultureGroup {
         readonly leisureValue: number,
         readonly freedom: number,
         readonly mods: TileModifierValues,
+        readonly initialMyths: Myth[],
+        readonly initialRites: Rite[], 
         readonly religiousSiteType: new (traits: ReligiousTrait[]) => ReligiousSite,
-        readonly availableTraits: ReligiousTrait[]) {       
+        readonly availableTraits: ReligiousTrait[]) {      
     }
 
     createCulture(tile: Tile): Culture {
@@ -33,6 +36,8 @@ class ProtoSumerian extends CultureGroup {
             0.25, 0.2,
             {
             },
+            [],
+            [],
             Temple,
             [
                 ReligiousTraits.Fertility,
@@ -64,6 +69,8 @@ class DesertNomad extends CultureGroup {
                 raidCapture: 2,
                 raidMobility: 2,
             },
+            [],
+            [],
             HolySite,
             [
                 ReligiousTraits.Fertility,
@@ -85,7 +92,12 @@ export const CultureGroups = {
 };
 
 export class Culture {
+    readonly myths: Myth[] = [];
+    readonly rites: Rite[] = [];
+
     constructor(readonly origin: Tile, readonly group: CultureGroup) {
+        this.myths = [...group.initialMyths];
+        this.rites = [...group.initialRites];
     }
 
     createReligiousSite(): ReligiousSite {
