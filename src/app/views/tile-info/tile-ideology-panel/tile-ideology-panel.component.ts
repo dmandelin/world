@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { TilePanelBase } from '../tile-panel-base';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { Temple } from '../../../model/religion';
 
 @Component({
   selector: 'app-tile-ideology-panel',
   standalone: true,
-  imports: [NgIf],
+  imports: [NgIf, NgFor],
   templateUrl: './tile-ideology-panel.component.html',
   styleUrl: './tile-ideology-panel.component.scss'
 })

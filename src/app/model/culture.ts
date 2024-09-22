@@ -1,4 +1,4 @@
-import { Myth, Rite } from "./culture2";
+import { Myth, Myths, Rite, Rites } from "./culture2";
 import { randelem } from "./lib";
 import { Pop, Roles } from "./population";
 import { Desert } from "./production";
@@ -15,7 +15,7 @@ export abstract class CultureGroup {
         readonly freedom: number,
         readonly mods: TileModifierValues,
         readonly initialMyths: Myth[],
-        readonly initialRites: Rite[], 
+        readonly initialRites: Rite[],
         readonly religiousSiteType: new (traits: ReligiousTrait[]) => ReligiousSite,
         readonly availableTraits: ReligiousTrait[]) {      
     }
@@ -36,8 +36,8 @@ class ProtoSumerian extends CultureGroup {
             0.25, 0.2,
             {
             },
-            [],
-            [],
+            [Myths.Ancestors, Myths.EarthMother, Myths.AncestralLand, Myths.Seasons],
+            [Rites.Everyday, Rites.LifeTransitions, Rites.AncestorVeneration, Rites.HarvestFestival, Rites.FertilityRite],
             Temple,
             [
                 ReligiousTraits.Fertility,
@@ -69,8 +69,8 @@ class DesertNomad extends CultureGroup {
                 raidCapture: 2,
                 raidMobility: 2,
             },
-            [],
-            [],
+            [Myths.Ancestors, Myths.AnimalSpirits, Myths.Sky, Myths.Migration],
+            [Rites.Everyday, Rites.LifeTransitions, Rites.AncestorVeneration, Rites.AnimalSacrifice, Rites.Transhumance],
             HolySite,
             [
                 ReligiousTraits.Fertility,

@@ -1,12 +1,17 @@
-<h2>Ways of the Ancestors</h2>
-<p>{{tile?.culture?.group?.typeName}}</p>
-<p>{{tile?.culture?.group?.name}}</p>
+<div class="flex">
+    <div>
+        <h2>Beliefs</h2>
+    <ng-container *ngFor="let m of tile?.culture?.myths">
+        <div class="b">{{m.name}}</div>
+        <div class="sm vbreakafter">{{m.description}}</div>
+    </ng-container>
+</div>
 
-<h3>{{site?.name}}</h3>
-<p>Rites: {{traits}}</p>
-<p>Holds: {{site?.capacity}} people</p>
-
-<ng-container *ngIf="temple?.construction">
-    <h4>Under Construction</h4>
-    <p>{{temple?.nextLevel?.name}}: {{temple?.construction?.toFixed(0)}}/{{temple?.nextLevel?.cost}}</p>
-</ng-container>
+<div>
+    <h2>Rites</h2>
+    <ng-container *ngFor="let r of tile?.culture?.rites">
+        <div class="b">{{r.name}}</div>
+        <div class="sm vbreakafter">{{r.description}}</div>
+    </ng-container>
+    </div>
+</div>
