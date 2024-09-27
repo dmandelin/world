@@ -1,5 +1,10 @@
+import { TileModifierValues } from "./tile";
+
 export class CulturalTrait {
-    constructor(readonly name: string, readonly description: string) {
+    constructor(
+        readonly name: string, 
+        readonly description: string, 
+        readonly mods: TileModifierValues = {}) {
     }
 }
 
@@ -9,12 +14,15 @@ export class Myth extends CulturalTrait {
 export const Myths = {
     // Universal
     Ancestors: new Myth(
+        // TODO - split out into different cultures
         'Ancestors',
         'Our ancestors watch over us and guide us.'),
     // Horticultural
     EarthMother: new Myth(
         'Earth Mother',
-        'The Earth Mother and her daughters provide for us and must be respected.'),
+        'The Earth Mother and her daughters provide for us and must be respected.', {
+
+        }),
     AncestralLand: new Myth(
         'Ancestral Land',
         'The land is our sacred trust because our ancestors are buried here.'),

@@ -9,14 +9,21 @@ Key new ideas:
   services for. First is direct family consumption. Next is
   reputation. There can also be barter, sale, donation, and
   so on.
+  - For this to work, we need to model agents that have
+    different kinds of interests and demands.
+  - Agents can probably be corporate, representing groups
+    of people.
+  - We'll need to list out the kinds of agents and the actions
+    they can take (producing for "markets" and otherwise) at
+    the start of the simulation and as things accumulate.
 - People with the right kinds of influence can install new
-  "memes" -- components of ideology. This can be used to
-  concentrate power, or disperse it.
+  components of ideology. This can be used to concentrate 
+  power, or disperse it.
 - Events and choices may be key to political and ideological 
   change. For example, refugees arriving create a choice for
   how to incorporate them, which could lead to increased 
   openness, or exploitation and a new stratification.
-- Settlement structure should match archaological findings,
+- Settlement structure should match archaeological findings,
   and have the right implications for level of political
   and other integration.
 
@@ -63,7 +70,9 @@ phrateries inside tribes, and so on. Kin relationships may
 be notional rather than real, especially in bigger groups.
 The largest groupings might be 2,000-20,000, and typically
 there are a few top-level tribes of the same culture: not
-politically unified.
+politically unified. The tribes are not necessarily a simple,
+fixed tree: actual relationships at any time could be much
+more complex.
 
 Settlement structure is villages of roughly equal size.
 
@@ -104,9 +113,11 @@ each other, which becomes more difficult at scale. Also, culture
 opportunity) and warfare (if significant in that society) may
 automatically generate bigger status differences than before,
 which may start to be tolerated because of benefits given.
-For thoe most part, "big men" will have to provide something
+For the most part, "big men" will have to provide something
 of value and can't be exploitative, but that won't be completely
-true.
+true. In some cases, the rest of the society may band together
+to expel or kill the "big men", and it may become more egalitarian
+after that.
 
 Some new production opportunities:
 
@@ -129,13 +140,53 @@ Costs and benefits should be set so that it's mostly beneficial
 to a group to have a few big men around, but also some possibility
 of "corruption".
 
+#### Southern Mesopotamia 5300 BC
+
 In 5300 BC, southern Mesopotamia appears to have been something
-like this, with the construction of the first "temples" one
-of the key aspects in transitioning to something else.
+like this. 
+
+Data from TCOI:
+
+- Flint from Zagros needed for flint hoes to work canals and levees
+- Farms might extend up to 3 miles from the village
+- Many cattle bones found. Possible use of plows
+- Fish
+- Sail trade to the Arabian and Iranian coasts
+- 'Ubaid 1 pottery style (early version or precursor)
+- Clay sickles used on lower Euphrates since further from flint
+- (4500) scepters, cosmetics [suggests rank society]
 
 By 4000 BC, they had a 2-level settlement structure, with the
 temples possibly as family property, who sponsored artisans
 and the like around, as well as having marketplaces. 
+
+from TCOI for 4000:
+
+- Big "temples" by then [suggests chiefly]
+- Fine pottery
+
+3600:
+
+- Secular building
+- Large granary
+- Trade enclaves in upper Euphrates (Syria and Turkey) for
+  gold, silver, lead, copper, timber, turquoise, and lapis
+  lazuli.
+- [suggests strongly developed chiefly]
+
+Eridu "temple" sequence:
+
+- 5300: Small, apparently not built at an existing village.
+  Sounds like a "men's house" or the like, indicating this
+  is not a chiefdom, although that's not definitive. This
+  had burnt offerings, and an alcove.
+- 5000-4500: Level 15, now a larger 24'x27' building.
+- 4000: Level 11, with 40' central chamber, decorative
+  shapes that became standard in the region. Pottery is
+  'Ubaid 3.
+- 3800: Level 7 and 6, 'Ubaid 4 pottery, incense burners.
+  By this time, poettery styles and ritual architecture
+  were similar across northern and southern Mesopotamia.
 
 ### Agrarian "chiefdoms"
 
@@ -294,9 +345,100 @@ class that can be gradually extended to other peoples.
 
 ### 5300 BC
 
+We need to try to carefully analyze the "markets", "goods", agent
+kinds, agent actions, and the like. At this point I would guess
+we have an achievement-based society, but possibly with some aspects
+of rank emerging. I'll assume a well-developed clan structure at
+least. Population was villages of roughly equal size with plenty
+of new land available.
+
+- Agent kinds:
+  - Clanspeople: "regular people", representing populations consisting
+    of clans of 20-100 people. 1 is a chief. (P2) 2 may be elders.
+  - Potters: highly skilled artists creating 'Ubaid 1 pottery. We'll
+    assume they are in clans too, with the usual proportion of workers.
+  - Prominent clans: the clan of a "big man", who has gained more 
+    influence than the usual clan.
+- Baseline activities
+  - Clan-based agricultural, pastoral, and possibly hunting production.
+    - These mainly produce nutrition.
+    - (P2) Flax for clothing.
+  - Clan-based rituals, celebrations, and games
+    - These should use some time and possibly resources, and yield
+      modeled benefits (we want to acknowledge their importance, and
+      model competition with other rituals):
+      - (there probably at least has to be enough food available)
+      - significant happiness increase (and low without any rituals)
+      - individual and collective morale, small bonus to many things
+      - bonus to war and increased raiding (tight solidarity)
+      - cultural development (and rituals can level up)
+      - there may appear "ritual officers" who provide a leadership
+        bonus to ritual production
+      - particular effects per myth/ritual
+  - Regular raiding, feuds, etc. Societies are pretty small-scale so
+    it might be hard to model war and peace in detail, and it seems
+    warfare wasn't relatively significant in this time and region.
+- Trade goods:
+  - (P2) Flint: From Zagros, apparently needed for the agricultural system.
+- How agents change from one type to another
+  - Becoming a "big man"
+    - Primary means, religious: sponsor rituals beyond the clan, which
+      must then attract people.
+      - Successful versions give increased religious bonuses to
+        the audience, and increased bonuses to the providers, such
+        as a morale bonus.
+      - This doesn't necessarily create any higher-level groupings
+        of society just yet. These are small-scale and things are
+        fluid.
+    - Secondary: high agricultural output via accumulating cattle,
+      good land, working hard, and other means. This will tend to be
+      interpreted as a sign of having powerful ancestors.
+      - Can be used to throw feasts and gain prestige while also
+        reducing the effects of nutrition variance on others
+    - Also: Fine 'Ubaid 1 pottery can be made by craftspeople employed
+      by big men
+      - Salable trade good
+      - Nutrition bonus (cooking and serving vessels)
+      - Small religious effectiveness bonus
+    - At this point it doesn't seem like we need to model not having
+      big men any more in this time and place, but in general it can
+      happen, typically due to violence or general poverty.
+  - Becoming a potter or not
+    - Regular clans can become potters if there is higher income than
+      for base production and they can learn the craft. We can make
+      various assumptions about ease of learning, but for now it seems
+      we can let people transition freely
+- Special actions that agents can take
+  - TODO - ideologies, trade goods, and social changes that can start
+    creating a rank society (in swing by 4500)
+    - trade goods: gems, metals, perhaps fine woods, perhaps better cloth
+      - merchant class?
+      - other luxury crafter classes?
+    - certain clans gaining reputations for ritual expertise or trade
+      goods
+    - rank society ideologies
+    - temples
+    - as rank society emerges, instead of "clans of prominent chiefs"
+      we have "chiefs of prominent clans". We'll need better names,
+      but the name should definitely change at some point.
+  - TODO - further changes to chiefly society (around 4000)
+    - ideologies with greater power differences? how does this happen
+      exactly? taxation?
+    - great temples
+    - even more luxury goods (do they level up?)
+    - somewhere in here, fast pottery wheel for commoners
+    - secular buildings
+    - granaries
+    - seems like we're getting "towns" now -- will need to think about
+      where those come from, but obv idea is that chiefly taxation
+      creates a bunch of resources so significantly more specialists
+      can be sponsored (probably at least a few warriors for defense
+      and tax collection at this point). Big chiefs may also be inducing
+      people to move to the town to ensure plenty of food supply and
+      services
+    - probably beginnings of corvee labor too
+
 - Clans and their influence
-- Baseline ideological doctrines emphasizing collective agrarian power
-x Villages of roughly equal size
 - Priest class that appears with temples: they are paid by donations
   at first; they start to gain influence
 - Artisan class that appears with priests, working for part of the
