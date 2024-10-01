@@ -421,6 +421,96 @@ of new land available.
     - as rank society emerges, instead of "clans of prominent chiefs"
       we have "chiefs of prominent clans". We'll need better names,
       but the name should definitely change at some point.
+  - Key goals at this point could be boiled down to modeling the growth
+    of political power and the growth of urbanism, for good or ill as
+    the cases may be.
+    - Urbanism
+      - It seems that lots of trade is required for large cities, but
+        in the early simulation we are concerned with the appearance
+        of the first towns in the region.
+      - We can consider the usual IEMP + demographics + ecology and
+        how they might grow an urban population.
+        - Ideology
+          - Ritual leaders can become non-farming population.
+            - They can in turn employ assistants, artisans, and others.
+            - Contributions may become mandatory and subject to enlargement.
+          - Living near the ritual center will be more desirable for
+            certain believers. Perhaps 10-25% of the population of the
+            region will find it strongly appealing.
+        - Economy + ecology
+          - Certain settlements may be near areas with more good farmland.
+            I'm not sure I want to simulate at that level of detail yet,
+            so we could instead model this as a random appeal bonus for
+            farmers.
+          - 'Ubaid likely had significant trade, but we are modeling
+            villages at first, so that is something that will have to
+            appear. At first, goods such as pottery and clothes are
+            made by clans in each village.
+          - Later, we may have growing populations of people in certain
+            settlements making export goods such as tools, pottery, clothes,
+            jewelry and other art works.
+          - Trade will likely be initiated by elites and especially temple
+            elites, because they have the biggest demands and the most
+            capital. Over time it will reach broader and broader populations.
+        - Military
+          - Conflict may induce people to collect into larger settlements,
+            but we don't necessarily need that at the start.
+          - Population aside, fortifications make a town more town-like.
+            Early on, we won't even have walls, so don't need to model yet.
+          - Bandits might want to live in towns! They'd prefer a more
+            anonymous place, with plenty of places to spend their loot.
+            They could end up generating an organized crime network, and
+            if successful enough, merging with the elite. That too is
+            for later.
+          - Also later, full-time warriors would of course be non-farming
+            populations, and in some societies (including here) would live
+            in political centers.
+            - They could in turn demand farmers nearby as well as makers
+              of military equipment and supplies.
+        - Political
+          - In later societies people could be outright coerced to move to
+            a town, but even early on, political leaders (and perhaps also
+            military and ideological) probably had some sway:
+            - Political leaders could tell people to move to the city and
+              some might, depending on their authority.
+            - They could favor the city with tax policies or benefits. This
+              would generally have some cost.
+            - Political leaders could bully people into moving to the city,
+              depending on their intimidation factor.
+            - Economic actors can induce people to move to the city by
+              - Offering better prices there
+              - Offering goods there not available at all in smaller places
+                For example, at some point most top elites will want to be
+                in the biggest cities.
+              - Unfortunately, buying them as slaves and moving them there.
+                This probably is starting to happen at small scale at 
+                simulation start.
+            - Military:
+              - Demanding people live there to supply them, depending on
+                other actors' need for military services.
+              - Forcibly moving people to the city and/or preventing their
+                leaving.
+            - Ideological:
+              - Promlugating ideologies that living in the city is better
+                (holier, more cultured, can be different emphases), increasing
+                appeal.
+              - Appealing ceremonies and giveaways.
+        - (back on political generally)
+        - Taxation can be spent on various things that would be supplied
+          by a population in the tax center. Taxation may also employ some
+          people full time.
+        - Administrators of some sort. It's not clear at all who or what
+          they would be at early stages. There are probably minimal full-time
+          people of this type in villages (like the headman only), but
+          growing towns will start demanding their services (and creating
+          more wealth for them to try to get some of) for more things.
+        - TODO: order above sources of urbanization by priority (chronology +
+          relevance)
+    - Political power
+      - TODO: some prime issues are what big-man-type leaders can and do do,
+        where rank societies come from, how much we need about tribal structures,
+        revenue (amounts and how consensual), political ideologies, what rank
+        society leaders can and do do
   - TODO - further changes to chiefly society (around 4000)
     - ideologies with greater power differences? how does this happen
       exactly? taxation?
