@@ -549,6 +549,60 @@ of new land available.
             rise, can decrease too.
           - Relation of temple and politics
           - Competition between temple and clan leaders for influence.
+      - Another point is that elite status and influence can come from several
+        things, and bigger political structures come from combining and 
+        institutionalizing them:
+        - Factors:
+          - Seniority of ancestry
+          - Ritual leadership
+          - Economic expertise
+          - Military leadership
+          - Numbers
+        - A pop group might have just one of those elite factors, or they might
+          have all of them: collecting more is a big part of what creates what
+          we think of as the more advanced governments.
+        - It's a little unclear how to give a single pop group powers in all
+          those areas, because we'll tend to want to have groups such as "potters",
+          "warriors".
+        - If we think about putting together a chiefly society, we can imagine
+          some groups starting with seniority of ancestry and ritual leadership.
+          Then they may hire expert crafters and gain more influence that way.
+          If warfare becomes important, they could allow achievement-based full-time
+          warriors, again hired by them. Or, put differently, they need high
+          influence with the warriors.
+      - Getting started
+        - It seems the first things we need are some differentiation: some parts
+          of society with distinct identity, interests, and values which can then
+          interact politically.
+        - First cut: start just before "priests" but be ready to add them in
+          right away.
+        - Population groups:
+          - Clans: the initial regular people, somewhat self-sufficient small units.
+            For now, because their interests are supposed to be tied, we won't
+            distinguish explicitly between the "chiefs", elders, and the other 
+            clanspeople.
+            - The next bit of resolution on their internal structure (inside a single
+              clan, that is) might be to rate gerontocracy and sexism.
+            - We probably do need some relations indicator of the clans among
+              themselves. There are lots of things we could put here but the keys
+              are how much do they cooperate and how much do they fight, so let's
+              start with a -100 to +100 defect vs cooperate rating. We need plausible
+              justifications of the ratings based on culture and scale.
+          - Senior families: Families with more prestigious, ancient ancestors.
+            They'll generally have more economic resources because they settled
+            earlier, on the best land. They'll also generate more cultural influence.
+            At the start, I think we can also have them receiving donations.
+            - Will probably also need self relations here.
+            - Probably need to transition to other types and back.
+            - Relationships are key for maintaining this status.
+          - Priests: Families who have promoted themselves and their ancestors
+            above all others, and who are the only ones who can communicate with
+            their ancestors, who can then evolve into human-like gods.
+            - Senior families building a temple and establishing certain ideologies
+              creates this.
+            - Relationships are still key for maintaining this status, but there
+              starts to be more institutionalization of roles and the relationships
+              required may narrow.
   - TODO - further changes to chiefly society (around 4000)
     - ideologies with greater power differences? how does this happen
       exactly? taxation?
