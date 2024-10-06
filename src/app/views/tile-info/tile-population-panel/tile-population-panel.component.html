@@ -9,16 +9,6 @@
             <td class="ra">{{tile?.prevCensus?.n}}</td>
             <td></td>
         </tr>
-        <tr>
-            <td>Target growth rate</td>
-            <td></td>
-            <td class="ra">{{spercent(tile?.pop?.targetGrowthRate, 2)}}</td>
-        </tr>
-        <tr>
-            <td>Expected death rate</td>
-            <td></td>
-            <td class="ra">{{spercent(tile?.pop?.expectedDeathRate, 2)}}</td>
-        </tr>
         <tr *ngIf="religiousPopulationGrowthFactor != 0">
             <td>Religious factor</td>
             <td class="ra">{{spercent(religiousPopulationGrowthFactor)}}</td>
@@ -59,7 +49,7 @@
     <tr *ngFor="let pop of tile?.pop?.pops">
         <td>{{pop.role.name}}</td>
         <td class="ra">{{pop.n}}</td>
-        <td class="ra">{{spercent((tile?.census?.change ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
+        <td class="ra">{{spercent(pop.censusSeries.lastValue.relativeChange, 2)}}</td>
         <td class="ra">{{percent(consumptionRatio(pop))}}</td>
         <td class="ra">{{flourishing(pop)}}</td>
     </tr>

@@ -34,21 +34,69 @@ export class Pop {
         public n: number,
         readonly tile: Tile,
         readonly role: Role,
-    ) {}
+    ) {
+        this.censusSeries.add(tile.world.year, new Census(tile.world.year, n, 0, 0));
+    }
+
+    readonly baseDeathRate = 0.040;
 
     readonly consumption = new Consumption(this);
+
+    // Properties pertaining to the "memory" of this population and its practices.
+    private targetGrowthRate_: number = 0;
+    private expectedDeathRate_ = 0;
+
+    readonly censusSeries = new TimeSeries<Census>();
 
     get capacityRatio(): number {
         return this.consumption.nutrition.value / this.n;
     }
-}
+
+    update(raidingDelta: number): void {
+        const originalPopulation = this.n;
+        const capacityRatio = this.capacityRatio;
+        let naturalIncrease = 0;
+        let targetGrowthRate = 0;
+        if (capacityRatio < 0.5) {
+            const targetCapacityRatio = 0.6 + Math.random() * 0.2;
+            const targetPop = capacityRatio < 0.2 ? 0.1 + Math.random() * 0.4 : this.n * targetCapacityRatio / capacityRatio;
+            const decrease = this.n - Math.floor(targetPop);
+            // In a famine, raiding losses ease the burden somewhat, but are still net losses.
+            naturalIncrease = -decrease + 0.5 * raidingDelta;
+            targetGrowthRate = -decrease / this.n;
+        } else {
+            // Target overall growth rate for a population of this prosperity level.
+            this.targetGrowthRate_ = (Math.min(capacityRatio, 2) - 0.7) / 0.3 * 0.014;
+
+            const birthRate = (this.expectedDeathRate_ + this.targetGrowthRate_) * this.tile.mods.popGrowth.value;
+            const growthRate = birthRate - this.baseDeathRate;
+            naturalIncrease = Math.floor(this.n * growthRate);
+        }
+
+        let delta = naturalIncrease + raidingDelta;
+        if (this.n + delta - 10 < 0) {
+            const overage = -(this.n + delta - 10);
+            raidingDelta += overage;
+            delta += overage;
+        }
+        this.n += delta;
+        
+        // Update moving average expected death rate.
+        const lastDeathRate = this.baseDeathRate - raidingDelta / originalPopulation;
+        this.expectedDeathRate_ = (this.expectedDeathRate_ + lastDeathRate) / 2;
+
+        // Update census.
+        this.censusSeries.add(this.tile.world.year, new Census(
+            this.tile.world.year,
+            this.n, 
+            naturalIncrease, 
+            -raidingDelta));
+    }}
 
 export class Population {
     constructor(readonly tile: Tile, readonly pops: Pop[]) {}
 
     public n = this.pops.reduce((a, p) => a + p.n, 0);
-
-    readonly baseDeathRate = 0.040;
 
     readonly censusSeries = new TimeSeries<Census>();
     private expectedDeathRate_ = 0;
@@ -68,52 +116,15 @@ export class Population {
         return this.tile.capacity / this.tile.population;
     }
 
-    get targetGrowthRate(): number {
-        return this.targetGrowthRate_;
-    }
-
-    get expectedDeathRate(): number {
-        if (this.expectedDeathRate_ === 0) {
-            // Use actual current rate when there was no previous data.
-            this.expectedDeathRate_ = this.baseDeathRate - this.tile.raidEffects.deltaPopulation / this.n;
-        }
-        return this.expectedDeathRate_;
-    }
-
     update(): void {
-        const originalPopulation = this.n;
-        const raidingLosses = -this.tile.raidEffects.deltaPopulation;
-        const capacityRatio = this.capacityRatio;
-        if (capacityRatio < 0.5) {
-            const targetCapacityRatio = 0.6 + Math.random() * 0.2;
-            const decrease = this.n - Math.floor(this.n * targetCapacityRatio / capacityRatio);
-            // In a famine, raiding losses ease the burden somewhat, but are still net losses.
-            this.lastNaturalIncrease = -decrease + 0.5 * raidingLosses;
-            this.targetGrowthRate_ = -decrease / this.n;
-        } else {
-            // Target overall growth rate for a population of this prosperity level.
-            this.targetGrowthRate_ = (Math.min(capacityRatio, 2) - 0.7) / 0.3 * 0.014;
+        // Distribute raiding losses.
+        const raidingDeltas = this.pops.map(
+            p => Math.round(this.tile.raidEffects.deltaPopulation * p.n / this.n));
 
-            const birthRate = (this.expectedDeathRate + this.targetGrowthRate_) * this.tile.mods.popGrowth.value;
-            const growthRate = birthRate - this.baseDeathRate;
-            this.lastNaturalIncrease = Math.floor(this.n * growthRate);
+        for (const [i, pop] of this.pops.entries()) {
+            pop.update(raidingDeltas[i]);
         }
-
-        const delta = this.lastNaturalIncrease - raidingLosses;
-
-        // Distribute the delta among pops and update the population.
-        let deltaRemaining = delta;
-        for (const pop of this.pops) {
-            const deltaPop = Math.round(delta * pop.n / this.n);
-            pop.n += deltaPop;
-            deltaRemaining -= deltaPop;
-        }
-        this.pops[0].n += deltaRemaining;
         this.n = this.pops.reduce((a, p) => a + p.n, 0);
-        
-        // Update moving average expected death rate.
-        const lastDeathRate = this.baseDeathRate + raidingLosses / originalPopulation;
-        this.expectedDeathRate_ = (this.expectedDeathRate_ + lastDeathRate) / 2;
     }
 
     get complexity(): number {
