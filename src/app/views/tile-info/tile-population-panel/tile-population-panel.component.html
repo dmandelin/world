@@ -53,14 +53,20 @@
 </table>
 
 <h3 class="mtz">People</h3>
-<table>
+<table id="people">
     <tr>
         <th class="la">Role</th>
         <th class="ra">Number</th>
+        <th class="ra">Change</th>
+        <th class="ra">Food</th>
+        <th class="ra">Mood</th>
     </tr>
     <tr *ngFor="let pop of tile?.pop?.pops">
         <td>{{pop.role.name}}</td>
         <td class="ra">{{pop.n}}</td>
+        <td class="ra">{{spercent((tile?.census?.change ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
+        <td class="ra">{{percent(consumptionRatio)}}</td>
+        <td class="ra">{{flourishing}}</td>
     </tr>
 </table>
 

@@ -6,11 +6,16 @@ import { Tile } from "./tile";
 // - immediate goal = differentiation
 //   - pop groups with different names
 //     x test this in app, see if has correct current list
-//     - initially make them both participate in regular production
 //   - differential access to resources for the groups
-///    - figure out how
+///    - customary donations to eminent families
 //   - differential welfare for the groups
-//     - figure out how
+//     x display groups with population and welfare (can initially be same)
+//     - consumption pool for each pop group
+//     - welfare computed off of their consumption pool
+//     - population change separately
+//     - happiness separately
+// - next goal = opinion of each other
+// - next next goal = special actions
 export class Role {
     constructor(
         readonly name: string,

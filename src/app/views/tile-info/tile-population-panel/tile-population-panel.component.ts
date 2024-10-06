@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { TilePanelBase } from '../tile-panel-base';
 import { NgFor, NgIf } from '@angular/common';
 import { TilePopGraphsComponent } from '../tile-pop-graphs/tile-pop-graphs.component';
+import { flourishing } from '../../../model/ways';
 
 @Component({
   selector: 'app-tile-population-panel',
@@ -13,6 +14,10 @@ import { TilePopGraphsComponent } from '../tile-pop-graphs/tile-pop-graphs.compo
 export class TilePopulationPanelComponent extends TilePanelBase {
   get consumptionRatio(): number {
     return (this.tile?.capacity ?? 0) / (this.tile?.population ?? 1); 
+  }
+
+  get flourishing(): string {
+    return this.tile ? (flourishing(this.tile) * 100).toFixed(0) : '';
   }
 
   get religiousPopulationGrowthFactor() {

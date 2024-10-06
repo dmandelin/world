@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TileSummaryPanelComponent } from './tile-population-panel.component';
+import { TilePopulationPanelComponent } from './tile-population-panel.component';
 
-describe('TileSummaryPanelComponent', () => {
-  let component: TileSummaryPanelComponent;
-  let fixture: ComponentFixture<TileSummaryPanelComponent>;
+describe('TilePopulationPanelComponent', () => {
+  let component: TilePopulationPanelComponent;
+  let fixture: ComponentFixture<TilePopulationPanelComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TileSummaryPanelComponent]
+      imports: [TilePopulationPanelComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(TileSummaryPanelComponent);
+    fixture = TestBed.createComponent(TilePopulationPanelComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
