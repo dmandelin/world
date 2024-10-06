@@ -38,6 +38,10 @@ export function sorted<T>(
     return xs;
 }
 
+export function sum(items: readonly number[]): number {
+    return items.reduce((a, b) => a + b, 0);
+}
+
 export function argmax<T>(items: readonly T[], valueFun: (item: T) => number): [T|undefined, number] {
     let bestItem = undefined;
     let bestValue = undefined;

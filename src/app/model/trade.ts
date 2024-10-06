@@ -110,7 +110,8 @@ export class Market {
         // Reset and recalculate from scratch each time.
         this.message = '';
         this.links.forEach(l => l.clear());
-        this.tile.cons.resetTrade();
+        const cons = this.tile.prod.pop.consumption;
+        cons.resetTrade();
 
         // Links we think there are no more trades available on.
         const doneLinks = new Set<TradeLinkDirection>();
@@ -123,12 +124,12 @@ export class Market {
                 // Try to get the product that's most useful to us.
                 // TODO - try more products than just max marginal utility
                 let [recvProduct, mu] = argmax(
-                    [...this.tile.cons.amounts.keys()],
-                    p => marginalNutrition(this.tile.cons.amounts, p));
+                    [...cons.amounts.keys()],
+                    p => marginalNutrition(cons.amounts, p));
 
                 let [sendProduct, neighborMu] = argmax(
-                    [...l.dst.cons.amounts.keys()],
-                    p => marginalNutrition(l.dst.cons.amounts, p));
+                    [...l.dst.prod.pop.consumption.amounts.keys()],
+                    p => marginalNutrition(l.dst.prod.pop.consumption.amounts, p));
 
                 if (recvProduct === undefined || sendProduct === undefined) continue;
                 if (recvProduct === sendProduct) continue;
@@ -138,11 +139,11 @@ export class Market {
                 // Compute minium exchange ratio we'll accept and maximum they'll accept.
                 // Exchange ratio is (what they give) / (what we give).
                 const minRatio = 
-                       marginalNutrition(this.tile.cons.amounts, sendProduct)
+                       marginalNutrition(cons.amounts, sendProduct)
                     / (mu * (1 - l.cost(recvProduct)));
                 const maxRatio = 
                       (neighborMu * (1 - l.cost(sendProduct)))
-                    /  marginalNutrition(l.dst.cons.amounts, recvProduct);
+                    /  marginalNutrition(l.dst.prod.pop.consumption.amounts, recvProduct);
 
                 if (minRatio === Infinity || maxRatio === Infinity) {
                     continue;
@@ -151,14 +152,14 @@ export class Market {
                 if (minRatio <= maxRatio) {
                     const ratio = Math.sqrt(minRatio * maxRatio);
 
-                    if (this.tile.cons.amounts.get(sendProduct)! < 1) continue;
-                    if (l.dst.cons.amounts.get(recvProduct)! < ratio) continue;
+                    if (cons.amounts.get(sendProduct)! < 1) continue;
+                    if (l.dst.prod.pop.consumption.amounts.get(recvProduct)! < ratio) continue;
 
                     // Update the trade link.
                     l.incrExchange(sendProduct, 1, recvProduct, ratio);
                     // Mark goods as traded away.
-                    this.tile.cons.applyTrade(sendProduct, 1, recvProduct, ratio);
-                    l.dst.cons.applyTrade(recvProduct, ratio, sendProduct, 1);
+                    cons.applyTrade(sendProduct, 1, recvProduct, ratio);
+                    l.dst.prod.pop.consumption.applyTrade(recvProduct, ratio, sendProduct, 1);
                 }
             }
         }

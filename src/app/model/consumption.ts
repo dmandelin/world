@@ -2,8 +2,12 @@ import { Product } from "./production";
 import { Tile } from "./tile";
 import { Nutrition, nutrition } from "./utility";
 
-export class TileConsumption {
-    constructor(readonly tile: Tile) {}
+export interface Consumer {
+
+}
+
+export class Consumption {
+    constructor(consumer: Consumer) {}
 
     readonly production = new Map<Product, number>();
     readonly trade = new Map<Product, number>();

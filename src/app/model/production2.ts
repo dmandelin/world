@@ -1,31 +1,3 @@
-// New production code
-//
-// Key ideas:
-// - think in terms of flows and stocks if it helps
-// - clearer data structures
-// - more mutability for performance
-//
-// Allocating labor differently for different parts of the system
-// may be easier if we more explicitly represent how inputs are
-// mapped to productive activities.
-//
-// We start with a labor pool and land pools per terrain type.
-// - Each can send different parts of its output to different
-//   productive activities, including leisure or waste.
-// - An activity is pretty abstract, but perhaps we don't actually
-//   want to privilege either land or labor, which means neither
-//   can be treated as the primary thing to which the other is
-//   allocated.
-// - Activity has outputs which at first will be captured as
-//   a production flow.
-// - If we represent the whole system, perhaps we then don't need
-//   to represent source information for goods down the line.
-//   I suppose for the most part the production factors cease to
-//   matter, but in some cases, perhaps such as pottery styles,
-//   we'll want to tag goods.
-//
-// Later, we can try to extend this model to trade, raiding, and consumption.
-
 import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { argmax, argmin } from "./lib";
@@ -67,10 +39,10 @@ class LaborPool extends Pool<Process> {
             // TODO - send the extras somewhere.
             const na = Math.floor(f * n);
             p.workers += na;
-            if (p.workerRole && p.workerRole !== this.pop.role) {
-                throw `Worker role mismatch: ${p.workerRole.name} vs ${this.pop.role.name}`;
+            if (p.workerPop && p.workerPop !== this.pop) {
+                throw `Worker pop mismatch: ${p.workerPop.role.name} vs ${this.pop.role.name}`;
             }
-            p.workerRole = this.pop.role;
+            p.workerPop = this.pop;
         }
     }
 
@@ -124,8 +96,8 @@ abstract class Process {
     // Number of people working on this process.
     workers = 0;
 
-    // Role of workers assigned to this process.
-    workerRole: Role|undefined;
+    // Pop that supplied the workers and will collect the output.
+    workerPop: Pop|undefined;
 
     // Quantity of output.
     output = 0;
@@ -136,7 +108,7 @@ abstract class Process {
     canUse(terrain: Terrain) { return false; }
     canBeWorkedBy(pop: Pop) { return false; }
     get product(): Product|undefined { return undefined; }
-    get roleName(): string { return this.workerRole?.name || '-'; }
+    get roleName(): string { return this.workerPop?.role.name || '-'; }
 
     reset() { this.workers = 0; }
     apply() { this.output = 0; }
@@ -259,7 +231,7 @@ class FallowProcess extends LandProcess {
 }
 
 export class TileProduction {
-    constructor(readonly tile: Tile) {}
+    constructor(readonly tile: Tile, readonly pop: Pop) {}
 
     readonly fallowProcess = new FallowProcess();
     readonly leisureProcesses = [
@@ -300,7 +272,7 @@ export class TileProduction {
 
     output = new Map<Product, number>();
 
-    get consumption() { return this.tile.cons.amounts; }
+    get consumption() { return this.pop.consumption.amounts; }
 
     initAllocs() {
         for (const pool of this.pools) {
@@ -379,6 +351,6 @@ export class TileProduction {
     }
 
     updateConsumption() {
-        this.tile.cons.setProduction(this.output);
+        this.pop.consumption.setProduction(this.output);
     }
 }

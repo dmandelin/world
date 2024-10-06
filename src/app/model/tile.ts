@@ -5,16 +5,15 @@ import { Terrain, Alluvium, DryLightSoil, Desert } from './production';
 import { Barley, Lentils, Dairy } from './production';
 import { Market } from './trade';
 import { ProductionTech, TechKit } from './tech';
-import { mapmax, mapmin, randelem, randint } from './lib';
+import { mapmax, mapmin, randelem, randint, sum } from './lib';
 import { TimeSeries } from '../data/timeseries';
 import { ReligiousSite, Temple } from './religion';
 import { RaidEffects } from './raiding';
 import { Culture, CultureGroups } from './culture';
-import { Census, Population } from './population';
+import { Census, Population, Roles } from './population';
 import { complexity, flourishing, freedom } from './ways';
 import { Factor, Modifier } from '../data/calc';
 import { TileProduction } from './production2';
-import { TileConsumption } from './consumption';
 import { randomTileClimateFactor } from './climate';
 
 export class TileModifiers {
@@ -59,7 +58,6 @@ export class Tile {
 
     readonly prod: TileProduction;
     readonly market: Market = new Market(this);
-    readonly cons: TileConsumption = new TileConsumption(this);
 
     raidEffects = new RaidEffects();
 
@@ -100,7 +98,7 @@ export class Tile {
 
         this.religiousSite = this.culture.createReligiousSite();
 
-        this.prod = new TileProduction(this);
+        this.prod = new TileProduction(this, this.pop_.pops.find(p => p.role === Roles.ClansPeople)!);
     }
 
     get name() { return this.controller.name; }
@@ -169,7 +167,7 @@ export class Tile {
     }
 
     get capacity(): number {
-        return this.cons.nutrition.value;
+        return sum(this.pop.pops.map(p => p.consumption.nutrition.value));
     }
 
     adoptNeighborTechs(snapshot: Map<Tile, Map<Product, ProductionTech>>): void {

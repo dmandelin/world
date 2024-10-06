@@ -10,11 +10,6 @@
             <td></td>
         </tr>
         <tr>
-            <td>Capacity</td>
-            <td class="ra">{{tile?.capacity?.toFixed(0)}}</td>
-            <td class="ra">{{percent(consumptionRatio)}}</td>
-        </tr>
-        <tr>
             <td>Target growth rate</td>
             <td></td>
             <td class="ra">{{spercent(tile?.pop?.targetGrowthRate, 2)}}</td>
@@ -65,8 +60,8 @@
         <td>{{pop.role.name}}</td>
         <td class="ra">{{pop.n}}</td>
         <td class="ra">{{spercent((tile?.census?.change ?? 0) / (tile?.census?.prev ?? 1), 2)}}</td>
-        <td class="ra">{{percent(consumptionRatio)}}</td>
-        <td class="ra">{{flourishing}}</td>
+        <td class="ra">{{percent(consumptionRatio(pop))}}</td>
+        <td class="ra">{{flourishing(pop)}}</td>
     </tr>
 </table>
 

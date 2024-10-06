@@ -3,6 +3,7 @@ import { TilePanelBase } from '../tile-panel-base';
 import { NgFor, NgIf } from '@angular/common';
 import { TilePopGraphsComponent } from '../tile-pop-graphs/tile-pop-graphs.component';
 import { flourishing } from '../../../model/ways';
+import { Pop } from '../../../model/population';
 
 @Component({
   selector: 'app-tile-population-panel',
@@ -12,11 +13,11 @@ import { flourishing } from '../../../model/ways';
   styleUrl: './tile-population-panel.component.scss'
 })
 export class TilePopulationPanelComponent extends TilePanelBase {
-  get consumptionRatio(): number {
-    return (this.tile?.capacity ?? 0) / (this.tile?.population ?? 1); 
+  consumptionRatio(pop: Pop): number {
+    return pop.consumption.nutrition.value / pop.n; 
   }
 
-  get flourishing(): string {
+  flourishing(pop: Pop): string {
     return this.tile ? (flourishing(this.tile) * 100).toFixed(0) : '';
   }
 

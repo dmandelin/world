@@ -35,5 +35,8 @@ export function proteinQuality(r: number): number {
 export function proteinRatio(consumption: Map<Product, number>): number {
     const totalProtein = Array.from(consumption.entries()).reduce((a, [product, amount]) => a + amount * proteinFractions.get(product)!, 0);
     const totalEnergy = Array.from(consumption.values()).reduce((a, v) => a + v, 0);
-    return totalProtein / totalEnergy;
+    const v = totalProtein / (totalEnergy || 1);
+    if (!isFinite(v)) 
+        debugger;
+    return v;
 }

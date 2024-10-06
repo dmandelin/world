@@ -1,4 +1,5 @@
 import { TimeSeries } from "../data/timeseries";
+import { Consumption } from "./consumption";
 import { Priests } from "./polity";
 import { Tile } from "./tile";
 
@@ -34,6 +35,8 @@ export class Pop {
         readonly tile: Tile,
         readonly role: Role,
     ) {}
+
+    readonly consumption = new Consumption(this);
 }
 
 export class Population {
