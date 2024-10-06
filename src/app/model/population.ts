@@ -1,6 +1,16 @@
 import { TimeSeries } from "../data/timeseries";
+import { Priests } from "./polity";
 import { Tile } from "./tile";
 
+// - politics punchlist
+// - immediate goal = differentiation
+//   - pop groups with different names
+//     x test this in app, see if has correct current list
+//     - initially make them both participate in regular production
+//   - differential access to resources for the groups
+///    - figure out how
+//   - differential welfare for the groups
+//     - figure out how
 export class Role {
     constructor(
         readonly name: string,
@@ -9,6 +19,7 @@ export class Role {
 
 export const Roles = {
     ClansPeople: new Role('Clanspeople'),
+    EminentFamilies: new Role('Eminent Families'),
     Priests: new Role('Priests'),
 }
 
