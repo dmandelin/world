@@ -431,14 +431,14 @@ of new land available.
       - We can consider the usual IEMP + demographics + ecology and
         how they might grow an urban population.
         - Ideology
-          - Ritual leaders can become non-farming population.
-            - They can in turn employ assistants, artisans, and others.
+          - (P1.1) Ritual leaders can become non-farming population.
+            - (P1.2) They can in turn employ assistants, artisans, and others.
             - Contributions may become mandatory and subject to enlargement.
-          - Living near the ritual center will be more desirable for
+          - (P1.3) Living near the ritual center will be more desirable for
             certain believers. Perhaps 10-25% of the population of the
             region will find it strongly appealing.
         - Economy + ecology
-          - Certain settlements may be near areas with more good farmland.
+          - (P2.1) Certain settlements may be near areas with more good farmland.
             I'm not sure I want to simulate at that level of detail yet,
             so we could instead model this as a random appeal bonus for
             farmers.
@@ -449,7 +449,7 @@ of new land available.
           - Later, we may have growing populations of people in certain
             settlements making export goods such as tools, pottery, clothes,
             jewelry and other art works.
-          - Trade will likely be initiated by elites and especially temple
+          - (P2.2) Trade will likely be initiated by elites and especially temple
             elites, because they have the biggest demands and the most
             capital. Over time it will reach broader and broader populations.
         - Military
@@ -499,18 +499,56 @@ of new land available.
         - Taxation can be spent on various things that would be supplied
           by a population in the tax center. Taxation may also employ some
           people full time.
-        - Administrators of some sort. It's not clear at all who or what
+        - (P3.1) Administrators of some sort. It's not clear at all who or what
           they would be at early stages. There are probably minimal full-time
           people of this type in villages (like the headman only), but
           growing towns will start demanding their services (and creating
           more wealth for them to try to get some of) for more things.
-        - TODO: order above sources of urbanization by priority (chronology +
-          relevance)
+        - TODO: analyze fissioning further
+      - Demographics
+        - Local populations can just grow. People might have a reason to
+          split off new villages, but if they don't, this alone could cause
+          a settlement to grow to become a town or small city.
+        - It seems this would depend on the culture.
+          - Some peoples are used to village life and intentionally split off
+            to form a new village whenever the old one gets too big.
+          - Various types of specialists will tend to be attacted to urban
+            areas, although note there are some rural specialists too.
+          - It seems that farmers sometimes collected into big towns. That
+            could be for defense, for access to people, relationships, and
+            services, and so on. How this really works is kind of unclear,
+            but maybe we can have an appeal factor for different settlements
+            with population tending to readjust accordingly.
     - Political power
-      - TODO: some prime issues are what big-man-type leaders can and do do,
-        where rank societies come from, how much we need about tribal structures,
-        revenue (amounts and how consensual), political ideologies, what rank
-        society leaders can and do do
+      - Basic model elements:
+        - Politically identifiable populations: population groups now get
+          opinions of each other. We can elaborate the model over time, but
+          roughly speaking the elements are how powerful, how much do they
+          use power for good, how much do they use power for ill.
+        - Need to understand how to model subgroupings: do we explicitly
+          model 6 different competing secret societies, or do we model a
+          group "secret societies" and the fact that it has substructure?
+        - "Public income": Donations/taxes/benefits transferred to certain
+          groups based on culture/ideology and reputation. Taking too much
+          could damage reputation.
+        - "Public expenses": Public goods provided. Will tend to boost
+          reputation.
+        - Political ideologies and institutions: and these can changed by
+          actors with influence. Changes can be blocked by other groups.
+        - Rebellion: Non-elite groups attacking the elite, possibly displacing
+          or eliminating them. They could also migrate away.
+      - We'll imagine that there's generally some ambitious group or other
+        trying to increase their standing within the society.
+      - Key dynamics in this period:
+        - Key changes we want to see are:
+          - Building up of more politics: more people involved, more political
+            institutions, more tax revenue, more public goods
+          - Larger political units taking over more functions
+          - Larger political units gaining influence over wider scopes
+          - Back and forth: political complexity doesn't necessarily continuously
+            rise, can decrease too.
+          - Relation of temple and politics
+          - Competition between temple and clan leaders for influence.
   - TODO - further changes to chiefly society (around 4000)
     - ideologies with greater power differences? how does this happen
       exactly? taxation?
