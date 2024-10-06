@@ -37,6 +37,10 @@ export class Pop {
     ) {}
 
     readonly consumption = new Consumption(this);
+
+    get capacityRatio(): number {
+        return this.consumption.nutrition.value / this.n;
+    }
 }
 
 export class Population {

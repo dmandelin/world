@@ -18,7 +18,7 @@ export class TilePopulationPanelComponent extends TilePanelBase {
   }
 
   flourishing(pop: Pop): string {
-    return this.tile ? (flourishing(this.tile) * 100).toFixed(0) : '';
+    return this.tile ? (flourishing(pop) * 100).toFixed(0) : '';
   }
 
   get religiousPopulationGrowthFactor() {

@@ -1,4 +1,5 @@
 import { clamp } from "./lib";
+import { Pop } from "./population";
 import { Tile } from "./tile";
 
 // - Sumerian names:
@@ -10,19 +11,19 @@ import { Tile } from "./tile";
 //   - wabālu (𒉿𒅁) Growth
 //   - andurāru (𒆠𒈠𒊕𒊕𒀭) Freedom
 
-export function flourishing(t: Tile): number {
+export function flourishing(pop: Pop): number {
     // In our period, let's make this primarily about economics
     // (survival goods) and culture (the sense of a sustainable
     // and meaningful way of life). Raiding losses will be a
     // detriment.
 
     // Economy: base happiness from prosperity.
-    const cr = t.pop.capacityRatio;
+    const cr = pop.capacityRatio;
     let baseValue = 0;
     if (cr < 0.5) {
         // Famine or other disaster. Negative happiness, but mitigated
         // by religious belief.
-        baseValue = (cr - 0.5) * t.mods.hope.value;
+        baseValue = (cr - 0.5) * pop.tile.mods.hope.value;
     } else {
         // Enough to sustain the population, so positive happiness.
         // A basic flourishing of 0.5 would come from a capacity ratio
@@ -31,15 +32,15 @@ export function flourishing(t: Tile): number {
         // perhaps capacity ratio 2 along with a strong cultural base
         // indicating this is sustainable. Our current temples are maybe
         // enough to get it up to 
-        const survivalValue = Math.min(cr - 0.5, 0.5) * t.mods.grit.value;
+        const survivalValue = Math.min(cr - 0.5, 0.5) * pop.tile.mods.grit.value;
 
         const surplusValue = cr <= 1.0 ? 0
-            : Math.log2(cr) * 0.1 + Math.log2(cr) * t.mods.celebration.value;
+            : Math.log2(cr) * 0.1 + Math.log2(cr) * pop.tile.mods.celebration.value;
 
         baseValue = survivalValue + surplusValue;
     }
 
-    return baseValue * (1 - raidDiscountFactor(t));
+    return baseValue * (1 - raidDiscountFactor(pop.tile));
 }
 
 function raidDiscountFactor(t: Tile): number {

@@ -14,7 +14,7 @@ import { complexity, freedom, flourishing, complexities, freedoms, PerFactor } f
 })
 export class TileSummaryPanelComponent extends TilePanelBase {
   get flourishing(): string {
-    return this.tile ? (flourishing(this.tile) * 100).toFixed(0) : '';
+    return this.tile ? (this.tile.flourishing * 100).toFixed(0) : '';
   }
 
   get complexity(): string {

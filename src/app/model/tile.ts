@@ -138,9 +138,13 @@ export class Tile {
         }
     }
 
+    get flourishing(): number {
+        return this.pop_.pops.reduce((a, p) => a + flourishing(p) * p.n / this.pop_.n, 0);
+    }
+
     updateTimeSeries() {
         this.pop_.updateTimeSeries();
-        this.flourishingSeries.add(this.world.year, flourishing(this));
+        this.flourishingSeries.add(this.world.year, this.flourishing);
         this.complexitySeries.add(this.world.year, complexity(this));
         this.freedomSeries.add(this.world.year, freedom(this));
 
