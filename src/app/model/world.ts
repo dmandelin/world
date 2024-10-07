@@ -259,6 +259,8 @@ export class World {
         this.forTiles(t => t.market.update());
         this.forTiles(t => t.updateTransfers());
 
+        this.forTiles(t => t.initializeAttitudes());
+
         this.recordRanks();
 
         this.forTiles(t => t.updateTimeSeries());
@@ -275,6 +277,8 @@ export class World {
         this.forTiles(t => t.updateProduction());
         this.forTiles(t => t.market.update());
         this.forTiles(t => t.updateTransfers());
+
+        this.forTiles(t => t.updateAttitudes());
 
         // Raiding.
         resolveRaids(this);

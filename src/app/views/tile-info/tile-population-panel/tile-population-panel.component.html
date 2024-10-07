@@ -55,6 +55,22 @@
     </tr>
 </table>
 
+<h4 class="mtz">Relations</h4>
+<table id="relations">
+    <tr>
+        <th class="la">View</th>
+        <th class="ra">Of</th>
+        <th class="ra">Pow</th>
+        <th class="ra">+/-</th>
+    </tr>
+    <tr *ngFor="let r of relationRows">
+        <td>{{r.pop.role.name}}</td>
+        <td class="ra">{{r.other.role.name}}</td>
+        <td class="ra">{{r.powerPerception}}</td>
+        <td class="ra">{{r.benefitPerception}}</td>
+    </tr>
+</table>
+
 <h3 class="mtz">Settlements</h3>
 <div>
 {{tile?.settlementsDescription}}

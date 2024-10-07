@@ -25,6 +25,11 @@ export class TilePopulationPanelComponent extends TilePanelBase {
     return this.tile?.mods.popGrowth.rel;
   }
 
+  get relationRows() {
+    if (!this.tile) return [];
+    return this.tile.pop.pops.flatMap(pop => [...pop.attitudes.values()]);
+  }
+
   formatYear(year: number|undefined): string {
     return year === undefined ? '' : this.wvm.world.yearDisplay(year);
   }

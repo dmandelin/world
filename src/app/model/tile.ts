@@ -150,6 +150,14 @@ export class Tile {
         return this.pop_.pops.reduce((a, p) => a + flourishing(p) * p.n / this.pop_.n, 0);
     }
 
+    initializeAttitudes() {
+        this.pop_.pops.forEach(p => p.initializeAttitudes());
+    }
+
+    updateAttitudes() {
+        this.pop_.pops.forEach(p => p.updateAttitudes());
+    }
+
     updateTimeSeries() {
         this.pop_.updateTimeSeries();
         this.flourishingSeries.add(this.world.year, this.flourishing);

@@ -4,16 +4,9 @@ import { Priests } from "./polity";
 import { Tile } from "./tile";
 
 // - politics punchlist
-// - immediate goal = differentiation
-//   - pop groups with different names
-//     x test this in app, see if has correct current list
-//   - differential access to resources for the groups
-///    x customary donations to eminent families
-//   - differential welfare for the groups
-//     x display groups with population and welfare (can initially be same)
-//     x consumption pool for each pop group and utility factors per population
-// - next goal = opinion of each other
-// - next next goal = special actions
+// x differentiation
+// x opinion of each other
+// - next goal = special actions
 export class Role {
     constructor(
         readonly name: string,
@@ -26,6 +19,16 @@ export const Roles = {
     Priests: new Role('Priests'),
 }
 
+// The attitude of one population for another.
+export class Attitude {
+    constructor(
+        readonly pop: Pop,
+        readonly other: Pop,
+        public powerPerception: number,
+        public benefitPerception: number,
+    ) {}
+}
+
 export class Pop {
     constructor(
         public n: number,
@@ -34,6 +37,8 @@ export class Pop {
     ) {
         this.censusSeries.add(tile.world.year, new Census(tile.world.year, n, 0, 0));
     }
+
+    readonly attitudes = new Map<Pop, Attitude>();
 
     readonly baseDeathRate = 0.040;
 
@@ -51,6 +56,31 @@ export class Pop {
 
     setTransfer(target: Pop, fraction: number): void {
         this.consumption.setTransfer(target.consumption, fraction);
+    }
+
+    initializeAttitudes(): void {
+        for (const pop of this.tile.pop.pops) {
+            if (pop === this) continue;
+            this.attitudes.set(pop, new Attitude(this, pop, 0, 0));
+        }
+        this.updateAttitudes();
+    }
+
+    updateAttitudes(): void {
+        for (const a of this.attitudes.values()) {
+            if (a.other.role === Roles.EminentFamilies) {
+                // Eminent families have genealogical and ritual seniority, making
+                // them perceived as somewhat more powerful and beneficial, but not
+                // greatly so from the base factors alone.
+                a.powerPerception = 200;
+                a.benefitPerception = 200;
+            } else {
+                // Eminent families initially consider themselves somewhat more
+                // powerful, and perceive clanspeople as mutually beneficial.
+                a.powerPerception = -200;
+                a.benefitPerception = 200;
+            }
+        }
     }
 
     update(raidingDelta: number): void {
@@ -92,7 +122,8 @@ export class Pop {
             this.n, 
             naturalIncrease, 
             -raidingDelta));
-    }}
+    }
+}
 
 export class Population {
     constructor(readonly tile: Tile, readonly pops: Pop[]) {}
