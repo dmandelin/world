@@ -3,10 +3,21 @@ import { Consumption } from "./consumption";
 import { Priests } from "./polity";
 import { Tile } from "./tile";
 
-// - politics punchlist
+// politics punchlist
 // x differentiation
 // x opinion of each other
+// - artisans working for eminent families
+//   - will need to get more resources for them
+//     - have them work as other families at first
 // - next goal = special actions
+//   - first special action = build temple
+//     - initial temples are small and might be built using family labor,
+//       but perhaps donation system implies everyone will help
+//     - would need "build temple" ideology to get whole population to help
+//     - temple sponsors become priests
+//     - increases power and benefit perception of priests,
+//       so we'll need to have that have some effects
+
 export class Role {
     constructor(
         readonly name: string,
