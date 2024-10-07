@@ -3,6 +3,7 @@ import { NgIf, NgFor, NgStyle } from '@angular/common';
 import { AllTerrainTypes, Products  } from '../../../model/production';
 import { TilePanelBase } from '../tile-panel-base';
 import { marginalNutrition } from '../../../model/utility';
+import { Pop } from '../../../model/population';
 
 @Component({
   selector: 'app-tile-economy-panel',
@@ -42,6 +43,14 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     return Object.entries(this.tile.mods);
   }
 
+  transferRows(pop: Pop) {
+    return [...pop.consumption.transfers.entries()]
+      .map(e => ({ 
+        name: e[0].name,
+        amount: e[1].delta,
+      }));
+  }
+
   get workerGroups() {
     if (!this.tile) return [];
     return this.tile.prod.laborPools
@@ -74,13 +83,12 @@ export class TileEconomyPanelComponent extends TilePanelBase {
       .filter(g => g.fractionOfTile);
   }
 
-  get consumptionRows() {
-    if (!this.tile) return [];
-    return [...this.tile.prod.consumption.entries()]
+  consumptionRows(pop: Pop) {
+    return [...pop.consumption.amounts.entries()]
       .map(e => ({ 
         name: e[0].name,
         amount: e[1],
-        marginalUtility: this.tile ? marginalNutrition(this.tile.prod.consumption, e[0]) : 0,
+        marginalUtility: this.tile ? marginalNutrition(pop.consumption.amounts, e[0]) : 0,
       }));
   }
 

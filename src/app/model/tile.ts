@@ -113,6 +113,14 @@ export class Tile {
         this.prod.update();
     }
 
+    updateTransfers() {
+        const clansPeople = this.pop_.pops.find(p => p.role === Roles.ClansPeople)!;
+        const eminentFamilies = this.pop_.pops.find(p => p.role === Roles.EminentFamilies);
+        if (!eminentFamilies) return;
+
+        clansPeople.setTransfer(eminentFamilies, 0.1);
+    }
+
     fractionOf(t: Terrain): number {
         switch (t) {
             case Alluvium: return this.wetFraction;

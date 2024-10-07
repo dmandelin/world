@@ -83,36 +83,36 @@
     <div class="flex">
     <div>
         <h3>Consumption</h3>
-        <table>
-            <tr>
-                <th class="la">Product</th>
-                <th class="ra">Amount</th>
-                <th class="ra">Marginal Value</th>
-            </tr>
-            <tr *ngFor="let r of consumptionRows">
-                <td>{{r.name}}</td>
-                <td class="ra">{{r.amount.toFixed(0)}}</td>
-                <td class="ra">{{r.marginalUtility.toFixed(0)}}</td>
-            </tr>
-        </table>
-    </div>
-    <div>
-        <h3>Nutrition</h3>
-        <table>
-            <tr>
-                <td>Food quantity</td>
-                <td class="ra">{{floor(tile.prod.pop.consumption.nutrition.amount)}}</td>
-            </tr>
-            <tr>
-                <td>Protein</td>
-                <td class="ra">{{percent(tile.prod.pop.consumption.nutrition.proteinFactor)}}</td>
-                <td class="ra">({{percent(tile.prod.pop.consumption.nutrition.proteinRatio)}} protein)</td>
-            </tr>
-            <tr>
-                <td>Nutritional value</td>
-                <td class="ra">{{floor(tile.prod.pop.consumption.nutrition.value)}}</td>
-            </tr>
-        </table>
+        <ng-container *ngFor="let p of tile.pop.pops">
+            <h4>{{p.role.name}}</h4>
+            <table class="vbreakafter">
+                <tr>
+                    <th class="la">Product</th>
+                    <th class="ra">Amount</th>
+                    <th class="ra">MU</th>
+                </tr>
+                <tr *ngFor="let r of consumptionRows(p)">
+                    <td>{{r.name}}</td>
+                    <td class="ra">{{r.amount.toFixed(0)}}</td>
+                    <td class="ra">{{r.marginalUtility.toFixed(0)}}</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td>Food quantity</td>
+                    <td class="ra">{{floor(p.consumption.nutrition.amount)}}</td>
+                </tr>
+                <tr>
+                    <td>Protein</td>
+                    <td class="ra">{{percent(p.consumption.nutrition.proteinFactor)}}</td>
+                    <td class="ra">({{percent(p.consumption.nutrition.proteinRatio)}} protein)</td>
+                </tr>
+                <tr>
+                    <td>Food value</td>
+                    <td class="ra">{{floor(p.consumption.nutrition.value)}}</td>
+                </tr>
+            </table>
+        </ng-container>
     </div>
     <div id="main">
         <div id="submain">
@@ -149,21 +149,20 @@
 
 
             <div id="rightPanel">
-                <h2>Utility</h2>
-                <table>
-                    <tr>
-                        <td>Nutrition</td>
-                        <td class="ra">{{round((capacity || 0) / (population || 1), 2)}}</td>
-                    </tr>
-                    <tr>
-                        <td>(Before Trade)</td>
-                        <td class="ra">= {{floor(preTradeCapacity)}}</td>
-                    </tr>
-                    <tr>
-                        <td>(Gains From Trade)</td>
-                        <td class="ra">= {{percent(((capacity ?? 0) - (preTradeCapacity ?? 0)) / (preTradeCapacity ?? 0))}}</td>
-                    </tr>
-                </table>
+                <h2>Transfers</h2>
+                <ng-container *ngFor="let p of tile.pop.pops">
+                    <h4>{{p.role.name}}</h4>
+                    <table class="vbreakafter">
+                        <tr>
+                            <th class="la">Product</th>
+                            <th class="ra">Amount</th>
+                        </tr>
+                        <tr *ngFor="let r of transferRows(p)">
+                            <td>{{r.name}}</td>
+                            <td class="ra">{{r.amount.toFixed(0)}}</td>
+                        </tr>
+                    </table>
+                </ng-container>
             </div>
         </div>
     </div>

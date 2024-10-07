@@ -8,13 +8,10 @@ import { Tile } from "./tile";
 //   - pop groups with different names
 //     x test this in app, see if has correct current list
 //   - differential access to resources for the groups
-///    - customary donations to eminent families
+///    x customary donations to eminent families
 //   - differential welfare for the groups
 //     x display groups with population and welfare (can initially be same)
-//     - consumption pool for each pop group
-//     - welfare computed off of their consumption pool
-//     - population change separately
-//     - happiness separately
+//     x consumption pool for each pop group and utility factors per population
 // - next goal = opinion of each other
 // - next next goal = special actions
 export class Role {
@@ -50,6 +47,10 @@ export class Pop {
 
     get capacityRatio(): number {
         return this.consumption.nutrition.value / this.n;
+    }
+
+    setTransfer(target: Pop, fraction: number): void {
+        this.consumption.setTransfer(target.consumption, fraction);
     }
 
     update(raidingDelta: number): void {
