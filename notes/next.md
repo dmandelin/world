@@ -53,6 +53,60 @@ that there might have been various smaller hamlets, etc. for sizes
 between 50-500. Later we'll add factors that allow population to grow
 further, but we don't need that right away.
 
+More on population dynamics from "Zipf's law for cities: an explanation",
+by Xavier Gabaix:
+- Apparently we can reach Zipf's law if we have settlements with these
+  properties:
+  - Exponential growth with nonzero variance in the growth rate
+  - Growth rate distribution is independent of size
+    - Since cities generally have more artificial amenities, apparently
+      we really can only explain this if there's an inherent disamenity
+      to scale! This would also help explain why growth is more in
+      number of settlements than size at first.
+    - We can also have splitting, and interestingly, if splitting is
+      slower than growth, then growth will dominate and we'll see a
+      Zipf distribution. But if splitting is faster than growth, which
+      perhaps it could be early on, then sizes may stay more similar.
+  - Minimum settlement size. Obviously satisfied by N = 1, but in practice
+    we can probably set a floor of 50-500 depending on region for how
+    people apparently chose to live.
+- So, apparently we'd almost pretty much be there: we could make things
+  work per settlement and see if the distributions behave how we want.
+  - Also note that the analysis shows that the *average* city size
+    ratios follow rank ratios, but the standard deviation in that is
+    high. So, it's quite common to find that both #2 and #3 are about
+    the same size.
+    - It's also normal for the capital to be bigger than expected because
+      of its unique political significance. I think it also makes sense
+      to allow for other special somewhat inherent amenities: my intuition
+      is that those would still more or less satisfy the assumptions.
+    - Apparently there's also a phenomenon where smaller cities have a
+      somewhat higher variance in their growth rate due to less diversified
+      resource base, but we could completely ignore this and not be that
+      far off.
+  - But we do need some differences in the growth model. And according
+    to this paper, urban growth was historically mostly due to migration.
+    That also makes sense in the light of the common idea of cities as
+    "population sinks".
+
+From "Urban Scaling Laws" by Ribeiro and Netto:
+- GDP goes with about the 1.1 power in some examples
+- Scaling exponents have certain distributions for certain kinds of
+  things:
+  - Individual needs (housing, job, water): generally close to linear
+    (a bit more spread on the high side up to 1.2 or so).
+  - Infrastructure: around 0.85 (range 0.5-1.2): need less per person
+    as city grows.
+    - Sublinear scaling depends on being able to "fill space". If that
+      isn't happening, scaling may be superlinear. Causes include providing
+      the infrastructure to only a few people, or regulatory processes
+      that block building out common infrastructure.
+    - Apparently the causes of this aren't that well understood.
+  - Social variables: economic output, infection: around 1.15 (range
+    1.0-1.3). 
+    - Here it's agreed that the larger frequency of interactions drives
+      this.
+
 For status, we already do have the concept of "eminent families" in
 the model, but they aren't actually any different from anyone else.
 - Let's give them a wealth bonus to represent a combination of having
