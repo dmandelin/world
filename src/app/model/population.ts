@@ -136,10 +136,37 @@ export class Pop {
     }
 }
 
+export class Settlement {
+    constructor(
+        readonly tile: Tile,
+        public n: number,
+    ) {}
+
+    readonly typeName = this.tile.isRiver ? 'villages' : 'camps';
+}
+
 export class Population {
-    constructor(readonly tile: Tile, readonly pops: Pop[]) {}
+    constructor(readonly tile: Tile, readonly pops: Pop[]) {
+        // Initial population distribution: Generate an approximate
+        // number of settlements, then distribute the population among them.
+        const settlementCount = Math.max(1, Math.round(this.n / (this.minSettlementSize * 1.5)));
+        const settlementWeights = new Array(settlementCount).fill(0)
+            .map(() => (1 + Math.random() * 1.414) * (1 + Math.random() * 1.414));
+        const totalWeight = settlementWeights.reduce((a, b) => a + b, 0);
+        const settlementSizes = settlementWeights.map(w => Math.round(this.n * w / totalWeight));
+        // This should be almost right, so if we arbitrarily correct the
+        // last size to get the total, distribution should still be fine.
+        settlementSizes[settlementSizes.length - 1] = 
+            this.n - settlementSizes.slice(0, -1).reduce((a, b) => a + b, 0);
+        // Set the property.
+        this.settlements = settlementSizes.map(n => new Settlement(this.tile, n));
+        this.settlements.sort((a, b) => b.n - a.n);
+    }
+
+    public minSettlementSize = this.tile.isRiver ? 200 : 20;
 
     public n = this.pops.reduce((a, p) => a + p.n, 0);
+    readonly settlements: Settlement[];
 
     readonly censusSeries = new TimeSeries<Census>();
     private expectedDeathRate_ = 0;
@@ -152,7 +179,7 @@ export class Population {
     }
 
     get settlementsDescription(): string {
-        return `${Math.round(this.n / this.tile.culture.baseSettlementSize)} ${this.tile.culture.baseSettlementName}`;
+        return `${this.settlements.length} ${this.settlements[0].typeName}: ${this.settlements.map(s => s.n).join(', ')}`;
     }
 
     get capacityRatio(): number {
@@ -164,11 +191,31 @@ export class Population {
         const raidingDeltas = this.pops.map(
             p => Math.round(this.tile.raidEffects.deltaPopulation * p.n / this.n));
 
+        // Update pops.
         for (const [i, pop] of this.pops.entries()) {
             pop.update(raidingDeltas[i]);
         }
+
+        // Update tile totals.
+        const originalN = this.n;
         this.n = this.pops.reduce((a, p) => a + p.n, 0);
+        const delta = this.n - originalN;
         this.lastNaturalIncrease = this.pops.reduce((a, p) => a + p.censusSeries.lastValue.naturalIncrease, 0);
+
+        // Distribute changes among the settlements proportionally to their size,
+        // but with some random jitter.
+        const settlementWeights = this.settlements
+            .map(s => Math.min(s.n / this.tile.pop.minSettlementSize, 1) - 0.5 + Math.random());
+        const totalWeight = settlementWeights.reduce((a, b) => a + b, 0);
+        const settlementDeltas = settlementWeights.map(w => Math.round(delta * w / totalWeight));
+        // This should be almost right, so if we arbitrarily correct the last delta to get the total,
+        // we should do OK.
+        settlementDeltas[settlementDeltas.length - 1] = 
+            delta - settlementDeltas.slice(0, -1).reduce((a, b) => a + b, 0);
+        // Update the settlements.
+        for (const [i, s] of this.settlements.entries()) {
+            s.n += settlementDeltas[i];
+        }
     }
 
     get complexity(): number {
