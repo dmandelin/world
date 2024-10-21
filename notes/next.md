@@ -167,7 +167,7 @@ And some bug fixes we'll need:
 - Natural increase display on front page doesn't work.
 
 The list:
-- Fix natural increase display bug
+x Fix natural increase display bug
 - Make settlements grow internally and split; show # settlements on graph
 - War vs peace internally and externally
 - Wealth bonus for elites

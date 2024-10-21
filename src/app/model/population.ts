@@ -168,6 +168,7 @@ export class Population {
             pop.update(raidingDeltas[i]);
         }
         this.n = this.pops.reduce((a, p) => a + p.n, 0);
+        this.lastNaturalIncrease = this.pops.reduce((a, p) => a + p.censusSeries.lastValue.naturalIncrease, 0);
     }
 
     get complexity(): number {
