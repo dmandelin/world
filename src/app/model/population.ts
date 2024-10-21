@@ -216,6 +216,20 @@ export class Population {
         for (const [i, s] of this.settlements.entries()) {
             s.n += settlementDeltas[i];
         }
+
+        // Once a settlement generates enough disamenities of scale, it will split.
+        const originalSettlements = [...this.settlements];
+        for (const s of originalSettlements) {
+            const appeal = 1 / Math.pow(s.n / this.tile.pop.minSettlementSize, 1.15);
+            // if appeal is low, have a probability of splitting based on how far off it is.
+            if (appeal < 0.5 && Math.random() < (0.5 - appeal)) {
+                // Split off approximately 1/3 of the settlement.
+                const newSettlement = new Settlement(
+                    this.tile, Math.round(s.n * (0.2 + Math.random() * 0.2)));
+                s.n -= newSettlement.n;
+                this.settlements.push(newSettlement);
+            }
+        }
     }
 
     get complexity(): number {
