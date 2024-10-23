@@ -10,7 +10,7 @@ import { TimeSeries } from '../data/timeseries';
 import { ReligiousSite, Temple } from './religion';
 import { RaidEffects } from './raiding';
 import { Culture, CultureGroups } from './culture';
-import { Census, Population, Roles } from './population';
+import { Population, Roles, TerritoryCensus } from './population';
 import { complexity, flourishing, freedom } from './ways';
 import { Factor, Modifier } from '../data/calc';
 import { TileProduction } from './production2';
@@ -394,15 +394,15 @@ export class Tile {
         this.religiousSite.refreshModifiers(this);
     }
 
-    get prevCensus(): Census {
+    get prevCensus(): TerritoryCensus {
         return this.pop_.censusSeries.prevValue;
     }
 
-    get census(): Census {
+    get census(): TerritoryCensus {
         return this.pop_.census;
     }
 
-    get censusSeries(): TimeSeries<Census> {
+    get censusSeries(): TimeSeries<TerritoryCensus> {
         return this.pop_.censusSeries;
     }
 }

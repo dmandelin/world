@@ -1,5 +1,6 @@
 import { TimeSeries } from "../data/timeseries";
 import { Consumption } from "./consumption";
+import { argmax } from "./lib";
 import { Priests } from "./polity";
 import { Tile } from "./tile";
 
@@ -46,7 +47,7 @@ export class Pop {
         readonly tile: Tile,
         readonly role: Role,
     ) {
-        this.censusSeries.add(tile.world.year, new Census(tile.world.year, n, 0, 0));
+        this.censusSeries.add(tile.world.year, new BasicCensus(tile.world.year, n, 0, 0));
     }
 
     readonly attitudes = new Map<Pop, Attitude>();
@@ -59,7 +60,7 @@ export class Pop {
     private targetGrowthRate_: number = 0;
     private expectedDeathRate_ = 0;
 
-    readonly censusSeries = new TimeSeries<Census>();
+    readonly censusSeries = new TimeSeries<BasicCensus>();
 
     get capacityRatio(): number {
         return this.consumption.nutrition.value / this.n;
@@ -128,7 +129,7 @@ export class Pop {
         this.expectedDeathRate_ = (this.expectedDeathRate_ + lastDeathRate) / 2;
 
         // Update census.
-        this.censusSeries.add(this.tile.world.year, new Census(
+        this.censusSeries.add(this.tile.world.year, new BasicCensus(
             this.tile.world.year,
             this.n, 
             naturalIncrease, 
@@ -168,13 +169,13 @@ export class Population {
     public n = this.pops.reduce((a, p) => a + p.n, 0);
     readonly settlements: Settlement[];
 
-    readonly censusSeries = new TimeSeries<Census>();
+    readonly censusSeries = new TimeSeries<TerritoryCensus>();
     private expectedDeathRate_ = 0;
 
     private lastNaturalIncrease: number = 0;
     private targetGrowthRate_: number = 0;
 
-    get census(): Census {
+    get census(): TerritoryCensus {
         return this.censusSeries.lastValue;
     }
 
@@ -237,24 +238,42 @@ export class Population {
     }
 
     updateTimeSeries(): void {
-        this.censusSeries.add(this.tile.world.year, new Census(
+        this.censusSeries.add(this.tile.world.year, new TerritoryCensus(
             this.tile.world.year,
             this.n, 
             this.lastNaturalIncrease, 
-            -this.tile.raidEffects.deltaPopulation));
+            -this.tile.raidEffects.deltaPopulation,
+            this.settlements));
 
         this.lastNaturalIncrease = 0;
     }
 }
 
-export class Census {
+export class BasicCensus {
     constructor(
         readonly year: number,
         readonly n: number, 
         readonly naturalIncrease: number,
-        readonly raidingLosses: number) {}
+        readonly raidingLosses: number) {
+    }
 
     get prev(): number { return this.n - this.change; }
     get change(): number { return this.naturalIncrease - this.raidingLosses; }
     get relativeChange(): number { return this.change / this.prev; }
+}
+
+export class TerritoryCensus extends BasicCensus {
+    constructor(
+        year: number,
+        n: number, 
+        naturalIncrease: number,
+        raidingLosses: number,
+        settlements: readonly Settlement[]) {
+        super(year, n, naturalIncrease, raidingLosses);
+        this.settlementCount = settlements.length;
+        this.largestSettlementSize = argmax(settlements, s => s.n)[1];
+        }
+
+    readonly settlementCount: number;
+    readonly largestSettlementSize: number;
 }

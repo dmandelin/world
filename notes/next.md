@@ -169,7 +169,8 @@ And some bug fixes we'll need:
 The list:
 x Fix natural increase display bug
 X Make settlements grow internally and split
-- show # settlements on graph
+x show # settlements on graph
+- reduce population growth: it's growing too fast
 - War vs peace internally and externally
 - Wealth bonus for elites
 - Leisure
