@@ -164,11 +164,11 @@ perhaps also to agree about in ways that before, they could not.
   will be all we need at first.
 
 And some bug fixes we'll need:
-- Natural increase display on front page doesn't work.
+x Natural increase display on front page doesn't work.
 
 The list:
 x Fix natural increase display bug
-X Make settlements grow internally and split
+x Make settlements grow internally and split
 x show # settlements on graph
 x reduce population growth: it's growing too fast
 - War vs peace internally and externally
