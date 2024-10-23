@@ -111,7 +111,9 @@ export class Pop {
             // Target overall growth rate for a population of this prosperity level.
             this.targetGrowthRate_ = (Math.min(capacityRatio, 2) - 0.7) / 0.3 * 0.014;
 
-            const birthRate = (this.expectedDeathRate_ + this.targetGrowthRate_) * this.tile.mods.popGrowth.value;
+            // People may have more children if losses due to raiding are higher, but
+            // if resources are tight, they can't increase birth rate that much.
+            const birthRate = (Math.min(this.expectedDeathRate_, this.targetGrowthRate_) + this.targetGrowthRate_) * this.tile.mods.popGrowth.value;
             const growthRate = birthRate - this.baseDeathRate;
             naturalIncrease = Math.floor(this.n * growthRate);
         }
