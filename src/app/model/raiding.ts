@@ -48,6 +48,7 @@ function resolveTileRaids(t: Tile) {
         const baseVictimPopEffect = ces(raiders, v.population)
             * (0.75 + 0.5 * Math.random())
             * t.mods.raidIntensity.value
+            * t.controller.raidIntensityFactor(v.controller)
             * raidIntensityFactorFromPeace(t, v);
         const baseRaiderPopLoss = baseVictimPopEffect * 0.1;
 

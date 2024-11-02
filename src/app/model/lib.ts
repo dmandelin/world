@@ -1,3 +1,10 @@
+export function exists<T>(a: T, message = 'Assertion failed'): NonNullable<T> {
+    if (!a) {
+        throw new Error(message);
+    }
+    return a;
+}
+
 export function clamp(x: number, a: number, b: number) {
     return Math.min(Math.max(x, a), b);
 }

@@ -2,7 +2,7 @@ import { Brain } from './agents/brains';
 import { World } from './world';
 import { cityNames } from './content';
 import { Tile } from './tile';
-import { sorted } from './lib';
+import { exists, sorted } from './lib';
 import { TimeSeries } from '../data/timeseries';
 
 // External relations
@@ -143,6 +143,11 @@ export class Polity {
                 p.relationships.set(this, r);
             }
         }
+    }
+
+    raidIntensityFactor(target: Polity): number {
+        const r = exists(this.relationships.get(target));
+        return r.atWar ? 1 : 0.5;
     }
 
     get concurrentBattleModifier(): number {
