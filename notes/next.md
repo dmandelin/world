@@ -59,10 +59,11 @@ by Xavier Gabaix:
   properties:
   - Exponential growth with nonzero variance in the growth rate
   - Growth rate distribution is independent of size
-    - Since cities generally have more artificial amenities, apparently
-      we really can only explain this if there's an inherent disamenity
-      to scale! This would also help explain why growth is more in
-      number of settlements than size at first.
+    - Cities generally have more artificial amenities. Apparently, once
+      people have moved in in response to some new amenity, we are 
+      again in a new stable state with that area not necessarily growing
+      more rapidly. Everyone who wants to be there is there.
+      - Boltzmann distributions might work for this.
     - We can also have splitting, and interestingly, if splitting is
       slower than growth, then growth will dominate and we'll see a
       Zipf distribution. But if splitting is faster than growth, which

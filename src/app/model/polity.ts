@@ -5,6 +5,34 @@ import { Tile } from './tile';
 import { sorted } from './lib';
 import { TimeSeries } from '../data/timeseries';
 
+// External relations
+//
+// To start, we need a model where pairs of polities who can raid and trade
+// can be "at war" or "at peace", those being relative terms, not absolute.
+// No need to get too far ahead of ourselves but try to point the way on:
+// - alliances
+// - other aspects of relations such as tribute or enhanced trade arrangements
+//
+// Start with a traditional data design exercise:
+// - "Relationship" as a new relation connecting pairs of polities
+//   - Exists only if they're in contact, at first via adjacency
+//   - war/peace status, many options how to model that
+// - What behaviors attach?
+//   - war = +raiding activity, +transaction costs
+//   - also need to add certain raid effects for this to work:
+//     - more resource gain
+//     - more disruption to target as people spend more on security
+// - How to attach the behaviors?
+//   - already have a raiding intensity factor somewhere, start there
+//   - transaction costs could be a base factor or calculated from
+//     raid activity. The latter sounds like more work but is probably
+//     the right way to go.
+// - But also need internal war/peace status
+//   - easiest way to do this is to have tiles raid themselves
+//   - it seems weird to have a polity have a relationship with itself,
+//     but all the effects seems much the same, so maybe that's the way
+//     to go.
+
 export abstract class PoliticalActor {
     constructor(readonly polity: Polity) {}
 
