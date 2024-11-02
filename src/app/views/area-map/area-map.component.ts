@@ -6,6 +6,7 @@ import { Tile } from '../../model/tile';
 import { Barley, Lentils, Dairy } from '../../model/production';
 import { World } from '../../model/world';
 import { argmax, clamp, sorted } from '../../model/lib';
+import { mean } from '../../data/geo';
 
 @Component({
   selector: 'area-map',
@@ -136,26 +137,17 @@ export class AreaMapComponent implements AfterViewInit, OnDestroy {
       y += this.side;
     }
 
-    // Draw battles.
-    for (const [attacker, target] of this.world.lastAttacks) {
+    // Draw wars.
+    for (const p of this.world.polities) {
+      // We'll generally double-draw them, but that's fine.
       ctx.strokeStyle = 'red';
       ctx.fillStyle = 'red';
-
-      let [x0, y0] = this.loc(this.tileOf(attacker));
-      let [x1, y1] = this.loc(this.tileOf(target));
-      let [dx, dy] = [x1 - x0, y1 - y0];
-      let ds = Math.sqrt(dx * dx + dy * dy);
-      let [xd, yd] = [dx / ds, dy / ds];
-      
-      x0 += xd * 20;
-      y0 += yd * 20;
-
-      ctx.beginPath();
-      ctx.moveTo(x0, y0);
-      ctx.lineTo(x1, y1);
-      ctx.stroke();
-
-      ctx.fillText('💥', x1 - 6, y1 + 3);
+      for (const [n, r] of p.relationships.entries()) {
+        if (r.atWar) {
+          const [x, y] = mean(this.loc(this.tileOf(p)), this.loc(this.tileOf(n)));
+          this.drawTextCenteredOnPoint(ctx, '💥', x, y);
+        }
+      }
     }
   }
 
@@ -243,9 +235,14 @@ export class AreaMapComponent implements AfterViewInit, OnDestroy {
     ctx.strokeRect(x - s / 2, y - s / 2, s, s);
   }
 
+  private drawTextCenteredOnPoint(ctx: CanvasRenderingContext2D, text: string, x: number, y: number) {
+    const textMetrics = ctx.measureText(text);
+    ctx.fillText(text, x - textMetrics.width / 2, y + 3);
+  }
+  
   private drawTextCentered(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number) {
-    const textWidth = ctx.measureText(text).width;
-    ctx.fillText(text, x + (width - textWidth) / 2, y);
+    const textMetrics = ctx.measureText(text);
+    ctx.fillText(text, x + width / 2 - textMetrics.width / 2, y);
   }
 
   private drawTextRightAligned(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, width: number) {

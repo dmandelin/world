@@ -72,10 +72,19 @@ export class Priests extends PoliticalActor {
     }
 }
 
+export class Relationship {
+    constructor(readonly a: Polity, readonly b: Polity) {}
+
+    atWar = true;
+}
+
 export class Polity {
     private brain_: Brain;
 
-    actors = [new Chiefs(this), new Priests(this)];
+    readonly actors = [new Chiefs(this), new Priests(this)];
+    readonly relationships = new Map<Polity, Relationship>([
+        [this, new Relationship(this, this)]
+    ]);
 
     vassals = new Set<Polity>();
     suzerain: Polity|undefined = undefined;
@@ -110,6 +119,30 @@ export class Polity {
             }
         }
         throw new Error(`No home tile for ${this.name}`)
+    }
+
+    updateRelationships() {
+        // For now, internal peace, which gives at least a peace/war
+        // contrast.
+        this.relationships.get(this)!.atWar = false;
+
+        // Prune relationships with anyone we've lost contact with.
+        const neighbors = this.neighbors;
+        for (const p of this.relationships.keys()) {
+            if (p !== this && !neighbors.includes(p)) {
+                this.relationships.delete(p);
+                p.relationships.delete(this);
+            }
+        }
+
+        // Make sure we have a relationship with all our neighbors.
+        for (const p of neighbors) {
+            if (!this.relationships.has(p)) {
+                const r = new Relationship(this, p);
+                this.relationships.set(p, r);
+                p.relationships.set(this, r);
+            }
+        }
     }
 
     get concurrentBattleModifier(): number {

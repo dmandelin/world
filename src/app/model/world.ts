@@ -178,8 +178,6 @@ export class World {
 
     readonly log = new WorldLog();
 
-    lastAttacks = new Set<[Polity, Polity]>();
-
     private watchers_: Set<Function> = new Set<Function>();
     private locallyControlledPolities = new Set<string>(['E']);
 
@@ -260,6 +258,7 @@ export class World {
         this.forTiles(t => t.updateTransfers());
 
         this.forTiles(t => t.initializeAttitudes());
+        this.forPolities(p => p.updateRelationships());
 
         this.recordRanks();
 
@@ -273,12 +272,15 @@ export class World {
     advanceTurn() {
         this.log.turnlogClear();
 
+        // Production and trade.
         this.forTiles(t => t.updateClimate());
         this.forTiles(t => t.updateProduction());
         this.forTiles(t => t.market.update());
         this.forTiles(t => t.updateTransfers());
 
+        // Relations.
         this.forTiles(t => t.updateAttitudes());
+        this.forPolities(p => p.updateRelationships());
 
         // Raiding.
         resolveRaids(this);
@@ -395,6 +397,12 @@ export class World {
             if (b.name < a.name) return 1;
             return 0;
         })
+    }
+
+    forPolities(f: (p: Polity) => any) {
+        for (const p of this.polities) {
+            f(p);
+        }
     }
 
     forTiles(f: (t: Tile) => any) {
