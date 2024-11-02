@@ -192,7 +192,7 @@ export class Population {
     update(): void {
         // Distribute raiding losses.
         const raidingDeltas = this.pops.map(
-            p => Math.round(this.tile.raidEffects.deltaPopulation * p.n / this.n));
+            p => Math.round(this.tile.raids.deltaPopulation * p.n / this.n));
 
         // Update pops.
         for (const [i, pop] of this.pops.entries()) {
@@ -244,7 +244,7 @@ export class Population {
             this.tile.world.year,
             this.n, 
             this.lastNaturalIncrease, 
-            -this.tile.raidEffects.deltaPopulation,
+            -this.tile.raids.deltaPopulation,
             this.settlements));
 
         this.lastNaturalIncrease = 0;

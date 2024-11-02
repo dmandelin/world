@@ -8,13 +8,13 @@ import { ProductionTech, TechKit } from './tech';
 import { mapmax, mapmin, randelem, randint, sum } from './lib';
 import { TimeSeries } from '../data/timeseries';
 import { ReligiousSite, Temple } from './religion';
-import { RaidEffects } from './raiding';
 import { Culture, CultureGroups } from './culture';
 import { Population, Roles, TerritoryCensus } from './population';
 import { complexity, flourishing, freedom } from './ways';
 import { Factor, Modifier } from '../data/calc';
 import { TileProduction } from './production2';
 import { randomTileClimateFactor } from './climate';
+import { TileRaidActivity } from './raiding';
 
 export class TileModifiers {
     // Population growth factor.
@@ -59,7 +59,7 @@ export class Tile {
     readonly prod: TileProduction;
     readonly market: Market = new Market(this);
 
-    raidEffects = new RaidEffects();
+    readonly raids = new TileRaidActivity(this);
 
     readonly mods = new TileModifiers();
     climateFactor = 1.0;

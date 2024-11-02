@@ -44,7 +44,7 @@ export function flourishing(pop: Pop): number {
 }
 
 function raidDiscountFactor(t: Tile): number {
-    const rl = t.raidEffects.deltaPopulation / t.pop.n;
+    const rl = t.raids.deltaPopulation / t.pop.n;
     return -4 * rl * rl + 5 * rl;
 }
 

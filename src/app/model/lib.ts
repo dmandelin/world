@@ -5,6 +5,12 @@ export function exists<T>(a: T, message = 'Assertion failed'): NonNullable<T> {
     return a;
 }
 
+export function assert(condition: any, message = 'Assertion failed'): asserts condition {
+    if (!condition) {
+        throw new Error(message);
+    }
+}
+
 export function clamp(x: number, a: number, b: number) {
     return Math.min(Math.max(x, a), b);
 }

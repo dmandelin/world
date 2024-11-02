@@ -29,16 +29,65 @@
 //       - Larger tile raiding smaller:
 //         - Could have significantly more effect
 
+import { assert } from "./lib";
 import { ReligiousTraits } from "./religion";
 import { Tile } from "./tile";
 import { World } from "./world";
 
-export class RaidEffects {
-    deltaPopulation = 0;
+export class TileRaidActivity {
+    constructor(readonly tile: Tile) {}
+
+    readonly outgoing: Map<Tile, TileRaidResult> = new Map();
+    readonly incoming: Map<Tile, TileRaidResult> = new Map();
+
+    reset() {
+        this.outgoing.clear();
+        this.incoming.clear();
+    }
+
+    addOutgoing(raid: TileRaidResult) {
+        assert(raid.raider === this.tile);
+        this.outgoing.set(raid.victim, raid);
+        raid.victim.raids.incoming.set(raid.raider, raid);
+    }
+
+    get deltaPopulation(): number {
+        let delta = 0;
+        for (const rr of this.outgoing.values()) {
+            delta += rr.props.raiderPopGain + rr.props.raiderPopLoss;
+        }
+        for (const rr of this.incoming.values()) {
+            delta += rr.props.victimPopLoss;
+        }
+        return delta;
+    }
+}
+
+type TileRaidResultProperties = {
+    // All changes are in deltas applied to the subject.
+    raiderPopGain: number;
+    raiderPopLoss: number;
+    victimPopLoss: number;
+}
+
+export class TileRaidResult {
+    constructor(
+        readonly raider: Tile, 
+        readonly victim: Tile,
+        readonly props: TileRaidResultProperties,
+        ) {
+            assert(Number.isInteger(props.raiderPopGain));
+            assert(Number.isInteger(props.raiderPopLoss));
+            assert(Number.isInteger(props.victimPopLoss));
+
+            assert(props.raiderPopGain >= 0);
+            assert(props.raiderPopLoss <= 0);
+            assert(props.victimPopLoss <= 0);
+    }
 }
 
 export function resolveRaids(world: World) {
-    world.forTiles(t => t.raidEffects = new RaidEffects())
+    world.forTiles(t => t.raids.reset())
     world.forTiles(t => resolveTileRaids(t));
 }
 
@@ -57,8 +106,13 @@ function resolveTileRaids(t: Tile) {
         const raiderPopGain = victimPopEffect * 0.2 * t.mods.raidCapture.value;
         const raiderPopLoss = baseRaiderPopLoss;
 
-        v.raidEffects.deltaPopulation -= Math.floor(victimPopEffect);
-        t.raidEffects.deltaPopulation += Math.floor(raiderPopGain - raiderPopLoss);
+        const result = new TileRaidResult(t, v, {
+            raiderPopGain: Math.round(raiderPopGain),
+            raiderPopLoss: Math.round(-raiderPopLoss),
+            victimPopLoss: Math.round(-victimPopEffect),
+        });
+
+        t.raids.addOutgoing(result);
         // TODO - production/goods effects;
     }
 }

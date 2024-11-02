@@ -10,7 +10,7 @@ import { TilePanelBase } from '../tile-panel-base';
 })
 export class TileMilitaryPanelComponent extends TilePanelBase {
   get populationEffect() {
-    const e = this.tile?.raidEffects.deltaPopulation ?? 0;
+    const e = this.tile?.raids.deltaPopulation ?? 0;
     switch (true) {
       case e === 0:
         return '';
