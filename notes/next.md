@@ -181,6 +181,8 @@ x reduce population growth: it's growing too fast
   - gifts
   - status goods/specialists
   - temples
+- Followups for above items
+  - better math and totals display for raiding
 
 After that, we can think more about how to make more lasting peace and how
 to get settlements to grow beyond village level.

@@ -2,3 +2,34 @@
 <h3>Seasonal raiding</h3>
 
 <div>{{populationEffect}}</div>
+
+<table>
+    <tr>
+        <th></th>
+        <th colspan="3">Attacking</th>
+        <th colspan="3">Defending</th>
+        <th colspan="2">Totals</th>
+    </tr>
+    <tr>
+        <th>Vs</th>
+        <th class="ra">C</th>
+        <th class="ra">L</th>
+        <th class="ra">EL</th>
+        <th class="ra">C</th>
+        <th class="ra">L</th>
+        <th class="ra">EL</th>
+        <th class="ra">Us</th>
+        <th class="ra">Them</th>
+    </tr>
+    <tr *ngFor="let pr of pairedRaids">
+        <td>{{pr[0].victim.name}}</td>
+        <td class="ra">{{pr[0].props.raiderPopGain}}</td>
+        <td class="ra">{{pr[0].props.raiderPopLoss}}</td>
+        <td class="ra">{{pr[0].props.victimPopLoss}}</td>
+        <td class="ra">{{pr[1].props.raiderPopGain}}</td>
+        <td class="ra">{{pr[1].props.raiderPopLoss}}</td>
+        <td class="ra">{{pr[1].props.victimPopLoss}}</td>
+        <td class="ra">{{pr[0].props.raiderPopGain + pr[0].props.raiderPopLoss + pr[1].props.victimPopLoss}}</td>
+        <td class="ra">{{pr[1].props.raiderPopGain + pr[1].props.raiderPopLoss + pr[0].props.victimPopLoss}}</td>
+    </tr>
+</table>

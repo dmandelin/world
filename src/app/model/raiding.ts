@@ -45,6 +45,26 @@ export class TileRaidActivity {
         this.incoming.clear();
     }
 
+    get allRaids(): Iterable<TileRaidResult> {
+        return [...this.outgoing.values(), ...this.incoming.values()];
+    }
+
+    get pairedRaids(): Iterable<[TileRaidResult, TileRaidResult]> {
+        const paired: [TileRaidResult, TileRaidResult][] = [];
+        for (const raid of this.outgoing.values()) {
+            const existingDual = raid.victim.raids.outgoing.get(raid.raider);
+            const dual = existingDual && existingDual.raider != this.tile
+                ? existingDual
+                : TileRaidResult.empty(raid.victim, raid.raider);
+            paired.push([raid, dual]);
+        }
+        for (const raid of this.incoming.values()) {
+            const dual = raid.raider.raids.incoming.get(raid.victim);
+            if (!dual) paired.push([TileRaidResult.empty(raid.victim, raid.raider), raid]);
+        }
+        return paired;
+    }
+
     addOutgoing(raid: TileRaidResult) {
         assert(raid.raider === this.tile);
         this.outgoing.set(raid.victim, raid);
@@ -83,6 +103,14 @@ export class TileRaidResult {
             assert(props.raiderPopGain >= 0);
             assert(props.raiderPopLoss <= 0);
             assert(props.victimPopLoss <= 0);
+    }
+
+    static empty(raider: Tile, victim: Tile): TileRaidResult {
+        return new TileRaidResult(raider, victim, {
+            raiderPopGain: 0,
+            raiderPopLoss: 0,
+            victimPopLoss: 0,
+        });
     }
 }
 
