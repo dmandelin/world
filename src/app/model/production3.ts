@@ -30,10 +30,10 @@ export class TileEconomy {
         // existing process. Allocate land proportional to people.
         const acresAvailable = Tile.acres * this.tile.wetFraction;
 
+        const totalWorkers = this.tile.pop.workers;
         for (const pop of this.tile.pop.pops) {
-            const workersAndDependents = pop.n;
-            const acres = Math.floor(acresAvailable * workersAndDependents / this.tile.pop.n);
-            const workers = Math.round(0.25 * workersAndDependents);
+            const workers = pop.workers;
+            const acres = Math.floor(acresAvailable * workers / totalWorkers);
             const p = new AgriculturalProcess(this.tile, {
                 name: 'Barley farming',
                 terrain: Alluvium,
@@ -51,6 +51,10 @@ export class TileEconomy {
         for (const p of this.processes) {
             p.update();
         }
+    }
+
+    get unemployed() {
+        return this.tile.pop.workers - sum([...this.processes.map(p => sum([...p.workers.values()]))]);
     }
 }
 

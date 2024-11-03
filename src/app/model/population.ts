@@ -62,6 +62,10 @@ export class Pop {
 
     readonly censusSeries = new TimeSeries<BasicCensus>();
 
+    get workers(): number {
+        return Math.ceil(0.2 * this.n);
+    }
+
     get capacityRatio(): number {
         return this.consumption.nutrition.value / this.n;
     }
@@ -176,6 +180,10 @@ export class Population {
 
     private lastNaturalIncrease: number = 0;
     private targetGrowthRate_: number = 0;
+
+    get workers(): number {
+        return this.pops.reduce((a, p) => a + p.workers, 0);
+    }
 
     get census(): TerritoryCensus {
         return this.censusSeries.lastValue;
