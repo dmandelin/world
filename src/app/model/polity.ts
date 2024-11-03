@@ -76,6 +76,10 @@ export class Relationship {
     constructor(readonly a: Polity, readonly b: Polity) {}
 
     atWar = true;
+
+    other(p: Polity): Polity {
+        return p === this.a ? this.b : this.a;
+    }
 }
 
 export class Polity {
@@ -119,6 +123,17 @@ export class Polity {
             }
         }
         throw new Error(`No home tile for ${this.name}`)
+    }
+
+    initializeRelationships() {
+        this.updateRelationships();
+        for (const r of this.relationships.values()) {
+            if (this.home.i >= 3 && this.home.j < 3) {
+                r.atWar = false;
+            } else if ((this.home.i >= 3 || this.home.j < 3) && this.home.i % 2 === 0 && r.other(this).home.i > this.home.i) {
+                r.atWar = false;
+            }
+        }
     }
 
     updateRelationships() {

@@ -172,7 +172,7 @@ x Fix natural increase display bug
 x Make settlements grow internally and split
 x show # settlements on graph
 x reduce population growth: it's growing too fast
-- War vs peace internally and externally
+x War vs peace internally and externally
 - Wealth bonus for elites
 - Leisure
 - Status avenues for elites:

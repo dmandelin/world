@@ -258,7 +258,7 @@ export class World {
         this.forTiles(t => t.updateTransfers());
 
         this.forTiles(t => t.initializeAttitudes());
-        this.forPolities(p => p.updateRelationships());
+        this.forPolities(p => p.initializeRelationships());
 
         this.recordRanks();
 
