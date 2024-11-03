@@ -24,6 +24,7 @@ export class TileEconomy {
     constructor(readonly tile: Tile) {}
 
     readonly processes: Process[] = [];
+    unemployed: number = 0;
 
     initializeAllocations() {
         // Initially allocate all available land and people to the one
@@ -43,18 +44,19 @@ export class TileEconomy {
             });
             this.processes.push(p);
             p.workers.set(pop, workers);
-            p.acres += acres;
+            p.acres = acres;
         }
     }
 
     update() {
+        this.processes.splice(0, this.processes.length);
+        this.initializeAllocations();
+
         for (const p of this.processes) {
             p.update();
         }
-    }
 
-    get unemployed() {
-        return this.tile.pop.workers - sum([...this.processes.map(p => sum([...p.workers.values()]))]);
+        this.unemployed = this.tile.pop.workers - sum([...this.processes.map(p => sum([...p.workers.values()]))]);
     }
 }
 
