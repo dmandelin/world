@@ -9,6 +9,10 @@
         <th colspan="2">Land</th>
         <th>Mods</th>
         <th colspan="2">Output</th>
+        <th class="ra">APK</th>
+        <th class="ra">MPK</th>
+        <th class="ra">APL</th>
+        <th class="ra">MPL</th>
     </tr>
     <tr *ngFor="let p of processTable">
         <td>{{p.name}}</td>
@@ -16,9 +20,13 @@
         <td>{{p.workerName}}</td>
         <td class="ra">{{p.terrainAcres}}</td>
         <td>{{p.terrainName}}</td>
-        <td class="ra">{{spercent(p.outputFactor.value)}}</td>
+        <td class="ra">{{spercent(p.outputDetails.mods.value)}}</td>
         <td class="ra">{{p.output}}</td>
         <td>{{p.outputName}}</td>
+        <td class="ra">{{p.outputDetails.apk.toFixed(2)}}</td>
+        <td class="ra">{{p.outputDetails.mpk.toFixed(2)}}</td>
+        <td class="ra">{{p.outputDetails.apl.toFixed(2)}}</td>
+        <td class="ra">{{p.outputDetails.mpl.toFixed(2)}}</td>
     </tr>
 </table>
 

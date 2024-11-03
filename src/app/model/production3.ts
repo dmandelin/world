@@ -11,12 +11,14 @@
 
 // Step 1: Initially allocate everyone to barley, see what happens.
 
+import { Output } from "@angular/core";
 import { Factor } from "../data/calc";
-import { CESProductionExpOneHalf } from "../data/ces";
+import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { sum } from "./lib";
 import { Pop } from "./population";
 import { Alluvium, Barley, Product, Terrain } from "./production";
 import { Tile } from "./tile";
+import { marginalNutrition } from "./utility";
 
 export class TileEconomy {
     constructor(readonly tile: Tile) {}
@@ -41,7 +43,7 @@ export class TileEconomy {
             });
             this.processes.push(p);
             p.workers.set(pop, workers);
-            p.terrainAcres += acres;
+            p.acres += acres;
         }
     }
 
@@ -65,14 +67,13 @@ export class Process {
     // Type of terrain in use, if any.
     readonly terrain: Terrain | undefined = undefined;
     // Acres of terrain in use, if any.
-    terrainAcres = 0;
+    acres = 0;
 
     // Products being produced.
     readonly products = new Map<Product, number>();
 
-    // # Output report details.
-    // Output modifier factor.
-    outputFactor: Factor = new Factor();
+    // Output report details.
+    outputDetails: OutputDetails = new OutputDetails();
 
     constructor(name: string, tile: Tile, terrain: Terrain) {
         this.name = name;
@@ -82,6 +83,20 @@ export class Process {
 
     update() {}
 }
+
+class OutputDetails {
+    constructor(values?: Pick<OutputDetails, keyof OutputDetails>) {
+        if (values) Object.assign(this, values);
+    }
+
+    mods: Factor = new Factor(1);
+
+    apk: number = 0;
+    mpk: number = 0;
+
+    apl: number = 0;
+    mpl: number = 0;
+};
 
 class AgriculturalProcessTraits {
     constructor(
@@ -100,15 +115,28 @@ export class AgriculturalProcess extends Process {
 
     override update() {
         // Update modifiers.
-        this.outputFactor = this.tile.outputFactor(this.traits.product);
-        const modifiedBaseOutput = this.traits.baseOutput * this.outputFactor.value;
+        const mods = this.tile.outputFactor(this.traits.product);
+        const modifiedBaseOutput = this.traits.baseOutput * mods.value;
         
         // Update output.
+        const workers = sum([...this.workers.values()]);
         const output = CESProductionExpOneHalf(
             0.6, 0.4, this.traits.baseAcresPerWorker, modifiedBaseOutput, 
-            sum([...this.workers.values()]), 
-            this.terrainAcres);
+            workers, 
+            this.acres);
         const intOutput = Math.floor(output);
         this.products.set(this.traits.product, intOutput);
+
+        // Update output details.
+        const mpk =  CESMPLandExpOneHalf(
+            0.6, 0.4, this.traits.baseAcresPerWorker, modifiedBaseOutput, workers, this.acres)
+        this.outputDetails = new OutputDetails({
+            mods,
+            apk: output / this.acres,
+            mpk,
+            apl: output / workers,
+            mpl: CESMPLaborExpOneHalf(
+                0.6, 0.4, this.traits.baseAcresPerWorker, modifiedBaseOutput, workers, this.acres)
+        });
     }
 }

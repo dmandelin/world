@@ -20,9 +20,9 @@ export class TileEconomyPanelComponent extends TilePanelBase {
       name: p.name,
       workers: sum([...p.workers.values()]),
       workerName: [...p.workers.keys()].map(pop => pop.role.name).join(', '),
-      terrainAcres: p.terrainAcres,
+      terrainAcres: p.acres,
       terrainName: p.terrain?.name ?? '-',
-      outputFactor: p.outputFactor,
+      outputDetails: p.outputDetails,
       output: sum([...p.products.values()]),
       outputName: [...p.products.keys()].map(prod => prod.name).join(', '),
     }));
