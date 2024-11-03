@@ -16,7 +16,7 @@ import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { sum } from "./lib";
 import { Pop, Roles } from "./population";
-import { Alluvium, Barley, Product, Terrain } from "./production";
+import { Alluvium, Barley, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
 import { marginalNutrition } from "./utility";
 
@@ -27,24 +27,41 @@ export class TileEconomy {
     unemployed: number = 0;
 
     initializeAllocations() {
-        // Initially allocate all available land and people to the one
-        // existing process. Allocate land proportional to people.
+        // Initially allocate all available land and people to the few
+        // existing processes. Allocate land proportional to people.
         const acresAvailable = Tile.acres * this.tile.wetFraction;
 
         const totalWorkers = this.tile.pop.workers;
         for (const pop of this.tile.pop.pops) {
             const workers = pop.workers;
             const acres = Math.floor(acresAvailable * workers / totalWorkers);
-            const p = new AgriculturalProcess(this.tile, {
+
+            const barleyAcres = Math.floor(acres * 0.8);
+            const barleyWorkers = Math.floor(workers * 0.8);
+            const lentilsAcres = acres - barleyAcres;
+            const lentilsWorkers = workers - barleyWorkers;
+
+            const pb = new AgriculturalProcess(this.tile, {
                 name: 'Barley farming',
                 terrain: Alluvium,
                 product: Barley,
                 baseAcresPerWorker: 10,
                 baseOutput: 5,
             });
-            this.processes.push(p);
-            p.workers.set(pop, workers);
-            p.acres = acres;
+            this.processes.push(pb);
+            pb.workers.set(pop, barleyWorkers);
+            pb.acres = barleyAcres;
+
+            const pl = new AgriculturalProcess(this.tile, {
+                name: 'Lentil farming',
+                terrain: Alluvium,
+                product: Lentils,
+                baseAcresPerWorker: 7,
+                baseOutput: 2.5,
+            });
+            this.processes.push(pl);
+            pl.workers.set(pop, lentilsWorkers);
+            pl.acres = lentilsAcres;
         }
     }
 
