@@ -15,7 +15,7 @@ import { Output } from "@angular/core";
 import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { sum } from "./lib";
-import { Pop } from "./population";
+import { Pop, Roles } from "./population";
 import { Alluvium, Barley, Product, Terrain } from "./production";
 import { Tile } from "./tile";
 import { marginalNutrition } from "./utility";
@@ -115,7 +115,10 @@ export class AgriculturalProcess extends Process {
 
     override update() {
         // Update modifiers.
-        const mods = this.tile.outputFactor(this.traits.product);
+        const mods = this.tile.outputFactor(this.traits.product).clone();
+        if ([...this.workers.keys()].every(pop => pop.role === Roles.EminentFamilies)) {
+            mods.apply('Eminent Families', 2);
+        }
         const modifiedBaseOutput = this.traits.baseOutput * mods.value;
         
         // Update output.

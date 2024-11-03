@@ -15,6 +15,14 @@ export class Factor extends Modifier {
 
     public get rel() { return this.value_ - 1; }
 
+    clone() {
+        const f = new Factor(this.value_);
+        for (const [source, value] of this.sourceMap_) {
+            f.sourceMap_.set(source, value);
+        }
+        return f;
+    }
+
     apply(source: string, baseValue: number, downscaleFactor: number = 1) {
         const newValue = downscaleFactor < 1 
             ? 1 + (baseValue - 1) * downscaleFactor
