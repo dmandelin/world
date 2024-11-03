@@ -252,6 +252,9 @@ export class World {
 
     start() {
         this.forTiles(t => t.updateClimate());
+
+        this.forTiles(t => t.economy.initializeAllocations());
+
         this.forTiles(t => t.prod.initAllocs());
         this.forTiles(t => t.updateProduction());
         this.forTiles(t => t.market.update());

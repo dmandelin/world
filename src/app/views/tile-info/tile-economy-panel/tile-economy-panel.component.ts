@@ -13,6 +13,12 @@ import { Pop } from '../../../model/population';
   styleUrl: './tile-economy-panel.component.scss'
 })
 export class TileEconomyPanelComponent extends TilePanelBase {
+  get processTable() {
+    if (!this.tile) return [];
+    return this.tile.economy.processes.map(p => ({
+      name: p.name,
+    }));
+  }
 
   readonly products = Products;
   readonly terrainTypes = AllTerrainTypes;

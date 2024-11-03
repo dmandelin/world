@@ -6,7 +6,7 @@ import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrai
 import { Tile } from "./tile";
 import { marginalNutrition, Nutrition, nutrition } from "./utility";
 
-class Pool<P extends Process> {
+class Pool<P extends Process2> {
     readonly allocs: Map<P, number>;
 
     constructor(readonly tile: Tile, readonly processes: P[], initialProcess: P) {
@@ -21,8 +21,8 @@ class Pool<P extends Process> {
     }
 }
 
-class LaborPool extends Pool<Process> {
-    constructor(readonly pop: Pop, processes: Process[]) {
+class LaborPool extends Pool<Process2> {
+    constructor(readonly pop: Pop, processes: Process2[]) {
         super(
             pop.tile, 
             processes.filter(p => p.canBeWorkedBy(pop)), 
@@ -46,7 +46,7 @@ class LaborPool extends Pool<Process> {
         }
     }
 
-    realloc(p0: Process, p1: Process, fraction: number) {
+    realloc(p0: Process2, p1: Process2, fraction: number) {
         const f0 = this.allocs.get(p0)!;
         const f1 = this.allocs.get(p1)!;
         if (f0 < fraction) return;
@@ -59,8 +59,8 @@ class LaborPool extends Pool<Process> {
     }
 }
 
-class LandPool extends Pool<LandProcess> {
-    constructor(tile: Tile, readonly terrain: Terrain, processes: LandProcess[], initialProcess: LandProcess) {
+class LandPool extends Pool<LandProcess2> {
+    constructor(tile: Tile, readonly terrain: Terrain, processes: LandProcess2[], initialProcess: LandProcess2) {
         super(tile, processes.filter(p => p.canUse(terrain)), initialProcess);
     }
 
@@ -77,7 +77,7 @@ class LandPool extends Pool<LandProcess> {
         }
     }    
 
-    realloc(p0: LandProcess, p1: LandProcess, fraction: number) {
+    realloc(p0: LandProcess2, p1: LandProcess2, fraction: number) {
         const f0 = this.allocs.get(p0)!;
         const f1 = this.allocs.get(p1)!;
         if (f0 < fraction) return;
@@ -90,7 +90,7 @@ class LandPool extends Pool<LandProcess> {
     }
 }
 
-abstract class Process {
+abstract class Process2 {
     abstract get name(): string;
 
     // Number of people working on this process.
@@ -129,7 +129,7 @@ abstract class Process {
     mul(consumption: Map<Product, number>) { return 0; }
 }
 
-abstract class LandProcess extends Process {
+abstract class LandProcess2 extends Process2 {
     acres = 0;
 
     override canUse(terrain: Terrain) { return true; }
@@ -137,7 +137,7 @@ abstract class LandProcess extends Process {
     override get acresDisplay() { return this.acres.toFixed(0); }
 }
 
-class LandUseProcess extends LandProcess {
+class LandUseProcess extends LandProcess2 {
     constructor(
         readonly tile: Tile,
         readonly terrain: Terrain, 
@@ -199,19 +199,19 @@ class LandUseProcess extends LandProcess {
     override get productDisplay() { return this.product.name; }
 }
 
-class ConstructionProcess extends Process {
+class ConstructionProcess extends Process2 {
     get name() { return 'Construction'; }
     override get productDisplay() { return 'Construction'; }
 }
 
-class RitualProcess extends Process {
+class RitualProcess extends Process2 {
     get name() { return 'Rituals'; }
     override get productDisplay() { return 'Rituals'; }
 
     override canBeWorkedBy(pop: Pop) { return pop.role === Roles.Priests; }
 }
 
-class LeisureProcess extends Process {
+class LeisureProcess extends Process2 {
     constructor(readonly role: Role) {
         super();
     }
@@ -222,7 +222,7 @@ class LeisureProcess extends Process {
     override get productDisplay() { return 'Leisure'; }
 }
 
-class FallowProcess extends LandProcess {
+class FallowProcess extends LandProcess2 {
     get name() { return 'Fallow'; }
     override get outputDisplay() { return ''; }
     override get productDisplay() { return 'Fallow'; }

@@ -15,6 +15,7 @@ import { Factor, Modifier } from '../data/calc';
 import { TileProduction } from './production2';
 import { randomTileClimateFactor } from './climate';
 import { TileRaidActivity } from './raiding';
+import { TileEconomy } from './production3';
 
 export class TileModifiers {
     // Population growth factor.
@@ -56,6 +57,7 @@ export class Tile {
 
     readonly techKit: TechKit = new TechKit();
 
+    readonly economy = new TileEconomy(this);
     readonly prod: TileProduction;
     readonly market: Market = new Market(this);
 
