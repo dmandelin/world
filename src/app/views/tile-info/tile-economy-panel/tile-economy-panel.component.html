@@ -5,9 +5,20 @@
 <table>
     <tr>
         <th class="la">Name</th>
+        <th colspan="2">Workers</th>
+        <th colspan="2">Land</th>
+        <th>Mods</th>
+        <th colspan="2">Output</th>
     </tr>
     <tr *ngFor="let p of processTable">
         <td>{{p.name}}</td>
+        <td class="ra">{{p.workers}}</td>
+        <td>{{p.workerName}}</td>
+        <td class="ra">{{p.terrainAcres}}</td>
+        <td>{{p.terrainName}}</td>
+        <td class="ra">{{spercent(p.outputFactor.value)}}</td>
+        <td class="ra">{{p.output}}</td>
+        <td>{{p.outputName}}</td>
     </tr>
 </table>
 

@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
 import { AllTerrainTypes, Products  } from '../../../model/production';
 import { TilePanelBase } from '../tile-panel-base';
 import { marginalNutrition } from '../../../model/utility';
 import { Pop } from '../../../model/population';
+import { sum } from '../../../model/lib';
 
 @Component({
   selector: 'app-tile-economy-panel',
@@ -17,6 +18,13 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     if (!this.tile) return [];
     return this.tile.economy.processes.map(p => ({
       name: p.name,
+      workers: sum([...p.workers.values()]),
+      workerName: [...p.workers.keys()].map(pop => pop.role.name).join(', '),
+      terrainAcres: p.terrainAcres,
+      terrainName: p.terrain?.name ?? '-',
+      outputFactor: p.outputFactor,
+      output: sum([...p.products.values()]),
+      outputName: [...p.products.keys()].map(prod => prod.name).join(', '),
     }));
   }
 
