@@ -43,11 +43,17 @@
     <tr>
         <th colspan="2">People</th>
         <th class="ra" *ngFor="let p of productColumns">{{p.name}}</th>
+        <th>Total</th>
+        <th>Quality</th>
+        <th>Value</th>
     </tr>
     <tr *ngFor="let pop of consumptionTable">
         <td class="ra">{{pop.n}}</td>
         <td>{{pop.name}}</td>
         <td class="ra" *ngFor="let p of pop.products">{{p.amount}}</td>
+        <td class="ra">{{pop.nutrition.quantity}}</td>
+        <td class="ra">{{percent(pop.nutrition.quality)}}</td>
+        <td class="ra">{{pop.nutrition.value}}</td>
     </tr>
 </table>
 

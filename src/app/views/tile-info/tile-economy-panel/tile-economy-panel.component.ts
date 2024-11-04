@@ -40,7 +40,8 @@ export class TileEconomyPanelComponent extends TilePanelBase {
       products: this.productColumns.map(p => ({
         name: p.name,
         amount: pop.consumption.totals.get(p) ?? 0,
-      }))
+      })),
+      nutrition: pop.consumption.nutrition,
     }));
   }
 

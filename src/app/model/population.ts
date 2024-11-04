@@ -69,7 +69,7 @@ export class Pop {
     }
 
     get capacityRatio(): number {
-        return this.consumption2.nutrition.value / this.n;
+        return this.consumption.nutrition.value / this.n;
     }
 
     setTransfer(target: Pop, fraction: number): void {
