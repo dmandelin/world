@@ -4,6 +4,7 @@ import {NAMED_DEFAULT_POLITIES, Polity} from "./polity";
 import {Tile} from "./tile";
 import {randelem, randint} from "./lib";
 import { resolveRaids } from "./raiding";
+import { Pop } from "./population";
 
 // Next steps:
 // - Economics
@@ -251,8 +252,15 @@ export class World {
     }
 
     updateEconomies() {
+        // Update production.
         this.forTiles(t => t.economy.update());
+
+        // Apply production as consumption.
+        this.forPops(p => p.consumption.clearProduction());
         this.forTiles(t => t.economy.apply());
+
+        // Compute additional statistics.
+        this.forTiles(t => t.economy.postUpdate());
     }
 
     start() {
@@ -420,6 +428,14 @@ export class World {
     forTiles(f: (t: Tile) => any) {
         for (const t of this.map.tiles.flat()) {
             f(t);
+        }
+    }
+
+    forPops(f: (p: Pop) => any) {
+        for (const t of this.map.tiles.flat()) {
+            for (const p of t.pop.pops) {
+                f(p);
+            }
         }
     }
 }

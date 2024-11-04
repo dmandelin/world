@@ -14,7 +14,7 @@ import { Pop } from '../../../model/population';
 })
 export class TilePopulationPanelComponent extends TilePanelBase {
   consumptionRatio(pop: Pop): number {
-    return pop.consumption2.nutrition.value / pop.n; 
+    return pop.consumption.nutrition.value / pop.n; 
   }
 
   flourishing(pop: Pop): string {

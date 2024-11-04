@@ -11,8 +11,10 @@
         <th colspan="2">Output</th>
         <th class="ra">APK</th>
         <th class="ra">MPK</th>
+        <th class="ra">MUK</th>
         <th class="ra">APL</th>
         <th class="ra">MPL</th>
+        <th class="ra">MUL</th>
     </tr>
     <tr *ngFor="let p of processTable">
         <td>{{p.name}}</td>
@@ -26,10 +28,12 @@
         </td>
         <td class="ra">{{p.output}}</td>
         <td>{{p.outputName}}</td>
-        <td class="ra">{{p.outputDetails.apk.toFixed(2)}}</td>
-        <td class="ra">{{p.outputDetails.mpk.toFixed(2)}}</td>
+        <td class="ra">{{p.outputDetails.apk.toFixed(3)}}</td>
+        <td class="ra">{{p.outputDetails.mpk.toFixed(3)}}</td>
+        <td class="ra">{{p.outputDetails.muk.toFixed(3)}}</td>
         <td class="ra">{{p.outputDetails.apl.toFixed(2)}}</td>
         <td class="ra">{{p.outputDetails.mpl.toFixed(2)}}</td>
+        <td class="ra">{{p.outputDetails.mul.toFixed(2)}}</td>
     </tr>
 </table>
 
@@ -46,6 +50,7 @@
         <th>Total</th>
         <th>Quality</th>
         <th>Value</th>
+        <th>Ratio</th>
     </tr>
     <tr *ngFor="let pop of consumptionTable">
         <td class="ra">{{pop.n}}</td>
@@ -53,7 +58,8 @@
         <td class="ra" *ngFor="let p of pop.products">{{p.amount}}</td>
         <td class="ra">{{pop.nutrition.quantity}}</td>
         <td class="ra">{{percent(pop.nutrition.quality)}}</td>
-        <td class="ra">{{pop.nutrition.value}}</td>
+        <td class="ra">{{pop.nutrition.value.toFixed(0)}}</td>
+        <td class="ra">{{(pop.nutrition.value / pop.n).toFixed(2)}}</td>
     </tr>
 </table>
 

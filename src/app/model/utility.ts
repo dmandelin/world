@@ -6,16 +6,16 @@ const proteinFractions = new Map<Product, number>([
     [Dairy, 0.2],
 ]);
 
-export class Nutrition {
+export class Nutrition2 {
     readonly proteinFactor = proteinQuality(this.proteinRatio)
     readonly value = this.amount * this.proteinFactor;
 
     constructor(readonly amount: number, readonly proteinRatio: number) {}
 }
 
-export function nutrition(consumption: Map<Product, number>): Nutrition {
+export function nutrition(consumption: Map<Product, number>): Nutrition2 {
     const energy = Array.from(consumption.values()).reduce((a, v) => a + v, 0);
-    return new Nutrition(energy, proteinRatio(consumption));
+    return new Nutrition2(energy, proteinRatio(consumption));
 }
 
 export function marginalNutrition(consumption: Map<Product, number>, product: Product): number {

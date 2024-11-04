@@ -76,6 +76,12 @@ export class TileEconomy {
         this.unemployed = this.tile.pop.workers - sum([...this.processes.map(p => sum([...p.workers.values()]))]);
     }
 
+    postUpdate() {
+        for (const p of this.processes) {
+            p.postUpdate();
+        }
+    }
+
     apply() {
         for (const p of this.processes) {
             assert(p.workers.size === 1);
@@ -116,6 +122,7 @@ export class Process {
     }
 
     update() {}
+    postUpdate() {}
 }
 
 class OutputDetails {
@@ -127,9 +134,11 @@ class OutputDetails {
 
     apk: number = 0;
     mpk: number = 0;
+    muk: number = 0;
 
     apl: number = 0;
     mpl: number = 0;
+    mul: number = 0;
 };
 
 class AgriculturalProcessTraits {
@@ -171,9 +180,23 @@ export class AgriculturalProcess extends Process {
             mods,
             apk: output / this.acres,
             mpk,
+            muk: 0,
             apl: output / workers,
             mpl: CESMPLaborExpOneHalf(
-                0.6, 0.4, this.traits.baseAcresPerWorker, modifiedBaseOutput, workers, this.acres)
+                0.6, 0.4, this.traits.baseAcresPerWorker, modifiedBaseOutput, workers, this.acres),
+            mul: 0,
         });
+    }
+
+    override postUpdate() {
+        // Update marginal utilities now that we have utility data.
+        assert(this.workers.size === 1);
+        const pop = [...this.workers.keys()][0];
+        assert(this.products.size === 1);
+        const product = [...this.products.keys()][0];
+
+        const mu = pop.consumption.marginalUtility(product);
+        this.outputDetails.muk = this.outputDetails.mpk * mu;
+        this.outputDetails.mul = this.outputDetails.mpl * mu;
     }
 }

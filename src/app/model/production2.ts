@@ -4,7 +4,7 @@ import { argmax, argmin } from "./lib";
 import { Pop, Role, Roles } from "./population";
 import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
-import { marginalNutrition, Nutrition, nutrition } from "./utility";
+import { marginalNutrition, Nutrition2, nutrition } from "./utility";
 
 class Pool<P extends Process2> {
     readonly allocs: Map<P, number>;

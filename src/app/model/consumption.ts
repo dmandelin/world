@@ -1,6 +1,6 @@
 import { Product } from "./production";
 import { Tile } from "./tile";
-import { Nutrition, nutrition } from "./utility";
+import { Nutrition2, nutrition } from "./utility";
 
 export class Transfer {
     constructor(readonly tag: string, product: Product, readonly delta: number) {}
@@ -17,7 +17,7 @@ export class Consumption2 {
     readonly trade = new Map<Product, number>();
     readonly transfers = new Map<Product, Transfer>();
     readonly amounts = new Map<Product, number>();
-    nutrition: Nutrition = nutrition(this.amounts);
+    nutrition: Nutrition2 = nutrition(this.amounts);
 
     setProduction(production: Map<Product, number>): void {
         this.production.clear();
