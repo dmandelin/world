@@ -250,11 +250,16 @@ export class World {
         return this.map.tiles.flat().map(t => t.population).reduce((a, b) => a + b);
     }
 
+    updateEconomies() {
+        this.forTiles(t => t.economy.update());
+        this.forTiles(t => t.economy.apply());
+    }
+
     start() {
         this.forTiles(t => t.updateClimate());
 
         this.forTiles(t => t.economy.initializeAllocations());
-        this.forTiles(t => t.economy.update());
+        this.updateEconomies();
 
         this.forTiles(t => t.prod.initAllocs());
         this.forTiles(t => t.updateProduction());
@@ -279,7 +284,7 @@ export class World {
         // Production and trade.
         this.forTiles(t => t.updateClimate());
 
-        this.forTiles(t => t.economy.update());
+        this.updateEconomies();
 
         this.forTiles(t => t.updateProduction());
         this.forTiles(t => t.market.update());

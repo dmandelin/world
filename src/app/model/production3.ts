@@ -14,7 +14,7 @@
 import { Output } from "@angular/core";
 import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
-import { sum } from "./lib";
+import { assert, sum } from "./lib";
 import { Pop, Roles } from "./population";
 import { Alluvium, Barley, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
@@ -74,6 +74,17 @@ export class TileEconomy {
         }
 
         this.unemployed = this.tile.pop.workers - sum([...this.processes.map(p => sum([...p.workers.values()]))]);
+    }
+
+    apply() {
+        for (const p of this.processes) {
+            assert(p.workers.size === 1);
+            const pop = [...p.workers.keys()][0];
+            assert(p.products.size === 1);
+            const product = [...p.products.keys()][0];
+            const output = p.products.get(product)!;
+            pop.consumption.addProduction(product, output);
+        }
     }
 }
 

@@ -189,7 +189,7 @@ export class Tile {
     }
 
     get capacity(): number {
-        return sum(this.pop.pops.map(p => p.consumption.nutrition.value));
+        return sum(this.pop.pops.map(p => p.consumption2.nutrition.value));
     }
 
     adoptNeighborTechs(snapshot: Map<Tile, Map<Product, ProductionTech>>): void {

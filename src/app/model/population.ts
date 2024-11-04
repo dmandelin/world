@@ -1,5 +1,6 @@
 import { TimeSeries } from "../data/timeseries";
-import { Consumption } from "./consumption";
+import { Consumption2 as Consumption2 } from "./consumption";
+import { Consumption } from "./consumption3";
 import { argmax } from "./lib";
 import { Priests } from "./polity";
 import { Tile } from "./tile";
@@ -54,6 +55,7 @@ export class Pop {
 
     readonly baseDeathRate = 0.040;
 
+    readonly consumption2 = new Consumption2(this);
     readonly consumption = new Consumption(this);
 
     // Properties pertaining to the "memory" of this population and its practices.
@@ -67,11 +69,11 @@ export class Pop {
     }
 
     get capacityRatio(): number {
-        return this.consumption.nutrition.value / this.n;
+        return this.consumption2.nutrition.value / this.n;
     }
 
     setTransfer(target: Pop, fraction: number): void {
-        this.consumption.setTransfer(target.consumption, fraction);
+        this.consumption2.setTransfer(target.consumption2, fraction);
     }
 
     initializeAttitudes(): void {

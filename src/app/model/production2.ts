@@ -272,7 +272,7 @@ export class TileProduction {
 
     output = new Map<Product, number>();
 
-    get consumption() { return this.pop.consumption.amounts; }
+    get consumption() { return this.pop.consumption2.amounts; }
 
     initAllocs() {
         for (const pool of this.pools) {
@@ -351,6 +351,6 @@ export class TileProduction {
     }
 
     updateConsumption() {
-        this.pop.consumption.setProduction(this.output);
+        this.pop.consumption2.setProduction(this.output);
     }
 }

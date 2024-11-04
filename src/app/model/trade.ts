@@ -110,7 +110,7 @@ export class Market {
         // Reset and recalculate from scratch each time.
         this.message = '';
         this.links.forEach(l => l.clear());
-        const cons = this.tile.prod.pop.consumption;
+        const cons = this.tile.prod.pop.consumption2;
         cons.resetTrade();
 
         // Links we think there are no more trades available on.
@@ -128,8 +128,8 @@ export class Market {
                     p => marginalNutrition(cons.amounts, p));
 
                 let [sendProduct, neighborMu] = argmax(
-                    [...l.dst.prod.pop.consumption.amounts.keys()],
-                    p => marginalNutrition(l.dst.prod.pop.consumption.amounts, p));
+                    [...l.dst.prod.pop.consumption2.amounts.keys()],
+                    p => marginalNutrition(l.dst.prod.pop.consumption2.amounts, p));
 
                 if (recvProduct === undefined || sendProduct === undefined) continue;
                 if (recvProduct === sendProduct) continue;
@@ -143,7 +143,7 @@ export class Market {
                     / (mu * (1 - l.cost(recvProduct)));
                 const maxRatio = 
                       (neighborMu * (1 - l.cost(sendProduct)))
-                    /  marginalNutrition(l.dst.prod.pop.consumption.amounts, recvProduct);
+                    /  marginalNutrition(l.dst.prod.pop.consumption2.amounts, recvProduct);
 
                 if (minRatio === Infinity || maxRatio === Infinity) {
                     continue;
@@ -153,13 +153,13 @@ export class Market {
                     const ratio = Math.sqrt(minRatio * maxRatio);
 
                     if (cons.amounts.get(sendProduct)! < 1) continue;
-                    if (l.dst.prod.pop.consumption.amounts.get(recvProduct)! < ratio) continue;
+                    if (l.dst.prod.pop.consumption2.amounts.get(recvProduct)! < ratio) continue;
 
                     // Update the trade link.
                     l.incrExchange(sendProduct, 1, recvProduct, ratio);
                     // Mark goods as traded away.
                     cons.applyTrade(sendProduct, 1, recvProduct, ratio);
-                    l.dst.prod.pop.consumption.applyTrade(recvProduct, ratio, sendProduct, 1);
+                    l.dst.prod.pop.consumption2.applyTrade(recvProduct, ratio, sendProduct, 1);
                 }
             }
         }

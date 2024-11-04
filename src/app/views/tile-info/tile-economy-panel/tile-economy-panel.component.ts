@@ -1,6 +1,6 @@
 import { Component, output } from '@angular/core';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
-import { AllTerrainTypes, Products  } from '../../../model/production';
+import { AllTerrainTypes, Barley, Lentils, Products  } from '../../../model/production';
 import { TilePanelBase } from '../tile-panel-base';
 import { marginalNutrition } from '../../../model/utility';
 import { Pop } from '../../../model/population';
@@ -25,6 +25,22 @@ export class TileEconomyPanelComponent extends TilePanelBase {
       outputDetails: p.outputDetails,
       output: sum([...p.products.values()]),
       outputName: [...p.products.keys()].map(prod => prod.name).join(', '),
+    }));
+  }
+
+  get productColumns() {
+    return [Barley, Lentils];
+  }
+
+  get consumptionTable() {
+    if (!this.tile) return [];
+    return this.tile.pop.pops.map(pop => ({
+      name: pop.role.name,
+      n: pop.n,
+      products: this.productColumns.map(p => ({
+        name: p.name,
+        amount: pop.consumption.totals.get(p) ?? 0,
+      }))
     }));
   }
 
@@ -58,7 +74,7 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   }
 
   transferRows(pop: Pop) {
-    return [...pop.consumption.transfers.entries()]
+    return [...pop.consumption2.transfers.entries()]
       .map(e => ({ 
         name: e[0].name,
         amount: e[1].delta,
@@ -98,11 +114,11 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   }
 
   consumptionRows(pop: Pop) {
-    return [...pop.consumption.amounts.entries()]
+    return [...pop.consumption2.amounts.entries()]
       .map(e => ({ 
         name: e[0].name,
         amount: e[1],
-        marginalUtility: this.tile ? marginalNutrition(pop.consumption.amounts, e[0]) : 0,
+        marginalUtility: this.tile ? marginalNutrition(pop.consumption2.amounts, e[0]) : 0,
       }));
   }
 

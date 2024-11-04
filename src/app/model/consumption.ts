@@ -6,12 +6,12 @@ export class Transfer {
     constructor(readonly tag: string, product: Product, readonly delta: number) {}
 }
 
-export interface Consumer {
+export interface Consumer2 {
 
 }
 
-export class Consumption {
-    constructor(consumer: Consumer) {}
+export class Consumption2 {
+    constructor(consumer: Consumer2) {}
 
     readonly production = new Map<Product, number>();
     readonly trade = new Map<Product, number>();
@@ -42,7 +42,7 @@ export class Consumption {
         this.refresh();
     }
 
-    setTransfer(target: Consumption, fraction: number): void {
+    setTransfer(target: Consumption2, fraction: number): void {
         this.transfers.clear();
         target.transfers.clear();
         for (const [p, q] of this.amounts.entries()) {

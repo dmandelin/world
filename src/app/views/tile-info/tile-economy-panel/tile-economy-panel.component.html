@@ -37,6 +37,20 @@
 <b>Unemployed: </b>{{tile?.economy?.unemployed}}<br>
 </p>
 
+<h4>Consumption</h4>
+
+<table>
+    <tr>
+        <th colspan="2">People</th>
+        <th class="ra" *ngFor="let p of productColumns">{{p.name}}</th>
+    </tr>
+    <tr *ngFor="let pop of consumptionTable">
+        <td class="ra">{{pop.n}}</td>
+        <td>{{pop.name}}</td>
+        <td class="ra" *ngFor="let p of pop.products">{{p.amount}}</td>
+    </tr>
+</table>
+
 <div *ngIf="tile">
     <div class="flex">
         <div>
@@ -139,16 +153,16 @@
             <table>
                 <tr>
                     <td>Food quantity</td>
-                    <td class="ra">{{floor(p.consumption.nutrition.amount)}}</td>
+                    <td class="ra">{{floor(p.consumption2.nutrition.amount)}}</td>
                 </tr>
                 <tr>
                     <td>Protein</td>
-                    <td class="ra">{{percent(p.consumption.nutrition.proteinFactor)}}</td>
-                    <td class="ra">({{percent(p.consumption.nutrition.proteinRatio)}} protein)</td>
+                    <td class="ra">{{percent(p.consumption2.nutrition.proteinFactor)}}</td>
+                    <td class="ra">({{percent(p.consumption2.nutrition.proteinRatio)}} protein)</td>
                 </tr>
                 <tr>
                     <td>Food value</td>
-                    <td class="ra">{{floor(p.consumption.nutrition.value)}}</td>
+                    <td class="ra">{{floor(p.consumption2.nutrition.value)}}</td>
                 </tr>
             </table>
         </ng-container>
