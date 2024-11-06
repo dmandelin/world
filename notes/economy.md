@@ -25,3 +25,30 @@ between roles and occupations. We can include merchants and raiders
 in that cycle. We may also be able to get rituals on more of an even
 footing.
 
+# Next
+
+So far there is the outline of a new set of classes for production
+and consumption. Next things to do:
+
+- Something is wrong with the birth and death rate changes. Expose
+  more of that calculation and then tune it better.
+- Allow labor to switch between barley and lentils processes to seek
+  higher utility.
+- Assign a utility value to leisure. Show leisure in the UI.
+  Initial value of 0-resource leisure is not that high, but can be
+  reasonable with handcrafted costumes/effects/mustic. But various
+  expenditures and trade goods could raise it a lot.
+- Allow labor to change its leisure percentage.
+
+- Add animal products, meat at first
+- Allow trade to seek higher utility. We can have a type of merchantless
+  trade with high transaction costs
+  - later allow managed trade if politics allows for it for better costs
+  - can also allow private trade or other forms later for even lower costs
+- Allow raiding of trade routes. We've generally assumed raiding uses
+  excess labor, but clearly it would cut into leisure time.
+  - We'll need some sort of estimated marginal utility of raiding
+    (which could include cultural factors such as honor) to decide
+    how much to raid
+  - We'll also need traders to see and respond to some kind of expected
+    loss factor.
