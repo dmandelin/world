@@ -45,6 +45,11 @@
         <th class="ra">Change</th>
         <th class="ra">Food</th>
         <th class="ra">Mood</th>
+        <th class="ra">TGR</th>
+        <th class="ra">BR</th>
+        <th class="ra">HR</th>
+        <th class="ra">BDR</th>
+        <th class="ra">EDR</th>
     </tr>
     <tr *ngFor="let pop of tile?.pop?.pops">
         <td>{{pop.role.name}}</td>
@@ -52,6 +57,11 @@
         <td class="ra">{{spercent(pop.censusSeries.lastValue.relativeChange, 2)}}</td>
         <td class="ra">{{percent(consumptionRatio(pop))}}</td>
         <td class="ra">{{flourishing(pop)}}</td>
+        <td class="ra">{{pop.targetGrowthRate.toFixed(4)}}</td>
+        <td class="ra">{{pop.debugBirthRate.toFixed(4)}}</td>
+        <td class="ra">{{pop.debugRaidingRate.toFixed(4)}}</td>
+        <td class="ra">{{pop.baseDeathRate}}</td>
+        <td class="ra">{{pop.expectedDeathRate.toFixed(4)}}</td>
     </tr>
 </table>
 

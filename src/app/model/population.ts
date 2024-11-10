@@ -101,11 +101,21 @@ export class Pop {
         }
     }
 
+    get targetGrowthRate(): number {
+        return this.targetGrowthRate_;
+    }
+
+    debugBirthRate = 0;
+    debugRaidingRate = 0;
+    get expectedDeathRate(): number { return this.expectedDeathRate_; }
+
     update(raidingDelta: number): void {
         const originalPopulation = this.n;
         const capacityRatio = this.capacityRatio;
         let naturalIncrease = 0;
         let targetGrowthRate = 0;
+        let debugBirthRate = 0;
+        let debugRaidingRate = 0;
         if (capacityRatio < 0.5) {
             const targetCapacityRatio = 0.6 + Math.random() * 0.2;
             const targetPop = capacityRatio < 0.2 ? 0.1 + Math.random() * 0.4 : this.n * targetCapacityRatio / capacityRatio;
@@ -122,7 +132,12 @@ export class Pop {
             const birthRate = (Math.min(this.expectedDeathRate_, this.targetGrowthRate_) + this.targetGrowthRate_) * this.tile.mods.popGrowth.value;
             const growthRate = birthRate - this.baseDeathRate;
             naturalIncrease = Math.floor(this.n * growthRate);
+
+            debugBirthRate = birthRate;
         }
+        debugRaidingRate = raidingDelta / this.n;
+        this.debugBirthRate = debugBirthRate;
+        this.debugRaidingRate = debugRaidingRate;
 
         let delta = naturalIncrease + raidingDelta;
         if (this.n + delta - 10 < 0) {
