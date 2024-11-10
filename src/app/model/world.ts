@@ -172,6 +172,8 @@ export class WorldViewModel {
 export class World {
     private yearOrigin_ = -5000;
     private year_ = 0;
+    readonly yearsPerTurn = 20;
+
     private polities_ = NAMED_DEFAULT_POLITIES.map((pd, i) => 
         new Polity(this, pd.name, pd.mapColor, randelem(World.BRAINS)));
     
@@ -316,7 +318,7 @@ export class World {
         // Population.
         this.forTiles(t => t.updatePopulation());
 
-        this.year_ += 20;
+        this.year_ += this.yearsPerTurn;
         this.recordRanks();
 
         // Time series recording.

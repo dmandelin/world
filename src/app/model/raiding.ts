@@ -147,7 +147,7 @@ function resolveTileRaids(t: Tile) {
 
 function ces(raiders: number, targets: number): number {
     if (raiders === 0 || targets === 0) return 0;
-    return 1 / (10 / raiders + 50 / targets);
+    return 1 / (5 / raiders + 25 / targets);
 }
 
 function raidEffectFactor(t: Tile, v: Tile) {

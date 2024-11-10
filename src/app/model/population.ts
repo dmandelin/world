@@ -1,7 +1,7 @@
 import { TimeSeries } from "../data/timeseries";
 import { Consumption2 as Consumption2 } from "./consumption";
 import { Consumption } from "./consumption3";
-import { argmax } from "./lib";
+import { argmax, clamp } from "./lib";
 import { Priests } from "./polity";
 import { Tile } from "./tile";
 
@@ -19,6 +19,36 @@ import { Tile } from "./tile";
 //     - temple sponsors become priests
 //     - increases power and benefit perception of priests,
 //       so we'll need to have that have some effects
+
+// New Population Change Model
+//
+// The new model is intended to approximate logistic growth toward the
+// effective carrying capacity of the region, but with birth and death
+// rates depending on average consumption rather than population. The
+// reason is that we don't think people modify childbearing based on
+// local population per se (which they probably don't even know), but
+// rather on the ease of setting up a family. Similarly, death rates
+// will depend more on nutrition than population size.
+//
+// Key features of the new model:
+// - At carrying capacity, average birth and death rates are about equal,
+//   30 per 1000 per year.
+// - We assume that populations tend to modulate births to maintain a
+//   standard of living, but with some tendency to overshoot. We could
+//   actually start with carrying capacity corresponding to average
+//   nutrition 100%, but more realistically it's probably 2/3-3/4. 
+// - Population growth moves away from the baseline of 0 at carrying
+//   capacity by log2(productivity/baseline) * base growth rate (0.005),
+//   to a max of base growth rate (r).
+// - At very low productivity, we may want to set a higher population
+//   loss rate.
+// - For now, we'll assume that most of the population change difference
+//   is due to birth rate changes, and the rest death rate changes.
+// - Death rates from prehistoric raiding should be around 3 per 1000.
+// - If we split out epidemic diseases, they might average 1-5 per 1000
+//   (thus perhaps 5-40% of causes of death are disease, which seems
+//   reasonable).
+
 
 export class Role {
     constructor(
@@ -48,19 +78,17 @@ export class Pop {
         readonly tile: Tile,
         readonly role: Role,
     ) {
-        this.censusSeries.add(tile.world.year, new BasicCensus(tile.world.year, n, 0, 0));
+        this.censusSeries.add(tile.world.year, new BasicCensus(tile.world.year, n, 0, 0, 0, 0, 0, 0));
     }
 
     readonly attitudes = new Map<Pop, Attitude>();
 
-    readonly baseDeathRate = 0.040;
+    readonly baseDeathRate = 0.027;
+    readonly baseBirthRate = 0.03;
+    readonly maxGrowthRate = 0.005;
 
     readonly consumption2 = new Consumption2(this);
     readonly consumption = new Consumption(this);
-
-    // Properties pertaining to the "memory" of this population and its practices.
-    private targetGrowthRate_: number = 0;
-    private expectedDeathRate_ = 0;
 
     readonly censusSeries = new TimeSeries<BasicCensus>();
 
@@ -101,61 +129,40 @@ export class Pop {
         }
     }
 
-    get targetGrowthRate(): number {
-        return this.targetGrowthRate_;
-    }
-
-    debugBirthRate = 0;
-    debugRaidingRate = 0;
-    get expectedDeathRate(): number { return this.expectedDeathRate_; }
-
     update(raidingDelta: number): void {
         const originalPopulation = this.n;
-        const capacityRatio = this.capacityRatio;
-        let naturalIncrease = 0;
-        let targetGrowthRate = 0;
-        let debugBirthRate = 0;
-        let debugRaidingRate = 0;
-        if (capacityRatio < 0.5) {
-            const targetCapacityRatio = 0.6 + Math.random() * 0.2;
-            const targetPop = capacityRatio < 0.2 ? 0.1 + Math.random() * 0.4 : this.n * targetCapacityRatio / capacityRatio;
-            const decrease = this.n - Math.floor(targetPop);
-            // In a famine, raiding losses ease the burden somewhat, but are still net losses.
-            naturalIncrease = -decrease + 0.5 * raidingDelta;
-            targetGrowthRate = -decrease / this.n;
-        } else {
-            // Target overall growth rate for a population of this prosperity level.
-            this.targetGrowthRate_ = (Math.min(capacityRatio, 2) - 0.7) / 0.3 * 0.014;
-
-            // People may have more children if losses due to raiding are higher, but
-            // if resources are tight, they can't increase birth rate that much.
-            const birthRate = (Math.min(this.expectedDeathRate_, this.targetGrowthRate_) + this.targetGrowthRate_) * this.tile.mods.popGrowth.value;
-            const growthRate = birthRate - this.baseDeathRate;
-            naturalIncrease = Math.floor(this.n * growthRate);
-
-            debugBirthRate = birthRate;
-        }
-        debugRaidingRate = raidingDelta / this.n;
-        this.debugBirthRate = debugBirthRate;
-        this.debugRaidingRate = debugRaidingRate;
-
-        let delta = naturalIncrease + raidingDelta;
-        if (this.n + delta - 10 < 0) {
-            const overage = -(this.n + delta - 10);
-            raidingDelta += overage;
-            delta += overage;
-        }
-        this.n += delta;
         
-        // Update moving average expected death rate.
-        const lastDeathRate = this.baseDeathRate - raidingDelta / originalPopulation;
-        this.expectedDeathRate_ = (this.expectedDeathRate_ + lastDeathRate) / 2;
+        // Calculate birth and death rates.
+        const capacityRatio = this.capacityRatio;
+        const popChangeFactor = capacityRatio > 0
+            ? clamp(Math.log2(capacityRatio / 0.7), -1, 1)
+            : -1;
+        const popChangeRate = popChangeFactor * this.maxGrowthRate;
+        const birthRate = this.baseBirthRate + popChangeRate * 0.75;
+        const naturalDeathRate = this.baseDeathRate - popChangeRate * 0.25;
+
+        // Play out rates.
+        let newN = this.n;
+        for (let i = 0; i < this.tile.world.yearsPerTurn; i++) {
+            const births = Math.round(newN * birthRate);
+            const deaths = Math.round(newN * naturalDeathRate) - raidingDelta / this.tile.world.yearsPerTurn;
+            newN += births - deaths;
+        }
+        newN = Math.floor(Math.max(newN, 0));
+
+        // Update population.
+        const delta = newN - this.n;
+        this.n = newN;
 
         // Update census.
         this.censusSeries.add(this.tile.world.year, new BasicCensus(
             this.tile.world.year,
-            this.n, 
-            naturalIncrease, 
+            this.n,
+            delta,
+            birthRate,
+            naturalDeathRate,
+            -raidingDelta / this.n / this.tile.world.yearsPerTurn,
+            this.n - originalPopulation - raidingDelta, 
             -raidingDelta));
     }
 }
@@ -267,7 +274,10 @@ export class Population {
     updateTimeSeries(): void {
         this.censusSeries.add(this.tile.world.year, new TerritoryCensus(
             this.tile.world.year,
-            this.n, 
+            this.n,
+            0,
+            0,
+            0,
             this.lastNaturalIncrease, 
             -this.tile.raids.deltaPopulation,
             this.settlements));
@@ -279,24 +289,32 @@ export class Population {
 export class BasicCensus {
     constructor(
         readonly year: number,
-        readonly n: number, 
+        readonly n: number,
+        readonly change: number,
+        readonly birthRate: number,
+        readonly naturalDeathRate: number,
+        readonly raidingDeathRate: number,
         readonly naturalIncrease: number,
         readonly raidingLosses: number) {
     }
 
     get prev(): number { return this.n - this.change; }
-    get change(): number { return this.naturalIncrease - this.raidingLosses; }
     get relativeChange(): number { return this.change / this.prev; }
+
+    get deathRate(): number { return this.naturalDeathRate + this.raidingDeathRate; }
 }
 
 export class TerritoryCensus extends BasicCensus {
     constructor(
         year: number,
-        n: number, 
+        n: number,
+        change: number,
+        birthRate: number,
+        naturalDeathRate: number,
         naturalIncrease: number,
         raidingLosses: number,
         settlements: readonly Settlement[]) {
-        super(year, n, naturalIncrease, raidingLosses);
+        super(year, n, change, birthRate, naturalDeathRate, 0, naturalIncrease, raidingLosses);
         this.settlementCount = settlements.length;
         this.largestSettlementSize = argmax(settlements, s => s.n)[1];
         }
