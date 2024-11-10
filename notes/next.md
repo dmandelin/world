@@ -173,7 +173,8 @@ x Make settlements grow internally and split
 x show # settlements on graph
 x reduce population growth: it's growing too fast
 x War vs peace internally and externally
-- Wealth bonus for elites
+x Wealth bonus for elites
+x Rework population growth model
 - Leisure
 - Status avenues for elites:
   - inherent
@@ -186,3 +187,43 @@ x War vs peace internally and externally
 
 After that, we can think more about how to make more lasting peace and how
 to get settlements to grow beyond village level.
+
+### Latest note
+
+With the new population growth model, at the start the regular clans
+tend to decline in population while the eminient families grow fast
+due to their large output bonus. This isn't right -- population should
+be growing, and elites should not be growing much faster. Nutrition is
+also low due to these issues:
+- not using animal products yet (historically they were basically required)
+- no automatic reallocation to increase nutrition, and on the chart we
+  can see that MUL is much better for lentils than barley in the current
+  allocation
+
+We could go ahead and add animal products first, but I think I should
+probably do optimization first, because manual allocation of even
+simple kinds gets more and more complicated as products are added.
+
+At the moment we're not too concerned about intertile trade (though
+we should probably bring it back at some point). One option is to
+allocate labor starting from zero or some low amount, but in general
+we should allow any kind of reallocation.
+
+Then we can add animal products, with sheep and goats raised on
+non-farmland. At this point it starts to become an option to add
+intertile trade back.
+
+After we have the production model filled back out a bit, we can
+retune population growth rates, also considering:
+- smaller production bonus for eminent families -- might want to
+  start with 20-50%
+- different birth and death rate functions for eminent families
+  that result in significantly lower population growth. We
+  probably don't need this one until they get a really noticeably
+  different standard of living as long as we reduce prod bonus.
+- create more avenues for elites to give away or use up wealth.
+  We could start with a low production bonus, then raise it as
+  we add more ways to spend it.
+- we could also assign more capital to them instead of giving a
+  production bonus. That way, their bonus would decline as they
+  get more people relative to their land.

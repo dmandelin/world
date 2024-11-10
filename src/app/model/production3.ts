@@ -11,14 +11,12 @@
 
 // Step 1: Initially allocate everyone to barley, see what happens.
 
-import { Output } from "@angular/core";
 import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
 import { assert, sum } from "./lib";
 import { Pop, Roles } from "./population";
 import { Alluvium, Barley, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
-import { marginalNutrition } from "./utility";
 
 export class TileEconomy {
     constructor(readonly tile: Tile) {}
