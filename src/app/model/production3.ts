@@ -73,14 +73,23 @@ export class TileEconomy {
         }
     }
 
+    reallocate() {
+        for (const pop of this.tile.pop.pops) {
+            for (let i = 0; i < 10; ++i) {
+                const changed = this.reallocateOneStep(pop);
+                if (!changed) break;
+            }
+        }
+    }
+
     reallocateAllOneStep() {
         for (const pop of this.tile.pop.pops) {
             this.reallocateOneStep(pop);
         }
     }
 
-    reallocateOneStep(pop: Pop) {
-        this.messages.push(`Reallocating ${pop.role.name} workers`);
+    reallocateOneStep(pop: Pop, verbose = false): boolean {
+        if (verbose) this.messages.push(`Reallocating ${pop.role.name} workers`);
 
         // From the point of the initial owner-workers, the
         // changes they can make are:
@@ -96,19 +105,16 @@ export class TileEconomy {
         // stability.
         const processes = this.processesByPop.get(pop);
         assert(processes);
-        for (const p of processes) {
-            console.log(p.name, p.terrain?.name, p.outputDetails.mul);
-        }
         const [best, bestMul] = argmax(processes, p => p.outputDetails.mul); 
         const [worst, worstMul] = argmax(processes, p => -p.outputDetails.mul);
 
-        if (!best || !worst) return;
+        if (!best || !worst) return false;
         if (bestMul >= worstMul * 1.05) {
             // Try moving 10% of workers from worst to best.
             const initialUtility = pop.consumption.nutrition.value;
             const workersToMove = Math.min(Math.floor(pop.workers * 0.1), worst.workers.get(pop)!);
             
-            this.messages.push(`Moving ${workersToMove} workers from ${worst.name} to ${best.name}`);
+            if (verbose) this.messages.push(`Moving ${workersToMove} workers from ${worst.name} to ${best.name}`);
             worst.workers.set(pop, worst.workers.get(pop)! - workersToMove);
             best.workers.set(pop, best.workers.get(pop)! + workersToMove);
             this.reapplyProcess(worst);
@@ -116,7 +122,7 @@ export class TileEconomy {
             pop.consumption.refresh();
             const finalUtility = pop.consumption.nutrition.value;
             if (finalUtility <= initialUtility) {
-                this.messages.push(`Reverting move: ${finalUtility.toFixed(1)} <= ${initialUtility.toFixed(1)}`);
+                if (verbose) this.messages.push(`Reverting move: ${finalUtility.toFixed(1)} <= ${initialUtility.toFixed(1)}`);
                 // Undo the move.
                 worst.workers.set(pop, worst.workers.get(pop)! + workersToMove);
                 best.workers.set(pop, best.workers.get(pop)! - workersToMove);
@@ -125,12 +131,15 @@ export class TileEconomy {
                 pop.consumption.refresh();
                 worst.postUpdate();
                 best.postUpdate();
+                return false;
             } else {
-                this.messages.push(`Confirming move: ${finalUtility.toFixed(1)} > ${initialUtility.toFixed(1)}`);
+                if (verbose) this.messages.push(`Confirming move: ${finalUtility.toFixed(1)} > ${initialUtility.toFixed(1)}`);
                 worst.postUpdate();
                 best.postUpdate();
+                return true;
             }   
         }
+        return false;
     }
 
     update() {

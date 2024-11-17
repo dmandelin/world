@@ -45,6 +45,10 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     }));
   }
 
+  reallocate() {
+    this.tile?.economy.reallocate();
+  }
+
   reallocateOneStep() {
     this.tile?.economy.reallocateAllOneStep();
   }
