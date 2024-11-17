@@ -190,16 +190,8 @@ to get settlements to grow beyond village level.
 
 ### Latest note
 
-With the new population growth model, at the start the regular clans
-tend to decline in population while the eminient families grow fast
-due to their large output bonus. This isn't right -- population should
-be growing, and elites should not be growing much faster. Nutrition is
-also low due to these issues:
-- not using animal products yet (historically they were basically required)
-
-Then we can add animal products, with sheep and goats raised on
-non-farmland. At this point it starts to become an option to add
-intertile trade back.
+At this point it starts to become an option to add intertile trade 
+back.
 
 After we have the production model filled back out a bit, we can
 retune population growth rates, also considering:

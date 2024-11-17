@@ -1,6 +1,6 @@
 import { Component, output } from '@angular/core';
 import { NgIf, NgFor, NgStyle } from '@angular/common';
-import { AllTerrainTypes, Barley, Lentils, Products  } from '../../../model/production';
+import { AllTerrainTypes, Barley, Dairy, Lentils, Products  } from '../../../model/production';
 import { TilePanelBase } from '../tile-panel-base';
 import { marginalNutrition } from '../../../model/utility';
 import { Pop } from '../../../model/population';
@@ -29,7 +29,7 @@ export class TileEconomyPanelComponent extends TilePanelBase {
   }
 
   get productColumns() {
-    return [Barley, Lentils];
+    return [Barley, Lentils, Dairy];
   }
 
   get consumptionTable() {

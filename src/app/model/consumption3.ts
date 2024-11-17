@@ -1,4 +1,4 @@
-import { Barley, Lentils, Product } from "./production";
+import { Barley, Dairy, Lentils, Product } from "./production";
 
 interface Consumer {}
 
@@ -58,29 +58,26 @@ export class Consumption {
 }
 
 function nutrition(consumption: Map<Product, number>, marginalProduct?: Product): Nutrition {
-    // Ideal ratio is 2:1 barley:lentils. Apply a quadratic penalty
-    // factor for too low a proportion of either one.
+    // Ideal ratio is 6:3:1 barley:lentils:dairy. Apply a quadratic penalty
+    // factor for too low a proportion of anything.
     const barley = (consumption.get(Barley) || 0) + Number(marginalProduct === Barley);
     const lentils = (consumption.get(Lentils) || 0) + Number(marginalProduct === Lentils);
-    const total = barley + lentils;
+    const dairy = (consumption.get(Dairy) || 0) + Number(marginalProduct === Dairy);
+    const total = barley + lentils + dairy;
 
-    const barleyRatio = barley / total;
-    const lentilsRatio = lentils / total;
-
-    const penaltySources = [
-        [barleyRatio, 0.667, 0.5],
-        [lentilsRatio, 0.333, 0.8],
-    ]
+    const pf = (ratio: number, target: number, penalty: number) => {
+        const relDiff = (target - ratio) / target;
+        return relDiff > 0 ? 1 - relDiff * relDiff * penalty : 1;
+    };
 
     let factor = 1;
-    for (const [ratio, target, penalty] of penaltySources) {
-        if (ratio < target) {
-            const diff = target - ratio;
-            const relDiff = diff / target;
-            const penalty = relDiff * relDiff;
-            factor *= 1 - relDiff * relDiff * penalty;
-        }
-    }
+    // Small penalty for not enough plant foods.
+    factor *= pf((barley + lentils) / total, 0.7, 0.2);
+    // Large penalty for not enough animal foods.
+    factor *= pf(dairy / total, 0.1, 0.4);
+    // Large penalty for not enough lentils, but scales down if plant
+    // foods are not a big part of the diet.
+    factor *= pf(lentils / (barley + lentils), 0.333, 0.4 * (barley + lentils) / total);
 
     return {
         quantity: total,

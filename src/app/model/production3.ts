@@ -13,10 +13,41 @@
 
 import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
-import { argmax, assert, sum } from "./lib";
+import { argmax, assert, divide, sum } from "./lib";
 import { Pop, Roles } from "./population";
-import { Alluvium, Barley, Lentils, Product, Terrain } from "./production";
+import { Alluvium, Barley, Dairy, Desert, DryLightSoil, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
+
+const BASE_PROCESSES = [
+    {
+        name: 'Barley farming',
+        terrain: Alluvium,
+        product: Barley,
+        baseAcresPerWorker: 10,
+        baseOutput: 5,
+    },
+    {
+        name: 'Lentil farming',
+        terrain: Alluvium,
+        product: Lentils,
+        baseAcresPerWorker: 7,
+        baseOutput: 2.5,
+    },
+    {
+        name: 'Herding',
+        terrain: DryLightSoil,
+        product: Dairy,
+        baseAcresPerWorker: 100,
+        baseOutput: 5,
+    },
+    /*{
+        name: 'Herding',
+        terrain: Desert,
+        product: Dairy,
+        baseAcresPerWorker: 400,
+        baseOutput: 4,
+    },*/
+]
 
 export class TileEconomy {
     constructor(readonly tile: Tile) {}
@@ -28,41 +59,38 @@ export class TileEconomy {
     readonly messages: string[] = [];
 
     initializeAllocations() {
-        // Initially allocate all available land and people to the few
-        // existing processes. Allocate land proportional to people.
-        const acresAvailable = Tile.acres * this.tile.wetFraction;
-
         const totalWorkers = this.tile.pop.workers;
         for (const pop of this.tile.pop.pops) {
             const workers = pop.workers;
-            const acres = Math.floor(acresAvailable * workers / totalWorkers);
 
-            const barleyAcres = Math.floor(acres * 0.8);
-            const barleyWorkers = Math.floor(workers * 0.8);
-            const lentilsAcres = acres - barleyAcres;
-            const lentilsWorkers = workers - barleyWorkers;
+            const processes = BASE_PROCESSES
+                .filter(t => this.tile.acresOf(t.terrain) > 0)
+                .map(t => new AgriculturalProcess(this.tile, t));
 
-            const pb = new AgriculturalProcess(this.tile, {
-                name: 'Barley farming',
-                terrain: Alluvium,
-                product: Barley,
-                baseAcresPerWorker: 10,
-                baseOutput: 5,
-            });
-            pb.workers.set(pop, barleyWorkers);
-            pb.acres = barleyAcres;
-            this.addProcess(pb);
+            // Allocate workers equally.
+            const workerAllocations = divide(workers, processes.length);
+            for (const [i, p] of processes.entries()) {
+                processes[i].workers.set(pop, workerAllocations[i]);
+            }
 
-            const pl = new AgriculturalProcess(this.tile, {
-                name: 'Lentil farming',
-                terrain: Alluvium,
-                product: Lentils,
-                baseAcresPerWorker: 7,
-                baseOutput: 2.5,
-            });
-            pl.workers.set(pop, lentilsWorkers);
-            pl.acres = lentilsAcres;
-            this.addProcess(pl);
+            // Collect processes by terrain type and allocate equally.
+            const processesByTerrain = new Map<Terrain, AgriculturalProcess[]>();
+            for (const p of processes) {
+                const terrain = p.terrain!;
+                processesByTerrain.set(terrain, [...(processesByTerrain.get(terrain) || []), p]);
+            }
+            for (const [terrain, ps] of processesByTerrain.entries()) {
+                const acres = Math.floor(this.tile.acresOf(terrain) * workers / totalWorkers);
+                const landAllocations = divide(acres, ps.length);
+                for (const [i, p] of ps.entries()) {
+                    ps[i].acres = landAllocations[i];
+                }
+            }
+
+            // Register the processes.
+            for (const p of processes) {
+                this.addProcess(p);
+            }
         }
     }
 

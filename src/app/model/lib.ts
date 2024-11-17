@@ -102,3 +102,17 @@ export function mapmin<T>(map: Map<T, number>, filterFun: (t: T) => boolean = ()
     }
     return [bestKey, bestValue || 0];
 }
+
+export function divide(a: number, b: number): number[] {
+    const q = Math.floor(a / b);
+    const r = a % b;
+    const ans = new Array(b).fill(q);
+    for (let i = 0; i < r; i++) {
+        ans[i]++;
+    }
+    return ans;
+}
+
+export function zip<T,U>(ts: T[], us: U[]): any[][] {
+    return ts.map((t, i) => [t, us[i]]);
+}
