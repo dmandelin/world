@@ -263,6 +263,9 @@ export class World {
 
         // Compute additional statistics.
         this.forTiles(t => t.economy.postUpdate());
+        
+        // Reallocate resources.
+        this.forTiles(t => t.economy.reallocate());
     }
 
     start() {

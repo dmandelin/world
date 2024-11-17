@@ -196,18 +196,6 @@ due to their large output bonus. This isn't right -- population should
 be growing, and elites should not be growing much faster. Nutrition is
 also low due to these issues:
 - not using animal products yet (historically they were basically required)
-- no automatic reallocation to increase nutrition, and on the chart we
-  can see that MUL is much better for lentils than barley in the current
-  allocation
-
-We could go ahead and add animal products first, but I think I should
-probably do optimization first, because manual allocation of even
-simple kinds gets more and more complicated as products are added.
-
-At the moment we're not too concerned about intertile trade (though
-we should probably bring it back at some point). One option is to
-allocate labor starting from zero or some low amount, but in general
-we should allow any kind of reallocation.
 
 Then we can add animal products, with sheep and goats raised on
 non-farmland. At this point it starts to become an option to add
