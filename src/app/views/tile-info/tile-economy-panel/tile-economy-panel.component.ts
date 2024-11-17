@@ -45,6 +45,10 @@ export class TileEconomyPanelComponent extends TilePanelBase {
     }));
   }
 
+  reallocateOneStep() {
+    this.tile?.economy.reallocateAllOneStep();
+  }
+
   readonly products = Products;
   readonly terrainTypes = AllTerrainTypes;
 

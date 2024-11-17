@@ -31,6 +31,11 @@ export class Consumption {
         this.refresh();
     }
 
+    setItemProduction(product: Product, quantity: number): void {
+        this.production.set(product, quantity);
+        this.refresh();
+    }
+
     setProduction(production: Map<Product, number>): void {
         this.production.clear();
         production.forEach((q, p) => this.production.set(p, q));
@@ -44,7 +49,7 @@ export class Consumption {
         this.nutrition = nutrition(this.totals);
     }
 
-    private refresh() {
+    refresh() {
         this.totals.clear();
         this.production.forEach((q, p) => this.totals.set(p, q));
 

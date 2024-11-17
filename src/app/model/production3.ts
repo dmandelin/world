@@ -13,7 +13,7 @@
 
 import { Factor } from "../data/calc";
 import { CESMPLaborExpOneHalf, CESMPLandExpOneHalf, CESProductionExpOneHalf } from "../data/ces";
-import { assert, sum } from "./lib";
+import { argmax, assert, sum } from "./lib";
 import { Pop, Roles } from "./population";
 import { Alluvium, Barley, Lentils, Product, Terrain } from "./production";
 import { Tile } from "./tile";
@@ -22,7 +22,10 @@ export class TileEconomy {
     constructor(readonly tile: Tile) {}
 
     readonly processes: Process[] = [];
+    readonly processesByPop: Map<Pop, Process[]> = new Map();
     unemployed: number = 0;
+
+    readonly messages: string[] = [];
 
     initializeAllocations() {
         // Initially allocate all available land and people to the few
@@ -46,9 +49,9 @@ export class TileEconomy {
                 baseAcresPerWorker: 10,
                 baseOutput: 5,
             });
-            this.processes.push(pb);
             pb.workers.set(pop, barleyWorkers);
             pb.acres = barleyAcres;
+            this.addProcess(pb);
 
             const pl = new AgriculturalProcess(this.tile, {
                 name: 'Lentil farming',
@@ -57,14 +60,83 @@ export class TileEconomy {
                 baseAcresPerWorker: 7,
                 baseOutput: 2.5,
             });
-            this.processes.push(pl);
             pl.workers.set(pop, lentilsWorkers);
             pl.acres = lentilsAcres;
+            this.addProcess(pl);
+        }
+    }
+
+    private addProcess(p: Process) {
+        this.processes.push(p);
+        for (const pop of p.workers.keys()) {
+            this.processesByPop.set(pop, [...(this.processesByPop.get(pop) || []), p]);
+        }
+    }
+
+    reallocateAllOneStep() {
+        for (const pop of this.tile.pop.pops) {
+            this.reallocateOneStep(pop);
+        }
+    }
+
+    reallocateOneStep(pop: Pop) {
+        this.messages.push(`Reallocating ${pop.role.name} workers`);
+
+        // From the point of the initial owner-workers, the
+        // changes they can make are:
+        // - Change some people to a different process on
+        //   the same land
+        // - Change some people to the same or a different
+        //   process on different land
+
+        // Find the lowest and highest marginal utilities.
+        // Move some people from the lowest to the highest,
+        // but only if helps more than a small amount that
+        // represents movement cost and provides a bit of
+        // stability.
+        const processes = this.processesByPop.get(pop);
+        assert(processes);
+        for (const p of processes) {
+            console.log(p.name, p.terrain?.name, p.outputDetails.mul);
+        }
+        const [best, bestMul] = argmax(processes, p => p.outputDetails.mul); 
+        const [worst, worstMul] = argmax(processes, p => -p.outputDetails.mul);
+
+        if (!best || !worst) return;
+        if (bestMul >= worstMul * 1.05) {
+            // Try moving 10% of workers from worst to best.
+            const initialUtility = pop.consumption.nutrition.value;
+            const workersToMove = Math.min(Math.floor(pop.workers * 0.1), worst.workers.get(pop)!);
+            
+            this.messages.push(`Moving ${workersToMove} workers from ${worst.name} to ${best.name}`);
+            worst.workers.set(pop, worst.workers.get(pop)! - workersToMove);
+            best.workers.set(pop, best.workers.get(pop)! + workersToMove);
+            this.reapplyProcess(worst);
+            this.reapplyProcess(best);
+            pop.consumption.refresh();
+            const finalUtility = pop.consumption.nutrition.value;
+            if (finalUtility <= initialUtility) {
+                this.messages.push(`Reverting move: ${finalUtility.toFixed(1)} <= ${initialUtility.toFixed(1)}`);
+                // Undo the move.
+                worst.workers.set(pop, worst.workers.get(pop)! + workersToMove);
+                best.workers.set(pop, best.workers.get(pop)! - workersToMove);
+                this.reapplyProcess(worst);
+                this.reapplyProcess(best);
+                pop.consumption.refresh();
+                worst.postUpdate();
+                best.postUpdate();
+            } else {
+                this.messages.push(`Confirming move: ${finalUtility.toFixed(1)} > ${initialUtility.toFixed(1)}`);
+                worst.postUpdate();
+                best.postUpdate();
+            }   
         }
     }
 
     update() {
+        this.messages.splice(0, this.messages.length);
         this.processes.splice(0, this.processes.length);
+        this.processesByPop.clear();
         this.initializeAllocations();
 
         for (const p of this.processes) {
@@ -89,6 +161,17 @@ export class TileEconomy {
             const output = p.products.get(product)!;
             pop.consumption.addProduction(product, output);
         }
+    }
+
+    private reapplyProcess(p: Process) {
+        p.update();
+        
+        assert(p.workers.size === 1);
+        const pop = [...p.workers.keys()][0];
+        assert(p.products.size === 1);
+        const product = [...p.products.keys()][0];
+        const output = p.products.get(product)!;
+        pop.consumption.setItemProduction(product, output);
     }
 }
 

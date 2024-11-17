@@ -1,5 +1,9 @@
 <h3>New Economy</h3>
 
+<button (click)="reallocateOneStep()">Step</button>
+
+<div *ngFor="let m of tile?.economy?.messages">{{m}}</div>
+
 <h4>Processes</h4>
 
 <table>
