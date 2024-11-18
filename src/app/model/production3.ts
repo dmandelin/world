@@ -104,7 +104,11 @@ export class TileEconomy {
     reallocate() {
         for (const pop of this.tile.pop.pops) {
             for (let i = 0; i < 10; ++i) {
-                const changed = this.reallocateOneStep(pop);
+                let changed = false;
+                changed = this.reallocateLaborOneStep(pop) || changed;
+                for (const t of [Alluvium, DryLightSoil]) {
+                    changed = this.reallocateLandOneStep(pop, t) || changed;
+                }
                 if (!changed) break;
             }
         }
@@ -112,25 +116,18 @@ export class TileEconomy {
 
     reallocateAllOneStep() {
         for (const pop of this.tile.pop.pops) {
-            this.reallocateOneStep(pop);
+            this.reallocateLaborOneStep(pop, true);
+        }
+        for (const pop of this.tile.pop.pops) {
+            for (const t of [Alluvium, DryLightSoil]) {
+                this.reallocateLandOneStep(pop, t, true);
+            }
         }
     }
 
-    reallocateOneStep(pop: Pop, verbose = false): boolean {
+    reallocateLaborOneStep(pop: Pop, verbose = false): boolean {
         if (verbose) this.messages.push(`Reallocating ${pop.role.name} workers`);
 
-        // From the point of the initial owner-workers, the
-        // changes they can make are:
-        // - Change some people to a different process on
-        //   the same land
-        // - Change some people to the same or a different
-        //   process on different land
-
-        // Find the lowest and highest marginal utilities.
-        // Move some people from the lowest to the highest,
-        // but only if helps more than a small amount that
-        // represents movement cost and provides a bit of
-        // stability.
         const processes = this.processesByPop.get(pop);
         assert(processes);
         const [best, bestMul] = argmax(processes, p => p.outputDetails.mul); 
@@ -164,6 +161,50 @@ export class TileEconomy {
                 if (verbose) this.messages.push(`Confirming move: ${finalUtility.toFixed(1)} > ${initialUtility.toFixed(1)}`);
                 worst.postUpdate();
                 best.postUpdate();
+                return true;
+            }   
+        }
+        return false;
+    }
+
+    reallocateLandOneStep(pop: Pop, terrain: Terrain, verbose = false): boolean {
+        const processes = this.processesByPop.get(pop)!.filter(p => p.terrain === terrain);
+        if (processes.length <= 1) return false;
+        if (verbose) this.messages.push(`Reallocating ${pop.role.name} land in ${terrain.name}`);
+
+        const [best, bestMuk] = argmax(processes, p => p.outputDetails.muk); 
+        const [worst, worstMuk] = argmax(processes, p => -p.outputDetails.muk);
+
+        if (!best || !worst) return false;
+        if (bestMuk >= worstMuk * 1.05) {
+            if (!worst.terrain) return false;
+
+            // Try moving 10% of acres from worst to best.
+            const initialUtility = pop.consumption.nutrition.value;
+            const acresToMove = Math.min(Math.floor(this.tile.acresOf(worst.terrain) * 0.05), worst.acres);
+            if (verbose) this.messages.push(`Moving ${acresToMove} acres from ${worst.name} to ${best.name}`);     
+
+            worst.acres -= acresToMove;
+            best.acres += acresToMove;
+            this.reapplyProcess(worst);
+            this.reapplyProcess(best);
+            pop.consumption.refresh();
+            const finalUtility = pop.consumption.nutrition.value;
+            if (finalUtility <= initialUtility) {
+                // Undo the move.
+                worst.acres += acresToMove;
+                best.acres -= acresToMove;
+                this.reapplyProcess(worst);
+                this.reapplyProcess(best);
+                pop.consumption.refresh();
+                worst.postUpdate();
+                best.postUpdate();
+                if (verbose) this.messages.push(`Reverting move: ${finalUtility.toFixed(1)} <= ${initialUtility.toFixed(1)}`);
+                return false;
+            } else {
+                worst.postUpdate();
+                best.postUpdate();
+                if (verbose) this.messages.push(`Confirming move: ${finalUtility.toFixed(1)} > ${initialUtility.toFixed(1)}`);
                 return true;
             }   
         }

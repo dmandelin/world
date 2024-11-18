@@ -265,7 +265,7 @@ export class World {
         this.forTiles(t => t.economy.postUpdate());
         
         // Reallocate resources.
-        //this.forTiles(t => t.economy.reallocate());
+        this.forTiles(t => t.economy.reallocate());
     }
 
     start() {
