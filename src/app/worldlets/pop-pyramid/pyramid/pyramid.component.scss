@@ -1,0 +1,23 @@
+:host {
+  display: block;
+}
+
+.pyramid {
+  display: flex;
+  flex-direction: column;
+}
+
+.age-group {
+  display: flex;
+  justify-content: space-between;
+  margin: 2px 0;
+}
+
+.female, .male {
+  height: 20px;
+  background-color: lightblue;
+}
+
+.female {
+  background-color: pink;
+}

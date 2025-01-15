@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Pyramid, Slice } from '../model';
+import { NgFor } from '@angular/common';
 
 @Component({
   selector: 'app-pyramid',
   standalone: true,
-  imports: [],
-  template: `<p>pyramid works!</p>`,
-  styleUrl: './pyramid.component.css',
+  imports: [NgFor],
+  templateUrl: './pyramid.component.html',
+  styleUrl: './pyramid.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PyramidComponent {
