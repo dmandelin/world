@@ -1,12 +1,22 @@
 <div id="app">
-  <div id="topPanel">
-    <div>
-      <area-map (clickTile)="clickTile($event)"></area-map>
-      <app-world-turn-panel></app-world-turn-panel>
-    </div>
-    <app-tile-info-panel></app-tile-info-panel>
-  </div>
-  <app-world-log-panel></app-world-log-panel>
-  <app-world-info-panel></app-world-info-panel>
+  <ng-container [ngSwitch]="mode">
+
+    <ng-container *ngSwitchCase="'world'">
+      <div id="topPanel">
+        <div>
+          <area-map (clickTile)="clickTile($event)"></area-map>
+          <app-world-turn-panel></app-world-turn-panel>
+        </div>
+        <app-tile-info-panel></app-tile-info-panel>
+      </div>
+      <app-world-log-panel></app-world-log-panel>
+      <app-world-info-panel></app-world-info-panel>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'pyramid'">
+      <app-pyramid></app-pyramid>
+    </ng-container>
+    
+  </ng-container>
 </div>
 <router-outlet />

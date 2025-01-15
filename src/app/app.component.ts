@@ -7,6 +7,8 @@ import { TileInfoPanelComponent } from './views/tile-info/tile-info-panel/tile-i
 import { WorldTurnPanelComponent } from './views/world/world-turn-panel/world-turn-panel.component';
 import { Tile } from './model/tile';
 import { WorldViewModel } from './model/world';
+import { NgSwitch, NgSwitchCase } from '@angular/common';
+import { PyramidComponent } from './worldlets/pop-pyramid/pyramid/pyramid.component';
 
 @Component({
     selector: 'app-root',
@@ -14,6 +16,9 @@ import { WorldViewModel } from './model/world';
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
     imports: [
+      NgSwitch,
+      NgSwitchCase,
+      PyramidComponent,
       RouterOutlet, 
       AreaMapComponent, 
       TileInfoPanelComponent,
@@ -26,6 +31,8 @@ export class AppComponent {
   @ViewChild(TileInfoPanelComponent) tileInfoPanel!: TileInfoPanelComponent;
 
   title = 'world';
+
+  readonly mode = 'pyramid';
 
   constructor(readonly wvm: WorldViewModel) {}
 
